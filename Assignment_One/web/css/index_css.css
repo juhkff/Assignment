@@ -1,0 +1,148 @@
+body{
+    background-color:#c9c9c9;
+}
+.Website{
+    box-shadow: #444444 2px 2px 3px;
+    margin: -20px -20px 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: #363636;
+    text-align: center;
+}
+
+.Top{
+    width: 100%;
+}
+
+.WebTitle{
+    color: red;
+    text-align: left;
+}
+
+.Help{
+    border-spacing: 15px;
+    float: right;
+}
+
+.titles{
+    text-decoration: none;
+    color: white;
+}
+.titles:hover{
+    color: aquamarine;
+}
+
+.FirstPassage{
+    box-shadow: #444444 2px 2px 3px;
+    background-color: white;
+    margin: 20px;
+    padding: 10px;
+}
+
+.SecondTitle{
+    color: gray;
+}
+.Sub{
+    font-size: 14px;
+}
+
+.Pictures{
+    margin-bottom: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+    border: #a9a9a9 solid 1px;
+    width: 140px;
+    height: 140px;
+}
+
+.Imgs{
+    margin-top: 7px;
+    width: 120px;
+    height: 110px;
+}
+
+.ForTable{
+    align-content: center;
+}
+.Table{
+    width: 100%;
+    border-collapse: collapse;
+}
+.TableHeader{
+    background: #363636;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+td{
+    padding: 5px;
+}
+
+.Result{
+    /*border-collapse: collapse;                                      //似乎并没有用*/
+    border: none #cbcbcb;
+    background-color: #cbcbcb;
+}
+
+.Left{
+    text-align: right;
+    /*vertical-align: top;*/
+    vertical-align: text-top;
+}
+
+.Tips{
+    color: grey;
+    font-size:14px;
+}
+
+.LittleLeft{
+    /*vertical-align: text-top;*/
+}
+
+.Submit{;
+    margin-left: 30px;
+}
+
+.transfer{
+    width: 100%;
+    height: 40px;
+    background-color: #1f3eaf;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius:10px;
+}
+.transfer:hover{
+    color: pink;
+}
+
+.Footer{
+    margin: -20px;
+    height: 60px;
+    color: white;
+    background: black;
+    text-align: center;
+    padding-top:25px;
+    font-size: small;
+    font-weight: bold;
+    font-family: "Microsoft YaHei UI";
+}
+
+#aside{
+    margin-top: 0px;
+    width: 450px;
+    float: right;
+}
+
+.AsideTitle{
+    text-align: center;
+}
+
+.Passage{
+    margin-right: 490px;
+}

@@ -1,0 +1,826 @@
+/*div{*/
+    /*border: solid 1px black;*/
+/*}*/
+
+/*table{*/
+    /*border: solid 1px black;*/
+/*}*/
+body{
+    background-color: #212121;
+    /*background-color: pink;*/
+    margin-left: 8%;
+    margin-right: 8%;
+}
+
+.TopHelp {
+    background-color: white;
+    height: 90px;
+    margin-top: -2%;
+}
+
+.TopHelp_table {  
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+
+.TopHelp_table_tr_td1 {
+    padding-left: 5%;
+    width: 50%;
+    font-size: xx-large;
+    font-family: 宋体;
+    font-weight: bold;
+    color: black;
+}
+
+.TopHelp_table_tr_td1_img {
+    margin-top: 15px;
+    width: 100px;
+    height: 50px;
+}
+
+.TopHelp_table_tr_td1_span {
+    position: relative;
+    bottom: 3px;
+}
+
+.TopHelp_table_tr_td2{
+    text-align: center;
+    color: crimson;
+    border-bottom: solid 6px #dc2b43;
+    cursor: pointer;
+}
+
+.TopHelp_table_tr_td {
+    text-align: center;
+    cursor: pointer;
+}
+.TopHelp_table_tr_td:hover{
+    color: crimson;
+    border-bottom: solid 6px #dc2b43;
+}
+
+.TopHelp_table_tr_td3 {
+    text-align: center;
+    color: crimson;
+    cursor: pointer;
+}
+
+.TopHelp_table_tr_td3:hover{
+    background-color: crimson;
+    color: white;
+}
+
+.Welcome_img {  
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.Welcome {
+    background-color: white;
+    position: relative;
+}
+.Welcome_h1{
+    font-size: 50px;
+}
+.Welcome_Text {
+    color: white;
+    position: absolute;
+    left: 7%;
+    top: 25%;
+}
+
+.Welcome_h5 {
+    margin-left: 5%;
+    font-size: 20px;
+}
+
+.Welcome_button {
+    border: none;
+    background-color: #ff3c54;
+    color: white;
+    font-size: 20px;
+    margin-left: 5%;
+    width: 80%;
+    height: 60px;
+}
+.Welcome_button:hover{
+    background-color: white;
+    color: #ff3c54;
+    cursor: pointer;
+}
+.Introduction_table {  
+    width: 100%;
+}
+
+.Introduction_table_tr_td {
+    text-align: center;
+    width: 25%;
+}
+
+.Introduction_table_tr_td_img {
+    padding-top: 15%;
+    padding-bottom: 10%;
+    width: 96px;
+    height: 96px;
+}
+
+.Introduction_table_tr2_td {
+
+    text-align: center;
+    padding-bottom: 2%;
+    border-right: solid 2px gray;
+    color: gray;
+    font-weight: bold;
+}
+
+
+.blank {
+    width: 100%;
+    height: 70px;
+    background-color: white;
+}
+
+.Introduction_table_tr2_td1 {
+    text-align: center;
+    padding-bottom: 2%;
+    color: gray;
+    font-weight: bold;
+}
+
+.Introduction {
+    background-color: white;
+}
+
+.OnePiece {
+    background-color: #efefef;
+    height: 400px;
+    text-align: center;
+}
+
+.OnePiece_All {
+    padding: 10%;
+}
+
+.OnePiece_div {
+    width: 150px;
+    height: 100px;
+    position: relative;
+    left: 50%;
+    transform:translate(-50%);
+}
+
+.OnePiece_div_img {  
+    width: 100%;
+    height: 100%;
+}
+
+.OnePiece_text {
+    padding-top: 4%;
+    font-size: 55px;
+    color: #a7a7a7;
+    font-family: 黑体;
+}
+
+.Search {
+    position: relative;
+    height: 400px;
+}
+
+.Search_Text {
+    text-align: center;
+    padding-bottom: 1%;
+    padding-top: 4%;
+}
+
+.Search_div_img {  
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.Search_AllText {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+    top: 10%;
+}
+
+.Search_div {
+    height: 100%;
+}
+
+.Search_Text_p {
+    padding-bottom: 1%;
+    color: crimson;
+    font-size: x-large;
+}
+
+.temp {
+    width: 8%;
+    border: solid 2px crimson;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.Search_Text_p2 {
+    font-size: 15px;
+    color: #172d83;
+}
+
+.Search_Find {  
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+    top: 40%;
+    width: 90%;
+}
+
+.Search_Find_table {  
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 25px 0px;
+}
+
+.Search_Find_table_tr_td_select {
+    width: 100%;
+    height: 100%;
+    color: gray;
+    font-family: 华文细黑;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.Search_Find_table_tr_td {
+    width: 25%;
+    height: 40px;
+    /*border: solid 1px gray;*/
+}
+
+.Search_Find_table_tr_input {
+    /*padding: 5px;*/
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background-color: #cf3238;
+    /*border: solid 2px crimson;*/
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+.Search_Find_table_tr_input:hover{
+    background-color: white;
+    color: #cf3238;
+}
+
+.Activity {  
+    height: 800px;
+    background-color: #efefef;
+}
+
+.Activity_All {
+    height: 60%;
+    width: 85%;
+    padding-top: 12%;
+    margin-left: 8%;
+}
+
+.Activity_First {
+    width: 20%;
+    height: 100%;
+    float: left;
+}
+
+.Activity_First_div {
+    width: 100%;
+    height: 80%;
+    border: 14px solid white;
+    border-right-width: 8px;
+    border-left-width: 8px;
+    box-shadow: #444444 2px 2px 3px;
+}
+
+.Activity_First_div_img {
+    width: 100%;
+    height: 100%;
+}
+
+.Activity_First_Text {
+    height: 15%;
+    text-align: center;
+    position: relative;
+}
+
+.Activity_First_Text_I {
+    font-weight: bold;
+    font-size: x-large;
+    color: #727272;
+    font-family: 宋体;
+    position: relative;
+    left: 10px;
+    top: 5px;
+}
+
+.Activity_First_Text_II {
+    position: relative;
+    top: 2px;
+    left: 10px;
+    top: 8px;
+    color: #a0a0a0;
+    font-weight: bold;
+    font-size: small;
+}
+
+.Activity_Second {
+    width: 20%;
+    height: 100%;
+    float: left;
+}
+
+.Activity_Second_div {
+    width: 100%;
+    height: 80%;
+    border: 14px solid white;
+    border-right-width: 8px;
+    border-left-width: 8px;
+    box-shadow: #444444 2px 2px 3px;
+}
+
+.Activity_Second_div_img {
+    width: 100%;
+    height: 100%;
+}
+
+.Activity_Second_Text {
+    height: 15%;
+    position: relative;
+    left: 8px;
+    bottom: 2px;
+    text-align: center;
+}
+
+.Activity_Second_Text_I {
+    font-weight: bold;
+    color: #727272;
+    font-family: 宋体;
+    position: relative;
+    left: 10px;
+    font-size: x-large;
+}
+
+.Activity_Second_Text_II {
+    position: relative;
+    top: 2px;
+    color: #a0a0a0;
+    font-weight: bold;
+    font-size: small;
+    left: 10px;
+}
+
+.Activity_First_Text_div {
+    text-align: center;
+    /*width: 100%;*/
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.Activity_Blank {  
+    width: 5%;
+    height: 100%;
+    float: left;
+}
+
+.Activity_Third {
+    width: 20%;
+    height: 100%;
+    float: left;
+}
+.Activity_Fourth{
+    width: 20%;
+    height: 100%;
+    float: left;
+}
+
+.NewWorld {
+    background-color: white;
+    width: 100%;
+    height: 1100px;
+}
+
+.NewWorld_table {
+    border-collapse: collapse;
+    width: 100%;
+    height: 100%;
+}
+
+.NewWorld_table_tr_td1 {
+    width: 66%;
+}
+
+.NewWorld_table_tr2_td3_img {
+    width: 100%;
+    height: 100%;
+}
+
+.NewWorld_table_tr {  
+    height: 54%;
+}
+
+.NewWorld_table_tr_td1_div {
+    width: 100%;
+    /*height: 100%;*/
+    height: 596px;
+}
+
+.NewWorld_table_tr_td1_img {  
+    width: 100%;
+    height: 100%
+}
+
+.NewWorld_table_tr2_td3_div {  
+    width: 100%;
+    height: 492px;
+}
+
+.NewWorld_table_tr_td2 {
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.NewWorld_table_tr_td2_h3 {
+    text-align: center;
+    font-family: 宋体;
+}
+
+.NewWorld_table_tr_td2_h3_span {
+    color: #ff3c54;
+}
+
+.NewWorld_table_tr_td2_p {
+    font-size: 14px;
+    line-height: 200%;
+    color: gray;
+}
+
+.NewWorld_table_tr_td2_input {
+    cursor: pointer;
+    background-color: white;
+    text-align: center;
+    padding: 2% 8%;
+    border: solid 1px crimson;
+    color: crimson;
+}
+.NewWorld_table_tr_td2_input:hover{
+    background-color: crimson;
+    border: solid 1px white;
+    color: white;
+}
+
+.NewWorld_table_tr_td2_div {
+    text-align: center;
+    margin-top: 15%;
+}
+
+.NewWorld_table_tr2_td1 {
+    background-color: #ff3d45;
+    text-align: center;
+    color: white;
+    font-family: 宋体;
+    width: 33%;
+}
+
+.NewWorld_table_tr2_td2 {
+    background-color: white;
+    text-align: center;
+    color: #272727;
+    font-family: 宋体;
+    width: 33%;
+}
+
+.NewWorld_table_tr2_td1_blank {  
+    width: 6%;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+    border-bottom: solid 2px white;
+}
+
+.NewWorld_table_tr2_td1_Big {
+    position: relative;
+    bottom: 20px;
+}
+
+.NewWorld_table_tr2_td1_button {
+    padding: 2% 9%;
+    font-size: large;
+    border: solid 1.5px white;
+    background-color: #ff3d45;
+    color: white;
+    cursor: pointer;
+}
+.NewWorld_table_tr2_td1_button:hover{
+    background-color: white;
+    color: #ff3d45;
+}
+
+.NewWorld_table_tr2_td2_Big {
+    position: relative;
+    bottom: 20px;
+}
+
+.NewWorld_table_tr2_td2_blank {
+    width: 6%;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+    border-bottom: solid 2px black;
+}
+
+.NewWorld_table_tr2_td2_button {
+    padding: 2% 9%;
+    font-size: large;
+    border: solid 1.5px #ff3d45;
+    background-color: white;
+    color: #ff3d45;
+    cursor: pointer;
+}
+.NewWorld_table_tr2_td2_button:hover{
+    background-color: #ff3d45;
+    color: white;
+}
+
+.Apply {
+    /*width: 100%;*//*不能定义width不然div宽度会超出范围！*//*注释不能用//符号否则代码会失效！*/
+    height: 550px;
+    background-color: white;
+    padding: 8% 8% 12%;
+}
+
+.Border {
+    width: 100%;
+    height: 100%;
+}
+
+.Border_h2 {
+    height: 5%;
+    text-align: center;
+    color: #404040;
+    font-family: "Microsoft YaHei UI";
+    font-weight: inherit;
+}
+
+.Border_h2_blank {
+    border-bottom: 2px solid crimson;
+    width: 3%;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.Border_Text {
+    height: 10%;
+    padding-top: 10px;
+    text-align: center;
+    color: #bcbcbc;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.Border_table {
+    width: 100%;
+    height: 100%;
+    border-collapse: separate;
+    border-spacing: 12px;
+}
+
+.ApplyTable_div {
+    width: 100%;
+    height: 75%;
+}
+
+.Border_table_tr1_td1 {
+    height: 8%;
+    width: 35%;
+    padding-right: 5%;
+}
+.Border_table_tr1_td2 {
+    height: 8%;
+    padding-left: 15px;
+    background-color: #d7d7d7;
+    color: #363636;
+    font-family: 黑体;
+}
+
+.Border_table_tr1_td3 {
+    height: 8%;
+    padding-left: 15px;
+    background-color: #d7d7d7;
+    color: #363636;
+    font-family: 黑体;
+}
+
+.Border_table_tr2_td1 {
+    height: 8%;
+    padding-left: 15px;
+    background-color: #d7d7d7;
+    color: #363636;
+    font-family: 黑体;
+}
+
+.Border_table_tr2_td2 {
+    height: 8%;
+    padding-left: 15px;
+    background-color: #d7d7d7;
+    color: #363636;
+    font-family: 黑体;
+}
+
+.Border_table_tr3_td1 {
+    height: 8%;
+    padding-right: 5%;
+}
+
+.Border_table_tr3_td2 {
+    height: 8%;
+    padding-left: 15px;
+    background-color: #d7d7d7;
+    color: #363636;
+    font-family: 黑体;
+}
+
+.Border_table_tr4_td1 {
+    height: 8%;
+    padding-right: 5%;
+}
+
+.Border_table_tr4_td2 {
+    /*height: 8%;*/
+}
+
+.Border_table_tr1_td1_h5,.Border_table_tr3_td1_h5,.Border_table_tr4_td1_h5 {
+    font-size: 17px;
+    color: #363636;
+    font-weight: bold;
+    vertical-align: top;
+}
+
+.Border_table_tr1_td1_p,.Border_table_tr3_td1_p,.Border_table_tr4_td1_p {
+    font-size: 13px;
+    color: #727272;
+    line-height: 200%;
+}
+
+.Border_table_tr4_td2_input {
+    border: none;
+    width: 100%;
+    height: 100%;
+    background-color: #d7d7d7;
+    text-shadow: 1px 1px 1px black;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.Border_table_tr1_td2_input,.Border_table_tr1_td3_input,.Border_table_tr2_td1_input,.Border_table_tr2_td2_input {
+    background-color: #d7d7d7;
+}
+
+.Border_table_tr3_td2_textarea {
+    background-color: #d7d7d7;
+}
+
+.Last {
+    background-color: #33363f;
+}
+
+.Last_border {
+    text-align: center;
+    background-color: #33363f;
+}
+
+.Last_h5 {  
+    /*margin-top: 6%;*/
+    font-size: 22px;
+    color: white;
+    margin-bottom: 1%;
+}
+
+.Last_Text {
+    font-size: 14px;
+    font-family: 宋体;
+    color: white;
+    font-weight: bold;
+}
+
+.Last_Email {
+    width: 100%;
+    height: 50px;
+    text-align: center;
+    margin-top: 2%;
+}
+
+.Last_Email_table {
+    /*width: 100%;*/
+    height: 100%;
+    text-align: center;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.Last_Email_table_tr_td1 {
+    width: 30%;
+    height: 100%;
+}
+
+.Last_Email_table_tr_td2 {
+    width: 10%;
+    height: 100%;
+}
+
+.Last_Email_table_tr_td1_input {
+    width: 100%;
+    height: 100%;
+    font-size: 17px;
+}
+
+.Last_Email_table_tr_td2_input {
+    border: none;
+    width: 100%;
+    height: 100%;
+    background-color: #717179;
+    color: #c8c9cd;
+    font-size: 17px;
+    font-weight: bold;
+    font-family: 黑体;
+    cursor: pointer;
+}
+
+.Last_Contact {  
+    margin-top: 2%;
+    text-align: center;
+}
+
+.Last_Contact_table {
+    width: 30%;
+    height: 100%;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+    color: white;
+    padding-bottom: 5%;
+}
+
+.Footer {
+    background-color: #30303a;
+    height: 60px;
+}
+
+.Footer_table {
+    width: 100%;
+    height: 100%
+}
+
+.Footer_table_tr_td1 {
+    font-size: 13px;
+    font-family: 宋体;
+    color: white;
+    font-weight: bold;
+    padding-left: 8%;
+    position: relative;
+    top: 8%;
+}
+
+.Footer_table_tr_td2 {
+    text-align: right;
+    position: relative;
+    right: 2%;
+    top: 8%;
+}
+
+.Footer_table_tr_td2_a {
+    text-decoration: none;
+    color: white;
+    font-size: 12px;
+}
+.Footer_table_tr_td2_a:hover{
+    color: black;
+    font-weight: bold;
+}
+
+.End {
+    height: 10px;
+    background-color: #30303a;
+    margin-top: -20px;
+    position: relative;
+    top: 20px;
+}
+
+.Blank {
+    height: 90px;
+    background-color: #33363f;
+}

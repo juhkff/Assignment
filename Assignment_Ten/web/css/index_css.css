@@ -1,0 +1,37 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.item {
+    flex: 0 0 auto;
+    width: 150px;
+    border: 1px solid #f00;
+}
+.item1 {
+    height: 120px;
+    order: 2;
+}
+.item2 {
+    height: 100px;
+    order: 3;
+}
+.item3 {
+    height: 40px;
+    order: 4;
+}
+.item4 {
+    height: 200px;
+    border-color: #5f5ff4;
+    order: 5;
+}
+@media screen and (max-width: 640px) {
+    .container {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+    .item4 {
+        order: 1;
+    }
+}
