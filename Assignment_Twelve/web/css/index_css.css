@@ -1,0 +1,85 @@
+.Table {
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/*在对tr进行选择即nth-child时th本质与tr相同！*/
+
+.Table_table_th {
+    background-color: #000000;
+    color: #ffffff;
+}
+.Table_table_tr:nth-child(odd){
+    background-color: #CFCACE;
+}
+
+.Table_table_tr:nth-child(-n+4){
+    color: red;
+}
+
+.Input {
+    display: flex;
+    justify-content: center;
+}
+
+/*必须指定初始的宽度才能正常应用过渡效果！*/
+
+.Input_input{
+    width: 150px;
+    transition: 0.3s;
+}
+.Input_input:focus {
+    box-shadow: cadetblue 2px 2px;
+    width: 250px;
+}
+
+
+.banner{
+    width: 400px;
+    height: 200px;
+    background-color: #ccc;
+    font-size: 0;
+    overflow: hidden;
+    position: relative;
+    margin: 50px auto;
+}
+.color{
+    width: 800px;
+    position: absolute;
+    right: 0;
+    transition: .5s;
+}
+.color>span{
+    display: inline-block;
+    width: 400px;
+    height: 200px;
+}
+.blue{
+    background-color: blue;
+}
+
+.green{
+    background-color: green;
+}
+.num{
+    position: absolute;
+    right: 0;bottom: 0;
+    font-size: 16px;
+}
+.num a{
+    margin: 0 2px;
+    padding: 4px 8px;
+    background-color: rgba(255,255,255,.6);
+    text-decoration: none;
+    color: #fff;
+}
+#img3:target~.color{
+    right: -100%;
+}
+#img2:target~.color{
+    right: -50%;
+}
+#img1:target~.color{
+    right: 0;
+}
