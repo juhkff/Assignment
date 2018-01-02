@@ -15,7 +15,7 @@ function insert(btnname) {
         alert("输入的数值已经有60个了！")
     }else{
         var div=document.createElement("div");
-        div.innerHTML=inputNum.value;
+        // div.innerHTML=inputNum.value;
         if(btnname.id==="left_in"){
             Content.insertBefore(div,Content.firstElementChild);
         }else{
@@ -52,13 +52,18 @@ function sort() {
                 thisnum=NumList[j].style.height;
             }
         }
+        var temp=NumList[i].style.height;
+        NumList[i].style.height=NumList[index].style.height;
+        NumList[index].style.height=temp;
         // var temp=NumList[i];
 
         /*同内存地址啊啊啊！！！*/
         /*可以用强制类型转换解决！*/
 
-        var temp=parseInt(NumList[i].style.height);
-        var temp2=parseInt(NumList[index].style.height);
+        // var temp=parseInt(NumList[i].style.height);
+        // var temp2=parseInt(NumList[index].style.height);
+
+
         // temp.style.height=NumList[i].style.height;
         // temp.innerHTML=NumList[i].innerHTML;
         // NumList[i]=NumList[index];
@@ -68,10 +73,10 @@ function sort() {
         // var result=NumList.splice(index,1,temp);
         // NumList[i].style.height=NumList[index].style.height;
         // NumList[i].innerHTML=NumList[index].innerHTML;
-        NumList[i].style.height=temp2+"px";
+        // NumList[i].style.height=temp2+"px";
         // NumList[i].innerHTML=temp2;
         // NumList[index].style.height=temp.style.height;
-        NumList[index].style.height=temp+"px";
+        // NumList[index].style.height=temp+"px";
         // NumList[index].innerHTML=temp;
     }
     // Content.childNodes=NumList;
