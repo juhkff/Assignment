@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JavaScript_As4</title>
+    <style type="text/css">
+        span{
+            background-color: red;
+            color: white;
+            padding: 10px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        div{
+            width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+    </style>
+    <script type="text/javascript">
+        function insert(direction) {
+            if(inputNum.value===""){
+                alert("数值不能为空！")
+            }else{
+                var newspan=document.createElement("span");
+                var newnum=document.createTextNode(inputNum.value);
+                newspan.appendChild(newnum);
+                if(direction==="left"){
+                    Content.insertBefore(newspan,Content.firstElementChild);            //在div第一个元素前插入
+                }else if(direction==="right"){
+                    Content.appendChild(newspan);
+                }
+            }
+        }
+        function Delete(direction) {
+            if(!Content.childElementCount>0){
+                alert("无数字可删除！")
+            }else{
+                var num;
+                if(direction==="right"){
+                    num=Content.lastElementChild.innerHTML;
+                    Content.removeChild(Content.lastElementChild);
+                    alert("删除"+num+"！");
+                }else if(direction==="left"){
+                    num=Content.firstElementChild.innerHTML;
+                    Content.removeChild(Content.firstElementChild);
+                    alert("删除"+num+"！");
+                }
+            }
+        }
+
+    </script>
+</head>
+<body>
+<input type="number" placeholder="请输入数字" id="inputNum">
+<button id="btn_Left_Insert">从左边插入</button>
+<button id="btn_Right_Insert">从右边插入</button>
+<button id="btn_Left_Delete">删除左边</button>
+<button id="btn_Right_Delete">删除右边</button>
+<div id="Content"></div>
+
+<script type="text/javascript">
+    var btn_Left_Insert=document.getElementById("btn_Left_Insert");
+    var btn_Right_Insert=document.getElementById("btn_Right_Insert");
+    var btn_Left_Delete=document.getElementById("btn_Left_Delete");
+    var btn_Right_Delete=document.getElementById("btn_Right_Delete");
+    var inputNum=document.getElementById("inputNum");
+    var Content=document.getElementById("Content");
+
+    btn_Left_Insert.onclick=function () {
+        insert("left");
+    };
+    btn_Right_Insert.onclick=function () {
+        insert("right");
+    };
+
+    btn_Left_Delete.onclick=function () {
+        Delete("left");
+    };
+
+    btn_Right_Delete.onclick=function () {
+        Delete("right");
+    };
+
+    Content.addEventListener('click',function (event) {
+        Content.removeChild(event.target);
+    })
+
+
+
+</script>
+</body>
+</html>

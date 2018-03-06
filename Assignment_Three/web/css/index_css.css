@@ -1,0 +1,49 @@
+.TheLargest{
+    margin: 20px;
+    /*padding: 20px;*/
+    background-color: #eee;
+    border: 1px solid #999;
+    overflow: hidden;
+}
+
+div{
+    background-color: white;
+    border: solid 1px #999;
+    padding: 20px;
+}
+
+img{
+    border: solid 1px #999;
+    width: 80px;
+    height: 80px;
+}
+
+.GroupInfo{
+    border: solid 1px #999;
+    width: 200px;
+    /*padding: 20px;*/
+    float: left;
+}
+
+.GroupName{
+    float: right;
+}
+
+
+.Middle{
+    text-align: center;
+    margin-left: 260px;
+    margin-right: 140px;
+    width: auto;
+}
+
+.PersonLogo{
+    width: 120px;
+    padding-left: 0px;
+    padding-right: 0px;
+    text-align: center;
+    float: right;
+}
+.This{
+    margin-bottom: 20px;
+}

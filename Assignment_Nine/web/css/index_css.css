@@ -1,0 +1,673 @@
+/**{*/
+    /*box-sizing: border-box;*/
+/*}*/
+.col-1 {width: 8.33%;}
+.col-2 {width: 16.66%;}
+.col-3 {width: 25%;}
+.col-4 {width: 33.33%;}
+.col-5 {width: 41.66%;}
+.col-6 {width: 50%;}
+.col-7 {width: 58.33%;}
+.col-8 {width: 66.66%;}
+.col-9 {width: 75%;}
+.col-10 {width: 83.33%;}
+.col-11 {width: 91.66%;}
+.col-12 {width: 100%;}
+[class*="col-"] {
+    float: left;
+    height: 100%;
+}
+.row{
+
+}
+.row:after {
+    content: "";
+    clear: both;
+    display: block;
+}
+
+div{
+    /*border: solid 1px ;*/
+}
+
+body{
+    background-color: #363636;
+}
+
+
+.WrapTop{
+    height: 10px;
+    margin-top: -1%;
+    width: 85%;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+    background-color: #228abf;
+}
+.WebBorder {
+    width: 85%;
+    background-color: #228abf;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.Header {  
+    height: 60px;
+}
+
+.Header_div1{
+    height: 100%;
+}
+
+.Header_Text {
+    height: 100%;
+    text-align: center;
+    padding-top: 3%;
+    padding-left: 3%;
+    font-size: 20px;
+    color: white;
+}
+
+.Header_div2_Search_input {
+    height: 50%;
+    width: 80%;
+    position: relative;
+    top: 20%;
+    padding-left: 10%;
+}
+
+.Header_div2_Login {  
+    position: relative;
+    top: 30%;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.Header_div2_Login:hover{
+    color: crimson;
+}
+
+.Aside {
+    width: 20%;
+    height: 100%;
+    background-color: #2b2e3d;
+    float: left;
+}
+
+.Content {
+    height: 1100px;
+    background-color: #ededed;
+}
+
+.User {
+    /*height: 7%;*/
+    width: 100%;
+}
+
+.User_Name {
+    text-align: center;
+    padding-top: 10%;
+    padding-bottom: 10%;
+    color: white;
+}
+
+.User_Info {
+    padding-top: 5%;
+    text-align: center;
+    color: #4c5769;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.sele {
+    width: 49%;
+    right: 1px;
+    border-right: 1px solid #4c5769;
+    position: relative;
+}
+
+.selespan {  
+    position: relative;
+    left: 20%;
+}
+
+.fansspan {
+    position: relative;
+    right: 20%;
+}
+
+.Trade {
+    width: 100%;
+    color: #4c5769;
+    font-weight: bold;
+}
+
+.Trade_ul_li {
+
+}
+
+.color {
+    /*background-color: #4c5769;*/
+}
+
+.Trade_ul {  
+    line-height: 50px;;
+}
+
+.Trade_ul_li_ul_li_ul_li,.Trade_ul_li,.Trade_ul_li_ul_li {
+    cursor: pointer;
+}
+
+.Trade_ul_li_ul_li_ul_li:hover,.Trade_ul_li:hover,.Trade_ul_li_ul_li:hover{
+    color: crimson;
+}
+
+.Center {
+    width: 80%;
+    height: 3%;
+    background-color: white;
+    float: left;
+}
+
+.CenterTop {
+    position: relative;
+    top: 25%;
+    left: 3%;
+    color: black;
+    font-size: 14px;
+}
+
+.CenterTop_span {
+    color: #86aacb;
+}
+
+.Center_Content {
+    float: left;
+    width: 70%;
+    height: 80%;
+    /*border: solid 1px black;*/
+    position: relative;
+    margin-left: 5%;
+    padding-top: 2%;
+    /*left: 50%;*/
+    /*transform: translate(-50%);*/
+}
+
+.Consult {
+    width: 100%;
+    height: 90px;
+    background-color: white;
+    box-shadow: -1px -1px 1px #d1d2d5;
+    /*border: inset 1px gray;*/
+}
+
+.Consult_Sub1,.Consult_Sub2 {
+    /*width: 95%;*/
+    height: 80px;
+    padding: 5px;
+    /*border: solid 1px black;*/
+    text-align: center;
+}
+
+.Consult_table {
+    width: 100%;
+    height: 100%;
+}
+
+.Consult_table_td {
+    width: 25%;
+    height: 100%;
+    font-size: 13px;
+    color: #c2c2c2;
+    font-weight: bold;
+    font-family: 宋体;
+}
+
+.Consult_table_input {  
+    width: 50px;
+}
+
+.Consult_table_input1 {
+    width: 120px;
+}
+
+.Consult_Sub2{
+    position: relative;
+}
+
+.Consult_Sub_right_input {
+    position: absolute;
+    left: 15%;
+    top: 35%;
+    padding: 5px 10px;
+    font-weight: bold;
+    font-family: 宋体;
+    background-color: #228abf;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.Day {  
+    padding-top: 2%;
+    padding-bottom: 5px;
+    height: 8%;
+}
+
+.DayContent {
+    /*background-color: white;*/
+    height: 100%;
+}
+
+.Day_sub {
+    /*margin-right: 50px;*/
+    width: 90%;
+    height: 100%;
+    background-color: white;
+    position: relative;
+    box-shadow: -1px -1px 1px #d1d2d5;
+    cursor: pointer;
+}
+.Day_sub:hover{
+    background-color: #228abf;
+}
+
+.Day_sub_span {  
+    position: absolute;
+    left: 20%;
+    top: 25%;
+    font-size: xx-large;
+    color: #b4b4b4;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.Day_sub2 {
+    width: 90%;
+    height: 97%;
+    background-color: white;
+    box-shadow: -1px -1px 1px #d1d2d5;
+    border-top: solid 3px #4388c9;
+    position: relative;
+}
+
+.Day_sub3 {
+    width: 90%;
+    height: 100%;
+    background-color: white;
+    box-shadow: -1px -1px 1px #d1d2d5;
+    position: relative;
+}
+
+.Day_sub4{
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    box-shadow: -1px -1px 1px #d1d2d5;
+    position: relative;
+}
+
+.Day_sub2_Text {
+    /*border: solid 1px black;*/
+    text-align: center;
+    height: 70%;
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.Day_sub2_Text_span {
+    font-size: xx-large;
+    color: #ee7429;
+}
+
+.Day_sub2_Text2 {
+    /*border: solid 1px black;*/
+    text-align: center;
+    height: 70%;
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%);
+    font-weight: bold;
+    color: #a2a2a2;
+    cursor: pointer;
+}
+
+.Day_sub2_Text2:hover{
+    color: #228abf;
+}
+
+.Stat {  
+    padding-top: 2%;
+}
+
+.Statistics_sub {
+    height: 100%;
+    width: 85%;
+    background-color: #ffffff;
+    box-shadow: -1px -1px 1px #d1d2d5;
+    border: 1px solid #d1d2d5;
+    border-left: solid 2px #43b29f;
+    position: relative;
+}
+
+.Statistics_sub2 {
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    box-shadow: -1px -1px 1px #d1d2d5;
+    border: 1px solid #d1d2d5;
+    border-left: solid 2px #43b29f;
+    position: relative;
+    right: 3px;
+}
+
+.Statistics {
+    height: 8%;
+    /*padding-top: 1%;*/
+    padding-bottom: 2%;
+    /*border: solid 1px black;*/
+}
+
+.Statistics_sub_table {
+    /*border: solid 1px black;*/
+    width: 93%;
+    height: 70%;
+    position: absolute;
+    top: 15%;
+}
+
+.Statistics_sub_table_td1 {
+    width: 70%;
+    padding-left: 10%;
+}
+
+.Statistics_sub_table_td2{
+    width: 30%;
+    background-color: #43b29f;
+}
+
+.First {
+    height: 40%;
+    /*background-color: black;*/
+}
+
+.First_Left {  
+    width: 97%;
+    height: 100%;
+    border: solid 1px gray;
+    border-radius: 10px;
+    position: relative;
+    background-color: white;
+}
+
+.First_Left_Top {
+    background-color: #f3f4f6;
+    text-align: center;
+    padding: 12px;
+    color: #8a8a8a;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+.First_Left_Center {
+    /*padding-left: 5%;*/
+    width: 90%;
+    /*padding-bottom: 8%;*/
+    position: absolute;
+    left: 5%;
+    bottom: 5%;
+    height: 70%;
+    border: solid 1px #949494;
+    border-radius: 5px;
+}
+
+.First_Left_Center_TableDiv {
+    /*border: solid 5px black;*/
+    width: 90%;
+    height: 80%;
+    position: absolute;
+    left: 5%;
+    top: 10%;
+}
+
+.First_Left_Center_table {
+    border: #aeaeae;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    border-collapse: collapse;
+    color: #595959;
+    font-size: 14px;
+}
+
+.First_Right {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border: solid 1px gray;
+    border-radius: 10px;
+    position: relative;
+}
+
+.First_Left_Top2 {
+    background-color: #f3f4f6;
+    text-align: center;
+    padding: 12px;
+    color: #8a8a8a;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+.First_Right_Center {
+    width: 80%;
+    height: 80%;
+    /*background-color: #363636;*/
+    position: absolute;
+    left: 10%;
+    bottom: 5%;
+}
+
+.First_Right_Center_Title {
+    /*border-bottom: solid 1px #c6c6c6;*/
+    /*padding-left: 4%;*/
+    padding-top: 1%;
+    /*padding-bottom: 3%;*/
+}
+
+.First_Right_Center_Title_1 {
+    font-size: 14px;
+    color: #c8c8c8;
+    padding-left: 4%;
+}
+.First_Right_Center_Title_2{
+    font-size: 15px;
+    color: #636363;
+    padding-left: 4%;
+}
+
+.First_Right_Center_Content {
+    border-bottom: solid 1px #c6c6c6;
+    border-top: solid 1px #c6c6c6;
+}
+
+.temp1,.temp2{
+    font-size: 15px;
+}
+
+.temp1{
+    padding-left: 17%;
+    border-right: solid 1px #c8c8c8;
+}
+
+.temp2 {
+    padding-left: 8%;
+}
+
+.First_Right_Center_Detail {
+    height: 130px;
+    border-bottom: #636363 1px solid;
+}
+
+.First_Right_Center_Final_table_td {
+    width: 70%;
+}
+
+.First_Right_Center_Final_table {
+    width: 100%;
+}
+
+.First_Right_Center_Final_table_input {
+    background-color: #3889c1;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.First_Right_Center_Final_table_td_span {
+    color: #7a797a;
+}
+
+.Others {  
+    height: 100%;
+    /*border: solid 2px black;*/
+}
+
+.Blank {  
+    padding-top: 2%;
+    height: 37%;
+}
+
+.Calender {  
+    width: 95%;
+    height: 100%;
+    /*border: solid 1px blueviolet;*/
+    background-color: white;
+    border: solid 1px gray;
+    border-radius: 10px 10px 0 0;
+    /*box-shadow: -1px -1px grey;*/
+}
+
+.Calender_Content_Center_Img {
+    width: 100%;
+    height: 100%;
+}
+
+.Calender_Content {
+    width: 100%;
+    height: 100%;
+}
+
+.Calender_Content_Top {
+    background-color: #f3f4f6;
+    text-align: center;
+    padding: 8px;
+    color: #8a8a8a;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+.Calender_Content_Center {
+    width: 100%;
+    height: 100%;
+}
+
+.Calender_Content_Center_Title {
+    width: 100%;
+    height: 10%;
+}
+
+.Calender_Content_Center_Title_1 {
+    width: 100%;
+    height: 100%;
+}
+
+.Calender_Content_Center_Title_1_table {
+    width: 100%;
+    height: 100%;
+}
+
+.First_Right_Center_Title_1_table_td1 {
+    width: 80%;
+    height: 100%;
+}
+
+.First_Right_Center_Title_1_table_td1_input {
+    width: 80%;
+    height: 100%;
+}
+
+.First_Right_Center_Title_1_table_td2 {
+    width: 100%;
+    height: 100%;
+}
+
+.First_Right_Center_Title_1_table_td2_input {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border: none;
+    box-shadow: 1px 1px grey;
+    cursor: pointer;
+}
+
+.Calender_Content_Center_ImgDiv {
+    width: 100%;
+    height: 75%;
+}
+
+.Cars {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    position: relative;
+    border: solid 1px gray;
+    border-radius: 10px 10px 0 0;
+}
+
+.First_Left_Center_TableDiv2 {
+    /*border: solid 5px black;*/
+    width: 90%;
+    height: 80%;
+    position: absolute;
+    left: 5%;
+    top: 15%;
+}
+
+.First_Left_Center_table_td {
+    font-weight: bold;
+    color: #323132;
+}
+
+.paint {
+    width: 100%;
+    background-color: #2b2e3d;
+    height: 10%;
+    position: relative;
+    top: 29%;
+    margin-top: -3%;
+    /*border: solid 5px pink;*/
+    float: left;
+}
+
+.paint2 {
+    width: 100%;
+    background-color: #ededed;
+    height: 30px;
+    position: relative;
+    top: 50px;
+    margin-top: -5%;
+    z-index: -1;
+    /*border: solid 5px pink;*/
+    /*float: left;*/
+}

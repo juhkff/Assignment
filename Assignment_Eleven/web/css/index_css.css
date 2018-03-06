@@ -1,0 +1,536 @@
+body {
+    font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif; /*使用无衬线字体*/
+}
+
+a, img {
+    -webkit-touch-callout: none; /*禁止长按链接与图片弹出菜单*/
+}
+
+html, body {
+    -webkit-user-select: none; /*禁止选中文本*/
+    user-select: none;
+}
+
+button,input,optgroup,select,textarea {
+    -webkit-appearance:none; /*去掉webkit默认的表单样式*/
+}
+
+a,button,input,optgroup,select,textarea {
+    -webkit-tap-highlight-color:rgba(0,0,0,0); /*去掉a、input和button点击时的蓝色外边框和灰色半透明背景*/
+}
+
+input::-webkit-input-placeholder {
+    color:#ccc; /*修改webkit中input的planceholder样式*/
+}
+
+input:focus::-webkit-input-placeholder {
+    color:#f00; /*修改webkit中focus状态下input的planceholder样式*/
+}
+
+body {
+    -webkit-text-size-adjust: 100%!important; /*禁止IOS调整字体大小*/
+}
+
+/*input::-webkit-input-speech-button {*/
+    /*display: none; !*隐藏Android的语音输入按钮*!*/
+/*}*/
+
+
+
+body{
+    background-color: #f5f5f5;
+}
+
+
+.TopContainer {
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+
+
+
+    /*这个必须去掉！*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    /*height: 60px;*/
+    background-color: #91d4da;
+    font-size: 40px;
+    color: white;
+    padding: 20px;
+    border-bottom: 1px solid #c7e9ed;
+    /*border: solid 20px #91d4da;*/
+}
+
+.TopBack {
+    flex-grow: 1;
+    text-align: center;
+    /*text-align: center;*/
+    /*padding-left: 40px;*/
+}
+
+.TopTitle {
+    text-align: center;
+    flex-grow: 61;
+    /*border: solid 1px black;*/
+}
+
+.Helper {
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+
+
+
+    /*这个必须去掉！*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    background-color: #ffffff;
+    border: solid 1px #f4e9e2;
+    font-weight: bolder;
+}
+
+.SubDiv {
+    /*height: 100%;*/
+    /*width: 100%;*/
+    cursor: pointer;
+    flex-grow: 1;
+    padding: 20px;
+    text-align: center;
+    border-bottom: solid 7px #ffffff;
+}
+.SubDiv:hover{
+    border-bottom: solid 7px #91d4da;
+}
+
+.Sub {
+    /*height: 100%;*/
+    /*width: 100%;*/
+    cursor: pointer;
+    background-color: white;
+    border: none;
+    font-size: 40px;
+    color: #676767;
+}
+
+.TopSubDiv {
+    cursor: pointer;
+    flex-grow: 1;
+    /*padding: 20px;*/
+    text-align: center;
+    /*border-bottom: solid 7px #ffffff;*/
+}
+
+.TopSub {
+    cursor: pointer;
+    border: none;
+    font-size: 40px;
+    color: #ffffff;
+    background-color: #91d4da;
+}
+
+.Blank {
+    border: none;
+    font-size: 40px;
+    color: #91d4da;
+    background-color: #91d4da;
+}
+
+.TopBlank {
+    flex-grow: 1;
+    text-align: right;
+    color: #91d4da;
+}
+
+.Content {
+    /*display: flex;*/
+}
+
+.Content_Img {
+    width: 100%;
+    height: 100%;
+}
+
+.Content_ImgDiv {
+    border-top: solid 1px gray;
+}
+
+.Taps {
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+
+
+
+    /*这个必须去掉！*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    /*justify-content: space-between;*/
+    justify-content: space-around;
+    height: 340px;
+}
+
+.TapContents {
+    display: flex;
+
+    /*display: -webkit-flex; !*webkit*!*/
+    display: -webkit-inline-flex; /*webkit*/
+
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.SelectBlank {
+    background-color: white;
+    height: 80px;
+}
+
+.TapContents_ImgDiv {
+    width: 100%;
+    height: 5%;
+    background-color: #00c7d6;
+    flex-grow: 1;
+
+}
+
+.TapContents_Text {
+    /*实现垂直居中*/
+    text-align: center;
+    flex-grow: 1;
+
+
+    display: flex;
+
+    /*display: -webkit-flex; !*webkit*!*/
+    display: -webkit-inline-flex; /*webkit*/
+
+    flex-direction: column;
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 50px;
+}
+
+.Columns_margin {
+    padding-left: 50px;
+    padding-right: 50px;
+    background-color: white;
+}
+
+.Columns_border {
+    border-top: solid 2px #b7b7b7;
+    padding: 50px 5%;
+    background-color: white;
+}
+
+.Columns_Content {
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+}
+
+.Columns_1 {
+    flex-grow: 1;
+
+}
+
+.Columns_Img {
+    width: 100%;
+    height: 100%;
+}
+
+.Columns {
+    border-right: 2px solid #b7b7b7;
+    text-align: center;
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    flex-direction: column;
+    justify-content: center;
+}
+
+.Taps_padding {
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: white;
+}
+
+.Columns_ImgDiv {
+    padding: 5% 10%;
+}
+
+.Columns2 {
+    border-right: 2px solid white;
+    text-align: center;
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    flex-direction: column;
+    justify-content: center;
+}
+
+.CenterBlank {
+    width: 100%;
+    height: 60px;
+}
+
+.Model {
+    /*不能规定width的值！*/
+    /*width: 100%;*/
+    background-color: white;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.Model_Top {
+    padding-top: 50px;
+    padding-bottom: 50px;
+    border-bottom: solid 4px #bfbfbf;
+    font-size: 55px;
+    color: #646464;
+}
+
+.Model_Info {
+    padding-top: 50px;
+    padding-bottom: 50px;
+    background-color: white;
+}
+
+.Model_Info_User {
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+
+    /*这个必须去掉！*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+}
+
+.Model_Info_User_Left {
+    flex-grow: 3;
+}
+
+.Model_Info_User_Left_Img {
+    width: 100%;
+    height: 100%;
+}
+
+.Model_Info_User_Right {
+    flex-grow: 14;
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.Model_Info_User_Right_Row {
+    flex-grow: 1;
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    /*flex-direction: row;*/
+    justify-content: flex-end;
+}
+
+.Model_Info_User_Right_Row_Every1 {
+    /*background-color: #f8f8f8;*/
+    /*text-align: center;*/
+    flex-grow: 1;
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    /*justify-content: center;*/
+
+    /**/
+    padding-left: 50px;
+    padding-bottom: 25px;
+}
+
+.Model_Info_User_Right_Row_Every2 {
+    /*background-color: #f8f8f8;*/
+    /*text-align: center;*/
+    flex-grow: 1;
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    /*justify-content: center;*/
+
+    /**/
+    padding-left: 50px;
+    padding-top: 25px;
+}
+
+.Model_Info_User_Right_Row_Text {
+    width: 100%;
+    height: 100%;
+    background-color: #f8f8f8;
+    text-align: center;
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    flex-direction: column;
+    justify-content: center;
+    font-size: 35px;
+    color: #4b4b4b;
+    font-weight: bold;
+}
+
+.Model_Info_User_Blank {
+    width: 100%;
+    height: 60px;
+    background-color: #f5f5f5;
+}
+
+.Model_Info_User_Insert_Blank {
+    width: 100%;
+    height: 60px;
+    background-color: white;
+}
+
+.Passage {
+    background-color: white;
+    padding: 40px;
+    border-bottom: solid 4px #d7d7d7;
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+
+
+
+    /*这个必须去掉！*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+}
+
+.Passage_Photo_Img {
+    width: 100%;
+    height: 100%;
+    border: solid 1px #f9f9f9;
+}
+
+.Passage_Photo {
+    flex-grow: 2;
+}
+
+.Passage_Text {
+    flex-grow: 16;
+    padding-left: 20px;
+    padding-right: 20px;
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: left;
+}
+
+.Passage_Text_h2 {
+    font-size: 50px;
+    color: #656565;
+}
+
+.Passage_Text_p {
+    font-size: 35px;
+    color: #aeaeae;
+}
+
+.Passage_FinalPhoto_All {
+    display: flex;
+
+    display: -webkit-flex; /*webkit*/
+
+
+
+    /*这个必须去掉！*/
+    /*display: -webkit-inline-flex; !*webkit*!*/
+
+    padding-bottom: 40px;
+}
+
+.FinalPassage {
+    background-color: white;
+    padding: 40px 40px 150px;
+    /*border-bottom: solid 4px #d7d7d7;*/
+    /*display: flex;*/
+}
+
+.FinalPassage_Text_h2 {
+    font-size: 50px;
+    color: #656565;
+    padding-bottom: 40px;
+}
+
+.FinalPassage_Photo1 {
+    /*box-shadow: 1px 1px 1px black;*/
+    padding: 10px 10px 10px 0px;
+    flex-grow: 1;
+    /*width: 100%;*/
+    /*height: 100%;*/
+}
+
+.FinalPassage_Photo2 {
+    /*box-shadow: 1px 1px 1px black;*/
+    padding: 10px;
+    /*width: 100%;*/
+    /*height: 100%;*/
+    flex-grow: 1;
+}
+
+.FinalPassage_Photo3{
+    /*box-shadow: 1px 1px 1px black;*/
+    padding: 10px;
+    /*width: 100%;*/
+    /*height: 100%;*/
+    flex-grow: 8;
+}
+
+.FinalPassage_Photo_border {
+    padding: 3%;
+    border: solid 1px #bcbcbc;
+    background-color: #f9f9f9;
+    /*padding-left: 3%;*/
+    width: 94%;
+    height: 94%;
+    box-shadow: 3px 3px 3px #5A5A5B;
+}
+
+@media screen and (max-width: 640px){
+    div,button,.TopSub,.TopTitle,.Blank,.SubDiv,.Sub,.Passage,.CenterBlank,.TopTitle,.TopSubDiv,.TopBlank
+    ,.Passage_Text_p,.Passage_Text_h2,.Passage_Photo_Img,.Passage_FinalPhoto_All,.Model_Top,.Model_Info_User_Right_Row_Text,
+    .Model_Info_User_Right_Row_Every2,.FinalPassage_Text_h2,.Columns_Content,.TapContents_Text{
+        font-size: 10px;
+    }
+    .Model_Info_User_Left,.Passage_Photo,.FinalPassage_Photo3{
+        flex-grow: 1;
+    }
+    .TapContents_Text{
+        flex-grow: 5;
+    }
+}
+/*.FinalPassage_PhotoBorder1 {*/
+    /*padding: 10px 10px 10px 0px;*/
+    /*flex-grow: 1;*/
+/*}*/
+/**/
+/*.FinalPassage_PhotoBorder2 {*/
+    /*padding: 10px;*/
+    /*flex-grow: 1;*/
+/*}*/
+/**/
+/*.FinalPassage_PhotoBorder3 {*/
+    /*padding: 10px;*/
+    /*flex-grow: 8;*/
+/*}*/
