@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" language="JavaScript">
+        function maskingKeyboard() {
+            if(event.keyCode==8){       //判断是否为退格键
+                event.keyCode==0;
+                event.returnValue=false;
+                alert("当前设置不允许使用退格键");
+            }
+            if(event.keyCode==13){      //判断是否为回车键
+                event.keyCode==0;
+                event.returnValue=false;
+                alert("当前设置不允许使用回车键");
+            }
+            if(event.keyCode==116){     //判断是否为F5键
+                event.keyCode=0;
+                event.returnValue=false;
+                alert("当前设置不允许使用F5刷新键");
+            }
+            //判断是否为Alt+方向键←或方向键→
+            if((event.altKey)&&((window.event.keyCode==37)||(window.event.keyCode==39))){
+                event.returnValue=false;
+                alert("当前设置不允许使用Alt+方向键←或→");
+            }
+            if((event.ctrlKey)&&(event.keyCode==78)){//判断是否为Ctrl+N
+                event.returnValue=false;
+                alert("当前设置不允许使用Ctrl+N新建IE窗口");
+            }
+            if((event.shiftKey)&&(event.keyCode==121)){//判断是否为Shift+F10
+                event.returnValue=false;
+                alert("当前设置不允许使用Shift+F10");
+            }
+        }
+        function rightKey() {
+            if (event.button==2){//判断按下的是否是鼠标右键
+                event.returnValue=false;
+                alert("禁止使用鼠标右键！");
+            }
+        }
+        document.onmousedown=rightKey;//当鼠标右键被按下时，调用rightKey()函数
+    </script>
+</head>
+<body onkeydown="maskingKeyboard()">
+</body>
+</html>
