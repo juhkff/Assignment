@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+    <servlet>
+        <servlet-name>AddUserServlet</servlet-name>
+        <servlet-class>GoDieServlets.AddUserServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddUserServlet</servlet-name>
+        <url-pattern>/AddUser</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SearchUserInfo</servlet-name>
+        <servlet-class>GoDieServlets.SearchUserInformationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SearchUserInfo</servlet-name>
+        <url-pattern>/SearchUser</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Login</servlet-name>
+        <servlet-class>GoDieServlets.UserLoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Login</servlet-name>
+        <url-pattern>/UserLogin</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Update</servlet-name>
+        <servlet-class>GoDieServlets.UpdateUserInformationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Update</servlet-name>
+        <url-pattern>/UserUpdate</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Search</servlet-name>
+        <servlet-class>GoDieServlets.SerachOrderInformationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Search</servlet-name>
+        <url-pattern>/SearchOrder</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AddOrder</servlet-name>
+        <servlet-class>GoDieServlets.AddOrderServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddOrder</servlet-name>
+        <url-pattern>/PublishOrder</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>GetOrder</servlet-name>
+        <servlet-class>GoDieServlets.GetOrderServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetOrder</servlet-name>
+        <url-pattern>/SelectOrder</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Drop</servlet-name>
+        <servlet-class>GoDieServlets.DropOrderServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Drop</servlet-name>
+        <url-pattern>/DropOrder</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DropfUser</servlet-name>
+        <servlet-class>GoDieServlets.DropUserOrderServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DropfUser</servlet-name>
+        <url-pattern>/DropfromUser</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>FB</servlet-name>
+        <servlet-class>GoDieServlets.FBServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FB</servlet-name>
+        <url-pattern>/GetFB</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>Test</servlet-name>
+        <servlet-class>GoDieServlets.TestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Test</servlet-name>
+        <url-pattern>/TestThis</url-pattern>
+    </servlet-mapping>
+</web-app>
