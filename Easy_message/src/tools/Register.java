@@ -180,7 +180,7 @@ public class Register {
         int[] i = new int[0];
         try {
             String sql = "CREATE TABLE user_" + userID + "_Contactlist(ID varchar(11) not null comment '本user用户名' primary key ," +
-                    " nickName varchar(255) not null comment '用户名/群名' , headIcon blob null comment '用户头像/群头像' , types tinyint(1) unsigned not null comment '联系人类型(好友/群)' default 0 , " +
+                    " nickName varchar(255) not null comment '用户名/群名' , headIcon mediumblob null comment '用户头像/群头像' , types tinyint(1) unsigned not null comment '联系人类型(好友/群)' default 0 , " +
                     " status tinyint(1) unsigned not null comment '联系人状态(上下线)' default 0 , isupdate tinyint(1) unsigned not null comment '状态是否有更新' default 0)";
             //PreparedStatement preparedStatement = (PreparedStatement) connection.createStatement();
             Statement statement=connection.createStatement();

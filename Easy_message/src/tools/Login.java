@@ -73,6 +73,8 @@ public class Login {
 
                 statement1.addBatch(sql1);
             }
+            sql1="UPDATE userinfo SET isOnline=1 WHERE userID="+userID;
+            statement1.addBatch(sql1);
             i = statement1.executeBatch();
             connection.commit();
         } catch (Exception e) {

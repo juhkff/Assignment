@@ -32,6 +32,28 @@ public class Request {
         this.requestProperty=RequestProperty;
     }
 
+    public Request() {
+
+    }
+
+    public void setAll(String urlAddress,Map<String ,String> parameters,String RequestProperty){
+        setUrlAddress(urlAddress);
+        setParameters(parameters);
+        setRequestProperty(RequestProperty);
+    }
+
+    public void setUrlAddress(String urlAddress) {
+        this.urlAddress = urlAddress;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+    }
+
+    public void setRequestProperty(String RequestProperty) {
+        this.requestProperty = requestProperty;
+    }
+
     public String doPost() {
         try {
             this.url = new URL(urlAddress);

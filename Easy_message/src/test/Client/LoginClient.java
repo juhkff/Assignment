@@ -14,14 +14,11 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class LoginClient {
-    /*private final String MESSAGE_SERVER_IP="123.207.13.112";
-    private final String FILE_SERVER_IP="123.56.12.225";
-    private final int MESSAGE_SERVER_PORT=1111;
-    private final int FILE_SERVER_PORT=2222;
-    Scanner scanner=new Scanner(System.in);*/
     private static String localIP;                                                                      ///////
     public static final String URL_ADDRESS = "http://123.207.13.112:8080/Easy_message";
-    /**将线程中获得的ArrayList<NoticeMessage>存储为全局变量**/
+    /**
+     * 将线程中获得的ArrayList<NoticeMessage>存储为全局变量
+     **/
     public static ArrayList<NoticeMessage> noticeMessages;
 
     public static void main(String[] args) throws Exception {
@@ -47,12 +44,6 @@ public class LoginClient {
         DatagramPacket filedp;
 
         Scanner scanner = new Scanner(System.in);
-        //帐号(从用户输入获得)
-        /*System.out.print("请输入帐号:__________\b\b\b\b\b\b\b\b\b\b");
-        String userID=scanner.next();
-        System.out.print("请输入密码:");
-        String passWord=scanner.next();*/
-
         String userID = "8076357234";
         //String userID="1005221246";
         String passWord = "aqko251068";
@@ -94,21 +85,7 @@ public class LoginClient {
             String fileresult;
 
 
-            /**创建获取好友列表的线程**/
-            /**
-             * 应该和后面的线程组放在一起?
-             * **/
-            ContactListThread contactListThread = new ContactListThread(userID, URL_ADDRESS + "/ContactList");
-            Thread thread = new Thread(contactListThread);
-            thread.start();
-
             do {
-            /*messagesendby = ("Login:"+userID).getBytes();
-            filesendby = ("Login:"+userID).getBytes();
-
-            messageSocketAddress = new InetSocketAddress(MESSAGE_SERVER_IP, MESSAGE_SERVER_PORT);
-            fileSocketAddress = new InetSocketAddress(FILE_SERVER_IP, FILE_SERVER_PORT);*/
-
                 try {
                     messageds = new DatagramSocket();
                     fileds = new DatagramSocket();
@@ -159,34 +136,7 @@ public class LoginClient {
 
             } while (!messageresult.equals("success") && !fileresult.equals("success"));
 
-        /*Map<String, String> contactList = new HashMap<String, String>();
-        contactList = getContactList();*/
-
-        /*//创建获取好友列表的线程
-        LoginThread loginThread = new LoginThread(userID,"123.207.13.112:8080/Easy_message/Login");
-        Thread thread=new Thread(loginThread);
-        thread.start();*/
-
-        /*//建立接收消息的线程
-        ReceiveMessageThread receiveMessageThread = new ReceiveMessageThread(messageds, messageSocketAddress);
-        Thread thread1 = new Thread(receiveMessageThread);
-        thread1.start();
-        //建立发送心跳的线程
-        HeartThread heartThread = new HeartThread(userID, messageds, fileds, messageSocketAddress, fileSocketAddress);
-        Thread thread2 = new Thread(heartThread);
-        thread2.start();
-        //建立监听本机局域网地址的线程
-        LocalAddressThread localAddressThread = new LocalAddressThread();
-        Thread thread3 = new Thread(localAddressThread);
-        thread3.start();
-        //建立查询servlet获得状态有更新的好友的数据
-        ListenerThread listenerThread = new ListenerThread(userID, "123.207.13.112:8080/Easy_message/Listener");
-        Thread thread4 = new Thread(listenerThread);
-        thread4.start();*/
-
-
-
-        //创建所有线程
+            //创建所有线程
             startAllThread(userID, messageds, fileds, messageSocketAddress, fileSocketAddress);
 
             /**---------------------------------以下情景为模拟用户使用程序，注意聊天应自动建立线程(不建立线程则无法实现多窗口聊天)--------------------------------**/
@@ -249,20 +199,6 @@ public class LoginClient {
                             System.out.println("您已发送过该邀请，请不要重复发送!");
                         else
                             throw new Exception("发送邀请出错!LoginClient");
-                /*if (contact != null && contact.size() > 0) {
-                    System.out.println();
-                    System.out.println("状态较刚才有更新的联系人:");
-                    for (String userID : contact.keySet()) {
-                        String status;
-                        status = (contact.get(userID).equals("0")) ? "离线" : "在线";
-                        System.out.println("userID:" + userID + "\t" + "状态变为:" + status);
-                    }
-                    System.out.println();
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();*/
                     }
                 } else if (/*scanner.nextLine()*/nextCommand.equals("Exit")) {
                     Map<String, String> parameter = new HashMap<String, String>();
@@ -276,34 +212,55 @@ public class LoginClient {
                         System.out.println("退出异常!");
                 } else if (nextCommand.equals("Deal")) {
                     System.out.print("您要处理第几个请求？请输入数字:");
-                    int index=scanner.nextInt();
-                    while (index<1||index>noticeMessages.size()){
+                    int index = scanner.nextInt();
+                    while (index < 1 || index > noticeMessages.size()) {
                         System.out.print("数字越界，请重新输入!:");
-                        index=scanner.nextInt();
+                        index = scanner.nextInt();
                     }
-                    NoticeMessage noticeMessage=noticeMessages.get(index);
+                    NoticeMessage noticeMessage = noticeMessages.get(index);
                     System.out.print("\n确定您要处理的请求为:");
-                    if(noticeMessage.getProperty()==0)
-                        System.out.println("来自帐号"+noticeMessage.getAnotherID()+"的昵称为"+noticeMessage.getNickName()+"的好友邀请? (Y)");
-                    String response=scanner.next();
-                    if(!response.equals("Y")){
+                    if (noticeMessage.getProperty() == 0)
+                        System.out.println("来自帐号" + noticeMessage.getAnotherID() + "的昵称为" + noticeMessage.getNickName() + "的好友邀请? (Y)");
+                    /**
+                     *          其它情况
+                     * **/
+                    String response = scanner.next();
+                    if (!response.equals("Y")) {
                         continue;
-                    }else{
+                    } else {
                         String response1 = null;
-                        Map<String,String> parameters1=new HashMap<String, String>();
-                        parameters1.put()
-                        Request request1=new Request(URL_ADDRESS+"/Deal");
+                        Map<String, String> parameters1 = new HashMap<String, String>();
+                        Request request1 = new Request();
                         /**考虑的问题：传什么参数;在线和离线返回请求的区别**/
-                        while(response1.equals("Y")||response1.equals("N")) {
-                            System.out.println("\n同意还是拒绝? (Y/N)");
-                            response1 = scanner.next();
-                            if (response1.equals("Y")) {
+                        while (response1.equals("Y") || response1.equals("N")) {
+                            if (noticeMessage.getProperty() == 0) {
+                                System.out.println("\n同意还是拒绝? (Y/N)");
+                                response1 = scanner.next();
+                                if (response1.equals("Y")) {
+                                    /**用户同意添加好友**/
+                                    parameters1.put("userID", userID);
+                                    parameters1.put("ID", noticeMessage.getAnotherID());
+                                    parameters1.put("nickName", noticeMessage.getNickName());
+                                    parameters1.put("property", String.valueOf(noticeMessage.getProperty()));
+                                    request1.setAll(URL_ADDRESS + "/AgreeFriend", parameters1, RequestProperty.APPLICATION);
+                                    request1.doPost();                      //无返回结果
+                                    System.out.println("添加成功!");
 
-                            } else if (response1.equals("N")) {
+                                    /**
+                                     *
+                                     * 应该再开启一个定时循环读取最新消息的线程(包括删除)
+                                     *
+                                     * **/
+                                } else if (response1.equals("N")) {
 
-                            } else {
-
+                                } else {
+                                    System.out.println("输入不合法！请重新输入!");
+                                    response1 = scanner.next();
+                                }
                             }
+                            /**
+                             *              其它情况
+                             * **/
                         }
                     }
                 } else if (nextCommand.equals(""))
@@ -361,6 +318,14 @@ public class LoginClient {
         Thread thread5 = new Thread(chatNoticeThread);
         thread4.start();
         thread5.start();
+        /**创建获取好友列表的线程**/
+        /**
+         * 应该和后面的线程组放在一起?
+         * **/
+        ContactListThread contactListThread = new ContactListThread(userID, URL_ADDRESS + "/ContactList");
+        Thread thread6 = new Thread(contactListThread);
+        thread6.start();
+
     }
 
     //接收消息的线程类
@@ -409,85 +374,6 @@ public class LoginClient {
             }
         }
     }
-
-    /*//发送心跳包的线程类
-    private static class HeartThread implements Runnable {
-        private String userID;
-        private byte[] by;                      //by数组毫无用处，仅仅是为了初始化DatagramPacket对象而存在
-
-        private DatagramSocket messageds;
-        private DatagramPacket messagedp;
-        private SocketAddress messageSocketAddress;
-        private byte[] messageheartby;
-        String M_message;
-
-        private DatagramSocket fileds;
-        private DatagramPacket filedp;
-        private SocketAddress fileSocketAddress;
-        private byte[] fileheartby;
-        String F_message;
-
-        public HeartThread(String userID, DatagramSocket messageds, DatagramSocket fileds, SocketAddress messageSocketAddress, SocketAddress fileSocketAddress) {
-            this.userID = userID;
-            this.by = "Heartbeat".getBytes();
-            this.messageds = messageds;
-            this.messageSocketAddress = messageSocketAddress;
-            this.fileds = fileds;
-            this.fileSocketAddress = fileSocketAddress;
-            this.messagedp = new DatagramPacket(by, 0, by.length, messageSocketAddress);
-            this.filedp = new DatagramPacket(by, 0, by.length, fileSocketAddress);
-        }
-
-        @Override
-        public void run() {
-            while (true) {
-                //获取客户端上线时的局域网地址
-                //不过这样获得的局域网地址仍然不能保证准确
-                String clientIP = null;
-                try {
-                    clientIP = getLocalHostAddress().getHostAddress();
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
-                //如果本地局域网IP发生了变化(即网络发生了变化)
-                if (!localIP.equals(clientIP)) {
-                    localIP = clientIP;                                                                 //将变化后的IP重新赋给localIP全局变量
-                    int clientMessagePORT = messageds.getLocalPort();
-                    int clientFilePORT = fileds.getLocalPort();
-                    String clientMessageAddress = clientIP + ":" + clientMessagePORT;                 //向MessageServer发送数据包的本地局域网地址
-                    String clientFileAddress = clientIP + ":" + clientFilePORT;                       //向FileServer发送数据包的本地局域网地址
-                    this.messageheartby = ("Heartbeat/" + userID + "/" + clientMessageAddress).getBytes();
-                    this.fileheartby = ("Heartbeat/" + userID + "/" + clientFileAddress).getBytes();
-                } else {
-                    this.messageheartby = ("Heartbeat/" + userID + "/" + "NO").getBytes();
-                    this.fileheartby = ("Heartbeat/" + userID + "/" + "NO").getBytes();
-                }
-                messagedp.setData(messageheartby, 0, messageheartby.length);
-                filedp.setData(fileheartby, 0, fileheartby.length);
-                try {
-                    *//*messagedp = new DatagramPacket(messageheartby, 0, messageheartby.length, messageSocketAddress);
-                    filedp = new DatagramPacket(fileheartby, 0, fileheartby.length, fileSocketAddress);*//*
-
-                    //这里没办法保证收发的成功率，但暂时也只能听天由命了
-                    messageds.send(messagedp);
-                    fileds.send(filedp);
-                } catch (IOException e) {
-                    System.out.println("\n心跳发送失败!\n");
-                    e.printStackTrace();
-                }
-                try {
-                    *//*Thread.sleep(100000);*//*
-                    //减小睡眠时间来保证一下udp连接
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    System.out.println("\n心跳线程睡眠发生异常!\n");
-                    e.printStackTrace();
-                    break;                                              //发生异常则跳出循环，这意味着程序失效(缺少了心跳包建立与服务器的联系)
-                }
-            }
-        }
-    }*/
-
 
     //发送心跳包
     private static class HeartThread implements Runnable {
@@ -588,12 +474,6 @@ public class LoginClient {
             }
         }
 
-        /* private String findMyLocalIP() {
-             String mylocalAddress;
-             Request request = new Request(URL_ADDRESS + urlAddress, requestParameters, RequestProperty.APPLICATION);
-             mylocalAddress = request.doPost();
-             return mylocalAddress;
-         }*/
         private String finaMyCurrentLocalIP() throws UnknownHostException {
             return getLocalHostAddress().getHostAddress();
         }
@@ -804,27 +684,34 @@ public class LoginClient {
 
         @Override
         public void run() {
-            this.notices = this.request.doPost();                             //获得收到的消息提醒
-            if (notices.equals("") || notices.equals("none"))
-                System.out.println("您离线时未收到过任何(如添加好友)请求!");
-            else {
-                /**解析Json**/
-                Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-                Type type = new TypeToken<ArrayList<NoticeMessage>>() {
-                }.getType();
-                noticeMessages= gson.fromJson(this.notices, type);
-                for (NoticeMessage noticeMessage : noticeMessages) {
-                    String anotherID = noticeMessage.getAnotherID();
-                    String nickName = noticeMessage.getNickName();
-                    byte property = noticeMessage.getProperty();
-                    if (property == 0)                                             //好友邀请
-                        System.out.println("来自帐号:" + anotherID + "  昵称为" + nickName + " 的用户的好友邀请");
-                    else if (property == 1)
-                        System.out.println("1");
-                    else if (property == 2)
-                        System.out.println("2");
-                    else if (property == 3)
-                        System.out.println("3");
+            while (true) {
+                this.notices = this.request.doPost();                             //获得收到的消息提醒
+                if (notices.equals("") || notices.equals("none")) {
+                    //System.out.println("您离线时未收到过任何(如添加好友)请求!");
+                } else {
+                    /**解析Json**/
+                    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+                    Type type = new TypeToken<ArrayList<NoticeMessage>>() {
+                    }.getType();
+                    noticeMessages = gson.fromJson(this.notices, type);
+                    for (NoticeMessage noticeMessage : noticeMessages) {
+                        String anotherID = noticeMessage.getAnotherID();
+                        String nickName = noticeMessage.getNickName();
+                        byte property = noticeMessage.getProperty();
+                        if (property == 0)                                             //好友邀请
+                            System.out.println("来自帐号:" + anotherID + "  昵称为" + nickName + " 的用户的好友邀请");
+                        else if (property == 1)
+                            System.out.println("1");
+                        else if (property == 2)
+                            System.out.println("添加好友:"+anotherID+"  昵称:"+nickName+"  成功");
+                        else if (property == 3)
+                            System.out.println("3");
+                    }
+                }
+                try {
+                    Thread.sleep(4000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
             /**
@@ -849,9 +736,9 @@ public class LoginClient {
         @Override
         public void run() {
             this.notices = this.request.doPost();
-            if (notices.equals("") || notices.equals("none"))
+            if (notices.equals("") || notices.equals("none")) {
                 System.out.println("您离线时未收到过任何消息!");
-            else {
+            } else{
                 /**解析Json**/
             }
         }

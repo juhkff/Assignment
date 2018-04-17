@@ -26,6 +26,8 @@ public class Exit {
                 sql1 = "UPDATE user_" + resultSet.getString("ID") + "_contactlist SET status=0 WHERE ID=" + userID;
                 statement1.addBatch(sql1);
             }
+            sql1="UPDATE userinfo SET isOnline=0 WHERE userID="+userID;
+            statement1.addBatch(sql1);
             i = statement1.executeBatch();
             connection.commit();
         } finally {

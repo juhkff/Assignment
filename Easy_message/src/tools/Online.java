@@ -5,10 +5,8 @@ import model.User;
 import test.Client.Request;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.InputStream;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -96,7 +94,7 @@ public class Online {
                 if(userID.length()==10)
                     preparedStatement.setInt(3, 0);
                 else if(userID.length()==6)
-                    preparedStatement.setInt(2,1);
+                    preparedStatement.setInt(3,1);
                 else
                     throw new IOException("ID长度不对!Online.sendRequest");
                 int j = preparedStatement.executeUpdate();
@@ -111,6 +109,20 @@ public class Online {
             Conn.Close();
         }
         return result;              //result:CF/CG
+    }
+
+
+    public final static int sendAgreeResponse(String userID,String nickName,String receiverID) throws SQLException {
+        Connection connection=Conn.getConnection();
+        String sql="INSERT INTO user_" + receiverID + "_noticelist ( anotherID , nickName , property ) VALUES (?,?,?)";
+        PreparedStatement preparedStatement=connection.prepareStatement(sql);
+        preparedStatement.setString(1,userID);
+        preparedStatement.setString(2,nickName);
+        preparedStatement.setInt(3,2);                      /**2:同意好友邀请**/
+        int result=preparedStatement.executeUpdate();
+
+        Conn.Close();
+        return result;
     }
 
 
@@ -137,5 +149,47 @@ public class Online {
         }
         Conn.Close();
         return user;
+    }
+
+    public final static void bothAddFriend(String userID, String ID, String nickName) throws SQLException, IOException {
+        Connection connection=Conn.getConnection();
+        String sql="SELECT headIcon,nickName,isOnline FROM userinfo WHERE userID=?";
+        PreparedStatement preparedStatement=connection.prepareStatement(sql);
+        preparedStatement.setString(1,userID);
+        ResultSet resultSet=preparedStatement.executeQuery();
+        InputStream Agree_inputStream = null;
+        String user_Name = null;
+        while (resultSet.next()){
+            Agree_inputStream=resultSet.getBinaryStream("headIcon");
+            user_Name=resultSet.getString("nickName");
+        }
+        InputStream Agreed_inputStream = null;
+        preparedStatement=connection.prepareStatement(sql);
+        preparedStatement.setString(1,ID);
+        resultSet=preparedStatement.executeQuery();
+        boolean isOnline = false;
+        while (resultSet.next()){
+            Agreed_inputStream=resultSet.getBinaryStream("headIcon");
+            isOnline= resultSet.getInt("isOnline") != 0;
+        }
+
+        sql="INSERT INTO user_"+userID+"_contactlist(ID,nickName,headIcon,types,status) VALUES (?,?,?,?,?)";
+        preparedStatement=connection.prepareStatement(sql);
+        preparedStatement.setString(1,ID);
+        preparedStatement.setString(2,nickName);
+        preparedStatement.setBinaryStream(3,Agreed_inputStream,Agreed_inputStream.available());
+        preparedStatement.setInt(4,0);
+        preparedStatement.setBoolean(5,isOnline);
+        int i=preparedStatement.executeUpdate();
+
+        sql="INSERT INTO user_"+ID+"_contactlist(ID,nickName,headIcon,types,status) VALUES (?,?,?,?,?) ";
+        preparedStatement=connection.prepareStatement(sql);
+        preparedStatement.setString(1,userID);
+        preparedStatement.setString(2,user_Name);
+        preparedStatement.setBinaryStream(3,Agree_inputStream,Agree_inputStream.available());
+        preparedStatement.setInt(4,0);
+        preparedStatement.setBoolean(5,true);
+        int j=preparedStatement.executeUpdate();
+        Conn.Close();
     }
 }
