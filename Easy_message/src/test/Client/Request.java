@@ -37,9 +37,9 @@ public class Request {
     }
 
     public void setAll(String urlAddress,Map<String ,String> parameters,String RequestProperty){
-        setUrlAddress(urlAddress);
-        setParameters(parameters);
-        setRequestProperty(RequestProperty);
+        this.urlAddress=urlAddress;
+        this.parameters=parameters;
+        this.requestProperty=RequestProperty;
     }
 
     public void setUrlAddress(String urlAddress) {
@@ -83,6 +83,7 @@ public class Request {
             InputStream inputStream = uRLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             String readLine = null;
+            response="";
             while ((readLine = bufferedReader.readLine()) != null) {/**  readLine!=""中readLine是不是指被等号赋值后的readLine?  **/
                 //response=bufferedReader.readLine();
                 response = response + readLine;

@@ -62,7 +62,7 @@ public class FileServer {
             address = clientIP + ":" + clientPORT;                                                        //获取客户端上线地址
 
             //if (!localAddress.equals("NO")) {
-            System.out.println("\n登录用户的本地局域网地址:" + localAddress + "\n登录用户的公网映射地址:" + address + "\n");
+            System.out.println(/*"\n登录用户的本地局域网地址:" + localAddress + */"\n登录用户的公网映射地址:" + address + "\n");
 
             //将用户的(局域网和公网映射)地址存到数据库中
             Connection connection = Conn.getConnection();

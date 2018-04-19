@@ -60,7 +60,7 @@ public class Online {
     public static Map<String, String> getAddList(String userID) throws SQLException {
         Map<String,String> userList=new HashMap<String, String>();
         Connection connection=Conn.getConnection();
-        String sql="SELECT userinfo.userID,userinfo.nickName FROM userinfo LEFT JOIN user_"+userID+"_contactlist ON userinfo.userID=user_"+userID+"_contactlist.ID IS NULL WHERE userinfo.userID!=\'"+userID+"\'";
+        String sql="SELECT userinfo.userID,userinfo.nickName FROM userinfo LEFT JOIN user_"+userID+"_contactlist ON userinfo.userID=user_"+userID+"_contactlist.ID  WHERE user_"+userID+"_contactlist.ID IS NULL AND userinfo.userID!=\'"+userID+"\'";
         PreparedStatement preparedStatement=connection.prepareStatement(sql);
         ResultSet resultSet=preparedStatement.executeQuery();
         while (resultSet.next()){
@@ -177,19 +177,25 @@ public class Online {
         preparedStatement=connection.prepareStatement(sql);
         preparedStatement.setString(1,ID);
         preparedStatement.setString(2,nickName);
-        preparedStatement.setBinaryStream(3,Agreed_inputStream,Agreed_inputStream.available());
+        if(Agreed_inputStream!=null)
+            preparedStatement.setBinaryStream(3,Agreed_inputStream,Agreed_inputStream.available());
+        else
+            preparedStatement.setBinaryStream(3,null);
         preparedStatement.setInt(4,0);
         preparedStatement.setBoolean(5,isOnline);
         int i=preparedStatement.executeUpdate();
 
-        sql="INSERT INTO user_"+ID+"_contactlist(ID,nickName,headIcon,types,status) VALUES (?,?,?,?,?) ";
-        preparedStatement=connection.prepareStatement(sql);
-        preparedStatement.setString(1,userID);
-        preparedStatement.setString(2,user_Name);
-        preparedStatement.setBinaryStream(3,Agree_inputStream,Agree_inputStream.available());
-        preparedStatement.setInt(4,0);
-        preparedStatement.setBoolean(5,true);
-        int j=preparedStatement.executeUpdate();
+        sql="INSERT INTO user_"+ID+"_contactlist(ID,nickName,headIcon,types,status) VALUES (?,?,?,?,?)";
+        PreparedStatement preparedStatement1=connection.prepareStatement(sql);
+        preparedStatement1.setString(1,userID);
+        preparedStatement1.setString(2,user_Name);
+        if(Agree_inputStream!=null)
+            preparedStatement1.setBinaryStream(3,Agree_inputStream,Agree_inputStream.available());
+        else
+            preparedStatement1.setBinaryStream(3,null);
+        preparedStatement1.setInt(4,0);
+        preparedStatement1.setBoolean(5,true);
+        int j=preparedStatement1.executeUpdate();
         Conn.Close();
     }
 }

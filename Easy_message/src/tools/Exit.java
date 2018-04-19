@@ -23,7 +23,7 @@ public class Exit {
             //Set<String> IDList=new HashSet<String>();
             while (resultSet.next()) {
                 //IDList.add(resultSet.getString("ID"));
-                sql1 = "UPDATE user_" + resultSet.getString("ID") + "_contactlist SET status=0 WHERE ID=" + userID;
+                sql1 = "UPDATE user_" + resultSet.getString("ID") + "_contactlist SET status=0,isupdate=1 WHERE ID=" + userID;
                 statement1.addBatch(sql1);
             }
             sql1="UPDATE userinfo SET isOnline=0 WHERE userID="+userID;

@@ -1,20 +1,50 @@
 package model;
 
+import java.sql.Timestamp;
+
 public class Contact {
     private String ID;
     private String nickName;
     private byte[] headIcon;
     private byte types;
     private boolean status;
-    private boolean isupdate;
+    private String theLatestText=null;
+    private String theLatestTextTime=null;
+    //private boolean isupdate;
 
-    public Contact(String ID, String nickName, byte[] headIcon, byte types, boolean status, boolean isupdate) {
+    public Contact(String ID, String nickName, byte[] headIcon, byte types, boolean status/*, boolean isupdate*/) {
         this.ID = ID;
         this.nickName = nickName;
         this.headIcon = headIcon;
         this.types = types;
         this.status = status;
-        this.isupdate = isupdate;
+        //this.isupdate = isupdate;
+    }
+
+    public Contact(String ID, String nickName, byte[] headIcon, byte types, boolean status, String theLatestText,String theLatestTextTime) {
+        this.ID = ID;
+        this.nickName = nickName;
+        this.headIcon = headIcon;
+        this.types = types;
+        this.status = status;
+        this.theLatestText = theLatestText;
+        this.theLatestTextTime=theLatestTextTime;
+    }
+
+    public String getTheLatestTextTime() {
+        return theLatestTextTime;
+    }
+
+    public void setTheLatestTextTime(String theLatestTextTime) {
+        this.theLatestTextTime = theLatestTextTime;
+    }
+
+    public String getTheLatestText() {
+        return theLatestText;
+    }
+
+    public void setTheLatestText(String theLatestText) {
+        this.theLatestText = theLatestText;
     }
 
     public String getID() {
@@ -41,7 +71,7 @@ public class Contact {
         this.headIcon = headIcon;
     }
 
-    public byte isTypes() {
+    public byte getTypes() {
         return types;
     }
 
@@ -57,13 +87,13 @@ public class Contact {
         this.status = status;
     }
 
-    public boolean isIsupdate() {
+    /*public boolean isIsupdate() {
         return isupdate;
     }
 
     public void setIsupdate(boolean isupdate) {
         this.isupdate = isupdate;
-    }
+    }*/
 }
 
 

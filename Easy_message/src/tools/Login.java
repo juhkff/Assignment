@@ -4,9 +4,12 @@ package tools;
 import connection.Conn;
 import connection.ConnectionModel;
 import model.ChatMessage;
+import model.Contact;
 import model.NoticeMessage;
 import model.User;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.*;
 import java.sql.*;
 import java.util.*;
@@ -97,18 +100,38 @@ public class Login {
     }
 
     //用户登录时获得所有好友的状态(在线or离线)
-    public static Map<String, String> getContactList(String userID) throws SQLException {
-        Map<String, String> contactList = new HashMap<String, String>();
-        Connection connection = Conn.getConnection();
-        Statement statement = connection.createStatement();
-        String sql = "UPDATE user_" + userID + "_contactlist SET isupdate=0 WHERE isupdate=1";
-        statement.execute(sql);
-        sql = "SELECT ID,status FROM user_" + userID + "_contactlist";
-        ResultSet resultSet = statement.executeQuery(sql);
-        while (resultSet.next()) {
-            contactList.put(resultSet.getString("ID"), resultSet.getString("status"));
+    public static ArrayList<Contact> getContactList(String userID) throws SQLException {
+        ArrayList<Contact> contactList=new ArrayList<Contact>();
+        String ID;
+        String nickName;
+        InputStream inputStream;
+        byte[] headIcon;
+        byte types;
+        boolean status;
+        try {
+            Connection connection = Conn.getConnection();
+            Statement statement = connection.createStatement();
+            String sql = "UPDATE user_" + userID + "_contactlist SET isupdate=0 WHERE isupdate=1";
+            statement.execute(sql);
+            sql = "SELECT ID,nickName,headIcon,types,status FROM user_" + userID + "_contactlist";
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                ID=resultSet.getString("ID");
+                nickName=resultSet.getString("nickName");
+                inputStream=resultSet.getBinaryStream("headIcon");
+                headIcon=null;
+                if(inputStream!=null)
+                    headIcon=new byte[inputStream.available()];
+                types=resultSet.getByte("types");
+                status=resultSet.getBoolean("status");
+                Contact contact=new Contact(ID,nickName,headIcon,types,status);
+                contactList.add(contact);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            Conn.Close();
         }
-        Conn.Close();
         return contactList;
     }
 

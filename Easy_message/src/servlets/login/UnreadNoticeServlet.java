@@ -26,15 +26,18 @@ public class UnreadNoticeServlet extends HttpServlet {
         ArrayList<NoticeMessage> noticeMessages=null;
         String noticeList = null;
         try {
-            noticeMessages=Login.getNoticeMessage(userID,timestamp); //获得所有通知
-            Gson gson=new Gson();
-            noticeList=gson.toJson(noticeMessages);                          //noticeMessage列表的Json格式
+            while (true) {
+                noticeMessages = Login.getNoticeMessage(userID, timestamp); //获得所有通知
+                Gson gson = new Gson();
+                noticeList = gson.toJson(noticeMessages);                          //noticeMessage列表的Json格式
+                Login.deleteAllNoticeMessage(userID);
+                System.out.println(noticeList);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        Login.deleteAllNoticeMessage(userID);
-        System.out.println(noticeList);
+
     }
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         this.doGet(request,response);
@@ -57,14 +60,14 @@ public class UnreadNoticeServlet extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        /*try {
+        try {
             if(noticeMessages!=null) {
                 //System.out.println("deleteAllNoticeMessage数据要被删");
                 Login.deleteAllNoticeMessage(userID);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        }*/
+        }
         PrintWriter pw=response.getWriter();
         if(!noticeList.equals("[]")&&!noticeList.equals("")&&!noticeList.equals("null")&&noticeList!=null&&!noticeList.equals("")) {                          //Json列表若为空，返回的是字符串的'[]'而非null类型
             pw.print(noticeList);

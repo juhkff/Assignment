@@ -1,14 +1,17 @@
 package p2pserver;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import connection.Conn;
+import model.ChatMessage;
 import p2pserver.messageServerDao.Address;
+import tools.Chat;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class MessageServer {
     public static void main(String[] args) throws IOException {
@@ -30,6 +33,81 @@ public class MessageServer {
         }
     }
 
+    //回传发送成功
+    private static class CallBackThread implements Runnable{
+        DatagramPacket dp;
+        DatagramSocket ds;
+
+        public CallBackThread(DatagramPacket dp, DatagramSocket ds) {
+            this.dp = dp;
+            this.ds = ds;
+        }
+
+        @Override
+        public void run() {
+            String message=new String(dp.getData(),0,dp.getLength());
+            String senderID=message.split("/")[2];
+            String receiverID=message.split("/")[1];
+            String callBack=message.split("/")[0];                                          //不给客户端另一客户端的公网IP
+            String receiverAddress=Chat.getReceiverAddress(receiverID);
+            String ip=receiverAddress.split(":")[0];
+            int port= Integer.parseInt(receiverAddress.split(":")[1]);
+            SocketAddress socketAddress=new InetSocketAddress(ip,port);
+            byte[] bytes=callBack.getBytes();
+            dp=new DatagramPacket(bytes,0,bytes.length,socketAddress);
+            try {
+                ds.send(dp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**服务器需要把聊天内容存入聊天表里，并将响应用户的isupdate设为1**/
+    private final static class ChatThread implements Runnable{
+        DatagramPacket dp;
+        DatagramSocket ds;
+        String message;
+        String note;
+        Gson gson=new GsonBuilder().enableComplexMapKeySerialization().create();
+        Type type=new TypeToken<ChatMessage>(){}.getType();
+        public ChatThread(DatagramPacket dp, DatagramSocket ds) {
+            this.dp = dp;
+            this.ds = ds;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("\n");
+            message=new String(dp.getData(),0,dp.getLength());
+            note=message.split("/")[1];
+            ChatMessage chatMessage=this.gson.fromJson(note,this.type);
+            String senderID=chatMessage.getSenderID();
+            String anotherID=chatMessage.getAnotherID();
+            //byte nature=chatMessage.getNature();
+            String content=chatMessage.getMessage();
+            String sendTime=chatMessage.getSendTime();
+            Timestamp timestamp= Timestamp.valueOf(sendTime);
+            try {
+                Chat.insertChatMessage(senderID,anotherID,message,timestamp);
+                Chat.updateContactStatus(senderID,anotherID);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            String address=Chat.getReceiverAddress(anotherID);
+            String ip=address.split(":")[0];
+            int port= Integer.parseInt(address.split(":")[1]);
+            SocketAddress socketAddress=new InetSocketAddress(ip,port);
+            byte[] by=message.getBytes();
+            dp=new DatagramPacket(by,0,by.length,socketAddress);
+            try {
+                ds.send(dp);
+                System.out.println("转发完毕!发送到:"+ip+":"+port);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     //LoginThread既用作登陆时的地址写入，又用作心跳包的地址检测.
     private static class LoginThread implements Runnable {
@@ -64,7 +142,7 @@ public class MessageServer {
             address = clientIP + ":" + clientPORT;                                                        //获取客户端上线地址
 
             //if (!localAddress.equals("NO")) {
-            System.out.println("\n登录用户的本地局域网地址:" + localAddress + "\n登录用户的公网映射地址:" + address + "\n");
+            System.out.println(/*"\n登录用户的本地局域网地址:" + localAddress + */"\n登录用户的公网映射地址:" + address + "\n");
 
             //将用户的(局域网和公网映射)地址存到数据库中
             Connection connection = Conn.getConnection();
@@ -207,9 +285,20 @@ public class MessageServer {
                 LoginThread loginThread = new LoginThread(dp, ds);
                 Thread thread = new Thread(loginThread);
                 thread.start();
+            }else if(message.startsWith("Chat")){
+                /** 聊天 **/
+                ChatThread chatThread=new ChatThread(dp,ds);
+                Thread thread=new Thread(chatThread);
+                thread.start();
+            }else if(message.startsWith("CallBack")){
+                CallBackThread callBackThread=new CallBackThread(dp,ds);
+                Thread thread=new Thread(callBackThread);
+                thread.start();
             }
         }
     }
+
+
 }
 
 

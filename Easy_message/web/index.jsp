@@ -11,6 +11,54 @@
     <title>$Title$</title>
 </head>
 <body>
+
+<form action="/Easy_message/GetLocalAddress" method="post">
+    <table>
+        <tr>
+            <td>senderID:</td><td><input type="number" value="8076357234" name="senderID"></td>
+        </tr>
+        <tr>
+            <td>anotherID:</td><td><input type="number" value="1005221246" name="anotherID"></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="提交"></td>
+        </tr>
+    </table>
+</form>
+
+<form action="/ContactList" method="post">
+    <table>
+        <tr>
+            <td>userID</td><td><input type="text" value="8076357234" name="userID"></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="提交"></td>
+        </tr>
+    </table>
+</form>
+
+<form action="/AddContact" method="post">
+    <table>
+        <tr>
+            <td>输入Add</td><td><input type="text" name="userID" value="1005221246"></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="提交"></td>
+        </tr>
+    </table>
+</form>
+
+<form action="/ContactList" method="post">
+    <table>
+        <tr>
+            <td><input type="number" name="userID" placeholder="请输入userID"></td><td><input type="number"></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="提交"></td>
+        </tr>
+    </table>
+</form>
+
 <form action="/Easy_message/Register" method="post">
     <table>
         <tr>

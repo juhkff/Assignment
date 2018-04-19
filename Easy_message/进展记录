@@ -53,7 +53,8 @@
     曾经试图通过两个服务器相互转发与客户端尝试发送数据包来判断客户端NAT类型，不过后来意识到只要能区分是否在局域网通信即可，不需要考虑NAT类型(一律用服务器转发的方式).(因为当两个客户端如果处在同一个NAT下，即在同一个局域网中，那么经过服务器转发的数据是有可能收不到的)
 
 
-    登录和聊天模块重构：考虑到当用户的地址发生变化时应当断开连接并重连(下线并尝试上线).之前的思路整体需要做出改变.
+    登录和聊天模块重构：
+    考虑到当用户的地址发生变化时应当断开连接并重连(下线并尝试上线).之前的思路整体需要做出改变.
     用户登录时，更改该用户好友列表中含有的用户的表，将表中该好友的状态标为1,isupdate改为1;用户下线时类似(0,1);
     用户登录时，用相同的ds向服务器发送数据包;服务器接受数据包，分析IP和端口，存到存储所有用户的表中address一栏;
     用户登录时，向服务器发送的数据包中还应该包含本机的地址：综上所述，数据包的内容:Login/userID/LocalAddress(LocalIP:LocalPort);
@@ -73,6 +74,15 @@
         InviteMessage类：比较简单
         Json将message转换成数组，发送到客户端.
     刚上线时的步骤就完成了
+
+    聊天重构:
+        用户登录成功后，访问ContactServlet，servlet接收userID，调用方法获得ArrayList<Contact>列表，对其中每个对象获得ID,用此ID查询数据库聊天表与anotherID匹配的记录，获取其中时间最新的消息.调用setTheLatestText()将消息添加进Contact对象中.返回ArrayList<Contact>列表    (Login.getContactList()方法需要重写/修改);
+        客户端获得此ArrayList后获取其ID,nickName,headIcon,types,status,theLatestText将ID,nickName,headIcon,status,types和theLatestTest显式显示出来.
+
+        删除------------------------------客户端用Map<String userID,Boolean isInLocal>数据类型存储每个用户是否在局域网中
+
+        将接收消息的线程变量receiveMessageThread设置为static全局变量.当在线时，发送数据的一瞬间，先携带接收者ID请求servlet，此servlet查询该用户是否在线(查询数据库).若在线，将全局线程wait掉，开启自线程.向子线程
+        中传输ds，子线程中向目标局域网发送包，然后receive，设置最大等待时间(用线程的join()方法).退出线程后恢复全局线程.如果没有收到应答，换用外网转发.
 
     怎么实施判断对方的上下线动作？客户端每隔一段时间开一个线程向servlet发送请求，获得好友列表中修改过status(通过isupdate的值判断)的联系人userID列表，将他们标记为相应状态(上线或下线).
     之后只保留联系人中状态变为1的键值对.用此键值对请求servlet
