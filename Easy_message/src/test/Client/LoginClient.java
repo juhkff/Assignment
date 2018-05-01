@@ -3,22 +3,20 @@ package test.Client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import model.ChatMessage;
-import model.Contact;
-import model.NoticeMessage;
-import model.User;
+import model.*;
 import tools.Chat;
 import tools.DateTime;
+import tools.file.File;
+import tools.file.model.FileReceiver;
+import tools.file.model.FileSender;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.*;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.*;
 
 public class LoginClient {
-    /*private static String localIP;     */                                                                 ///////
     public static final String URL_ADDRESS = "http://123.207.13.112:8080/Easy_message";
     /**
      * 将线程中获得的ArrayList<NoticeMessage>存储为全局变量
@@ -27,12 +25,25 @@ public class LoginClient {
     public static Map<String, Contact> contacts;
 
     /**
+     * 存储接发过程中的一些判断
+     **/
+    //public static ArrayList<TransmitModel> ThreadPools=new ArrayList<TransmitModel>();
+    public static Map<Integer, Boolean> ifis = new HashMap<Integer, Boolean>();
+    public static Map<Integer, String> senderFileAddress = new HashMap<Integer, String>();
+    public static Map<Integer, String> receiverFileAddress = new HashMap<Integer, String>();
+    public static int Thread_Index = 1;
+
+    /**
      * 小细节：这里要是不用Map<String,Contact>类型而用<ArrayList>类型的话，在根据ID查找用户上就会很吃效率(大概)
      **/
 
     //public static DatagramSocket messageds = null;
     //public static DatagramSocket fileds = null;
     public static void main(String[] args) throws Exception {
+        //String userID = "7272022651";               //juhkff
+        String userID = "1578184936";               //juhkgf
+        String passWord = "aqko251068";
+        String nickName;
         //final String MESSAGE_SERVER_IP = "123.56.12.225";
         final String MESSAGE_SERVER_IP = "123.207.13.112";
         //final String MESSAGE_SERVER_IP = "localhost";
@@ -54,11 +65,6 @@ public class LoginClient {
         DatagramPacket filedp;
 
         Scanner scanner = new Scanner(System.in);
-        //String userID="5329421786";
-        String userID = "8076357234";
-        //String userID="1005221246";
-        String passWord = "aqko251068";
-        String nickName;
 //        /**向servlet发送请求验证帐号和密码的步骤没有写**/
         //现在写了
         Map<String, String> parameters = new HashMap<String, String>();
@@ -153,9 +159,14 @@ public class LoginClient {
             } while (!messageresult.equals("success") && !fileresult.equals("success"));
 
             //建立接收消息的线程
-            ReceiveMessageThread receiveMessageThread = new ReceiveMessageThread(messageds, messageSocketAddress);
+            ReceiveMessageThread receiveMessageThread = new ReceiveMessageThread(messageds, fileds, messageSocketAddress, URL_ADDRESS);
             Thread thread = new Thread(receiveMessageThread);
             thread.start();
+
+           /* //建立接收与文件有关的线程
+            FileListenerThread fileListenerThread=new FileListenerThread(fileds,fileSocketAddress);
+            Thread thread10=new Thread(fileListenerThread);
+            thread10.start();*/
 
             //创建所有线程
             startAllThread(userID, messageds, fileds, messageSocketAddress, fileSocketAddress);
@@ -166,7 +177,7 @@ public class LoginClient {
 
             String nextCommand;
             while (true) {
-                System.out.println("\n聊天/Chat\t添加联系人/Add\t退出程序/Exit\t处理请求/Deal\t");
+                System.out.println("\n聊天/Chat\t添加联系人/Add\t退出程序/Exit\t处理请求/Deal\t上传离线文件/Submit\t创建群/CreateGroup\t");
                 System.out.print("输入 您要进行的操作 :______\b\b\b\b\b\b");
                 nextCommand = scanner.nextLine();
                 if (/*scanner.next()*/nextCommand.equals("Chat")) {
@@ -186,6 +197,8 @@ public class LoginClient {
                     /**
                      * 打开聊天界面
                      * **/
+
+                    /**本模拟程序只能模拟与一个用户聊天的过程，实际应该可以与多个用户**/
                     Map<String, String> parameters1 = new HashMap<String, String>();
                     parameters1.put("userID", userID);
                     parameters1.put("anotherID", anotherID);
@@ -202,120 +215,224 @@ public class LoginClient {
                         ChatMessage chatMessage = historyChatMessages.get(index);
                         if (chatMessage.getNature() == 1)                   //1:他向我说; 0:我向他说
                             System.out.println("" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
-                        else
-                            System.out.println("\t" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
+                        else if (chatMessage.getNature() == 0)
+                            System.out.println("\t\t\t" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
+                        else if (chatMessage.getNature() == 2)
+                            System.out.println("\t\t\t文件:" + chatMessage.getMessage() + " sendTime : " + chatMessage.getSendTime());
+                        else if (chatMessage.getNature() == 3)
+                            System.out.println("文件:" + chatMessage.getMessage() + " sendTime : " + chatMessage.getSendTime());
                     }
-                    DateTime dateTime = new DateTime();
+                    //DateTime dateTime = new DateTime();
                     byte nature = 0;
                     while (true) {
-                        System.out.println("\n发送消息(Exit退出):");
+                        System.out.println("\n发送消息(Exit退出):\tImg/发送图片\tSubmit/发送离线文件\tReceive/接收离线文件\tOnlineTransmit/发送在线文件\t");
                         scanner.nextLine();
                         String message = scanner.nextLine();
                         if (message.equals("Exit"))
                             break;
-                        else {
+                        else if(message.equals("Img")){
+                            System.out.println("输入您要发送的图片全路径");
+                            String img_path=scanner.next();
+                            System.out.println("确认发送?(Y/N)");
+                            String ifAgree=scanner.next();
+                            if(ifAgree.equals("Y")){
+                                //发送图片
+                            }else {
+                                continue;
+                            }
+                        } else if (!message.equals("Submit") && !message.equals("Receive") && !message.equals("OnlineTransmit")) {
+                            if (message.contains("'")) {
+                                String[] temp = message.split("'");
+                                message = "";
+                                for (int j = 0; j < temp.length - 1; j++) {
+                                    message += (temp[j] + "\\'");
+                                }
+                                message += temp[temp.length - 1];
+                            }
+                            if (message.contains("\"")) {
+                                String[] temp = message.split("\"");
+                                message = "";
+                                for (int j = 0; j < temp.length - 1; j++) {
+                                    message += (temp[j] + "\\\"");
+                                }
+                                message += temp[temp.length - 1];
+                            }
                             boolean isOnline = Chat.checkOnlineStatus(anotherID);
+                            message = Chat.encodeChinese(message);
                             if (isOnline) {
                                 System.out.println("在线，尝试外网发送...");
                                 //若是对方在线
                                 /**
                                  * 优先用外网发送
                                  * **/
-                                String sendTime = String.valueOf(dateTime.getCurrentDateTime());
-                                ExecutorService executorService = Executors.newCachedThreadPool();
-                                /*synchronized (thread){
-                                    try {
-                                        thread.wait();
-                                    }catch (InterruptedException e){
-                                        e.printStackTrace();
-                                    }
-                                }*/
-                                WaitThread waitThread=new WaitThread(thread);
-                                Thread thread1=new Thread(waitThread);
-                                thread1.start();
-                                //thread.wait();
-                                ChatSendTask chatSendTask = new ChatSendTask(messageds, messageSocketAddress, userID, anotherID, nature, sendTime, message);
-                                Future<Boolean> future = executorService.submit(chatSendTask);
-                                Boolean chatSendResult = false;
-                                try {
-                                    chatSendResult = future.get(1, TimeUnit.SECONDS);
-                                } catch (TimeoutException e) {
-                                    System.out.println("外网发送无效，尝试局域网连接...");
-                                    executorService.shutdownNow();
-                                    executorService.shutdown();
-                                    /**尝试局域网连接**/
-                                    Map<String,String> parameters2=new HashMap<String, String>();
-                                    parameters2.put("senderID",userID);
-                                    parameters2.put("anotherID",anotherID);
-                                    Request request2=new Request(LoginClient.URL_ADDRESS+"/GetLocalAddress",parameters2,RequestProperty.APPLICATION);
-                                    String addressList=request2.doPost();
-                                    String addresses=addressList.split("/")[1];
-                                    addressList=addressList.split("/")[0];
-                                    Gson gson1=new GsonBuilder().enableComplexMapKeySerialization().create();
-                                    Type type1=new TypeToken<ArrayList<String>>(){
-                                    }.getType();
-                                    ArrayList<String> addrList=new ArrayList<String>();
-                                    addrList=gson1.fromJson(addresses,type1);
-                                    //ArrayList<String> anotherAddrList=gson1.fromJson(addressList,type1);
-                                    for(int index=0;index<addrList.size();index++){
-                                        String address=addrList.get(index);
-                                        ExecutorService executorService1 = Executors.newCachedThreadPool();
-                                        ChatLocalSendTask chatLocalSendTask = new ChatLocalSendTask(messageds, userID, anotherID, nature, sendTime, message,address,addressList);
-                                        Future<Boolean> future1 = executorService1.submit(chatLocalSendTask);
-                                        Boolean chatLocalSendResult = false;
-                                        try {
-                                            chatLocalSendResult = future1.get(1, TimeUnit.SECONDS);
-                                        } catch (TimeoutException e1){
-                                            if(index<addrList.size()-1)
-                                                continue;
-                                            else {
-                                                System.out.println("局域网发送无效，尝试数据库离线式发送...");
-                                                Map<String, String> parameters3 = new HashMap<String, String>();
-                                                parameters3.put("userID", userID);
-                                                parameters3.put("anotherID", anotherID);
-                                                parameters3.put("message", message);
-                                                parameters3.put("sendTime", sendTime);
-                                                Request request3 = new Request(URL_ADDRESS + "/OfflineChar", parameters3, RequestProperty.APPLICATION);
-                                                String result3 = request3.doPost();               //result2 : success / false;
-                                                System.out.println(result3);
-                                            }
-                                        }
-                                    }
-                                    /*ExecutorService executorService1 = Executors.newCachedThreadPool();
-                                    ChatLocalSendTask chatLocalSendTask = new ChatLocalSendTask(messageds, userID, anotherID, nature, sendTime, message);
-                                    Future<Boolean> future1 = executorService1.submit(chatLocalSendTask);
-                                    Boolean chatLocalSendResult = false;
-                                    try {
-                                        chatLocalSendResult = future1.get(1, TimeUnit.SECONDS);
-                                    } catch (TimeoutException e1) {
-                                        System.out.println("局域网发送无效，尝试数据库离线式发送...");
-                                        Map<String, String> parameters2 = new HashMap<String, String>();
-                                        parameters2.put("userID", userID);
-                                        parameters2.put("anotherID", anotherID);
-                                        parameters2.put("message", message);
-                                        parameters2.put("sendTime", sendTime);
-                                        Request request2 = new Request(URL_ADDRESS + "/OfflineChar", parameters2, RequestProperty.APPLICATION);
-                                        String result2 = request2.doPost();               //result2 : success / false;
-                                        System.out.println(result2);
-                                    }*/
-                                }
-                                /*synchronized (thread) {
-                                    thread.notify();
-                                }*/
-                                NotifyThread notifyThread=new NotifyThread(thread);
-                                Thread thread2=new Thread(notifyThread);
-                                thread2.start();
-                            }else {
-                                String sendTime = String.valueOf(dateTime.getCurrentDateTime());
+                                String sendTime = String.valueOf(new DateTime().getCurrentDateTime());
+
+                                SendThread sendThread = new SendThread(Thread_Index, messageds, messageSocketAddress, userID, anotherID, nature, sendTime, message);
+                                ifis.put(Thread_Index++, false);
+                                Thread thread12 = new Thread(sendThread);
+                                thread12.start();
+
+
+                                /**
+                                 * Chat.insertChatMessage(userID,anotherID,message,Timestamp.valueOf(sendTime));
+                                 * Chat.updateContactStatus(userID,anotherID);
+                                 * **/
+                            } else {
+                                String sendTime = String.valueOf(new DateTime().getCurrentDateTime());
                                 Map<String, String> parameters3 = new HashMap<String, String>();
                                 parameters3.put("userID", userID);
                                 parameters3.put("anotherID", anotherID);
                                 parameters3.put("message", message);
                                 parameters3.put("sendTime", sendTime);
-                                Request request3 = new Request(URL_ADDRESS + "/OfflineChar", parameters3, RequestProperty.APPLICATION);
+                                Request request3 = new Request(URL_ADDRESS + "/OfflineChat", parameters3, RequestProperty.APPLICATION);
                                 String result3 = request3.doPost();               //result2 : success / false;
                                 System.out.println(result3);
                             }
+                        } else if (message.equals("Submit")) {
+                            /**发送文件**/
+
+                            /**
+                             * 离线发送
+                             * **/
+                            try {
+                                System.out.println("\n请输入文件在您PC上的全路径及文件名(包括后缀) (PS:路径可以有中文、但上传的文件本身不能含中文! 不能发送文件夹!):");
+                                String fileName = scanner.nextLine();
+                                if (File.isChinese(fileName)) {
+                                    System.out.println("不能有中文!");
+                                    continue;
+                                }
+                                System.out.println("文件上传中,请等待成功提示(您可以退出此窗口,但不要退出程序...)");
+                                UploadThread uploadThread = new UploadThread(fileName, userID, anotherID);
+                                Thread thread1 = new Thread(uploadThread);
+                                thread1.start();
+                                /*UploadFileRequest uploadFileRequest = new UploadFileRequest(fileName);                  //指定文件
+                                String response = uploadFileRequest.upLoadFile(userID,anotherID);                                 //指定用户userID
+                                System.out.println(response);*/
+                            } catch (Exception e) {
+                                System.out.println("离线文件传送失败...");
+                                e.printStackTrace();
+                            }
+                        } else if (message.equals("Receive")) {
+                            System.out.println("\n请输入您要接收的离线文件名(包括后缀):");
+                            String fileName = scanner.nextLine();
+                            System.out.println("\n请输入您要存到的地方(即本地目录):");
+                            String localPath = scanner.nextLine();
+                            System.out.println("开始接收,请等待接收完毕的提醒(您可以退出此窗口,但不要退出程序...)");
+                            ReceiveFileThread receiveFileThread = new ReceiveFileThread(anotherID, userID, localPath, fileName);
+                            Thread thread1 = new Thread(receiveFileThread);
+                            thread1.start();
+                            /*DownloadFileRequest downloadFileRequest=new DownloadFileRequest(anotherID,userID,localPath,fileName);
+                            downloadFileRequest.downLoad();*/
+                        } else if (message.equals("OnlineTransmit")) {
+                            /**
+                             * Transmit online file
+                             * **/
+                            System.out.println("\n请输入文件在您PC上的全路径及文件名(包括后缀) (PS:路径可以有中文、但上传的文件本身不能含中文! 不能发送文件夹!):");
+                            String fileName = scanner.nextLine();
+
+//                            System.out.println("尝试局域网发送...");
+                            Map<String, String> parameters2 = new HashMap<String, String>();
+                            parameters2.put("senderID", userID);
+                            parameters2.put("anotherID", anotherID);
+                            Request request2 = new Request(LoginClient.URL_ADDRESS + "/GetLocalAddress", parameters2, RequestProperty.APPLICATION);
+                            String addressList = request2.doPost();
+                            String addresses = addressList.split("/")[1];
+                            addressList = addressList.split("/")[0];
+                            Gson gson1 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                            Type type1 = new TypeToken<ArrayList<String>>() {
+                            }.getType();
+                            ArrayList<String> addrList = new ArrayList<String>();
+                            addrList = gson1.fromJson(addresses, type1);
+                            //ArrayList<String> anotherAddrList=gson1.fromJson(addressList,type1);
+                            String senderAddr = null;
+                            String receiverAddr = null;
+                            for (int index = 0; index < addrList.size(); index++) {
+                                String address = addrList.get(index);
+                                TryOnlineTransitThread tryOnlineTransitThread = new TryOnlineTransitThread(Thread_Index, messageds, userID, anotherID, address, addressList);
+                                int cur_index = Thread_Index;
+                                Thread thread14 = new Thread(tryOnlineTransitThread);
+                                ifis.put(Thread_Index++, false);
+                                senderAddr = null;
+                                receiverAddr = null;
+                                System.out.println("尝试局域网发送...");
+                                thread14.start();
+                                Thread.sleep(2000);
+                                if (ifis.get(cur_index)) {                       /**true**/
+                                    //可以局域网内连通
+                                    senderAddr = senderFileAddress.get(cur_index);                            //发送方的地址
+                                    receiverAddr = receiverFileAddress.get(cur_index);                        //接收方的地址
+                                    break;
+                                } else {
+                                    if (index < addrList.size() - 1)
+                                        continue;
+                                    else {
+                                        System.out.println("局域网发送无效，尝试数据库离线式发送...");
+                                        System.out.println("文件上传中,请等待成功提示(您可以退出此窗口,但不要退出程序...)");
+                                        UploadThread uploadThread = new UploadThread(fileName, userID, anotherID);
+                                        Thread thread1 = new Thread(uploadThread);
+                                        thread1.start();
+                                    }
+                                }
+                            }
+                            /**实现起来有点找不到头绪,就随便写写了...**/
+
+                            ///**
+                            // * 这里写用udp传输文件的方法,------>ds用fileds!!!
+                            // * **/
+                            /**----------------------------------------------------------------------------**/
+                            if (senderAddr != null && receiverAddr != null) {
+                                /**senderAddr和receiverAddr是消息地址**/
+                                /**获得文件地址**/
+                                Map<String, String> parameters5 = new HashMap<String, String>();
+                                parameters5.put("senderAddr", senderAddr);
+                                parameters5.put("receiverAddr", receiverAddr);
+                                Request request5 = new Request(URL_ADDRESS + "/getFileAddress", parameters5, RequestProperty.APPLICATION);
+                                String result5 = request5.doPost();//获得文件地址
+                                senderAddr = result5.split("/")[0];
+                                receiverAddr = result5.split("/")[1];
+
+                                java.io.File file = new java.io.File(fileName);
+                               /* double Size = Double.parseDouble(new DecimalFormat("#.00").format(((double) file.length()) / (1024 * 1024)));    //获得文件大小(默认MB)
+                                String fileSize;
+                                if (Size >= 1024) {
+                                    Size /= 1024;
+                                    fileSize = Size + "GB";
+                                } else {
+                                    fileSize = Size + "MB";
+                                }*/
+                                String fileSize = String.valueOf(file.length());
+                                System.out.println("等待对方同意接收...");
+                                FileMessage fileMessage = new FileMessage(userID, contacts.get(userID).getNickName(), anotherID, contacts.get(anotherID).getNickName(), senderAddr, receiverAddr, fileName, fileSize);
+                                Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                                String fileMes = gson2.toJson(fileMessage);
+
+                                messagesendby = ("SendFile/" + fileMes).getBytes();
+                                messagedp = new DatagramPacket(messagesendby, 0, messagesendby.length, messageSocketAddress);
+                                messageds.send(messagedp);
+
+                                Map<String, String> parameters3 = new HashMap<String, String>();
+                                parameters3.put("userID", userID);
+                                parameters3.put("anotherID", anotherID);
+                                parameters3.put("message", fileName);
+                                String sendTime = String.valueOf(new DateTime().getCurrentDateTime());
+                                parameters3.put("sendTime", sendTime);
+                                Request request3 = new Request(URL_ADDRESS + "/sendFileRequest", parameters3, RequestProperty.APPLICATION);
+                                String result3 = request3.doPost();
+                                if (result3.equals("success")) {
+                                    /**通过一方向数据库表中插入此条发送文件的信息，另一方更新数据库表中修改此条文件的接收
+                                     * 情况，发送方检测此条文件的发送情况来实现双方同意的情况下开始文件传输**/
+                                    ReadFileResponseThread readFileResponse = new ReadFileResponseThread(userID, anotherID, fileName, URL_ADDRESS, senderAddr, receiverAddr, fileds);
+                                    Thread thread9 = new Thread(readFileResponse);
+                                    thread9.start();
+                                } else {
+                                    System.out.println("请求发送失败...");
+                                }
+                            }
+                        }else if (message.equals("CreateGroup")){
+                            /**创建群**/
+                            //CreateGroupThread createGroupThread=new ChatNoticeThread(...);
+                            System.out.println("请输入群名:");
+                            String groupName=scanner.nextLine();
                         }
                     }
                 } else if (/*scanner.nextLine()*/nextCommand.equals("Add")) {
@@ -432,10 +549,23 @@ public class LoginClient {
                              * **/
                         }
                     }
-                } else if (nextCommand.equals(""))
+                } else if (nextCommand.equals("Submit")) {
+                    /**上传离线文件**/
+                    try {
+                        System.out.println("\n请输入文件在您PC上的全路径及文件名(包括后缀)");
+                        String fileName = scanner.nextLine();
 
-                    //处理局域网通信的识别问题
-                    //如果接收方的IP和本机IP前三位相同，则认为在同一个局域网内   可行度低，因为并不能确保这样就一定在一个局域网内
+                        UploadFileRequest uploadFileRequest = new UploadFileRequest(fileName);                  //指定文件
+                        String response = uploadFileRequest.upLoadFile(userID);                                 //指定用户userID
+                        System.out.println(response);
+                    } catch (Exception e) {
+                        System.out.println("离线文件上传失败...");
+                        e.printStackTrace();
+                    }
+                }
+
+                //处理局域网通信的识别问题
+                //如果接收方的IP和本机IP前三位相同，则认为在同一个局域网内   可行度低，因为并不能确保这样就一定在一个局域网内
             /*设置一个全局环境变量Set<String userID>.当点开一个聊天窗口就开启一个线程，由本用户发送"LocalConnect:userID"到消息服务器，服务器解析后取得对应userID的公网地址，向其
             发送数据包令其向本用户发送"TryLocalConnect:userID"的数据包.本用户若接收到此数据包，则将userID添加到Set中(若key已存在，则更新value).表示可以与其进行局域网消息发送，并
             向服务器发送"ConnectSuccess:userID(me)userID(him/her)/"的数据包，服务器收到此数据包后开启一个监听局域网连接的线程(此线程可结束)，在此线程中取出并局部存储本机userID+
@@ -444,7 +574,7 @@ public class LoginClient {
             "I_KNOW_LOCAL_CHANGE"则将用户表中isKnown改为true
             在打开至少一个聊天界面时，另一个监听线程应持续运行，此线程作用为每隔一段时间
             */
-                    scanner.nextLine();
+                scanner.nextLine();
             }
         }
     }
@@ -467,7 +597,9 @@ public class LoginClient {
                 Enumeration addresses = netInterface.getInetAddresses();
                 while (addresses.hasMoreElements()) {
                     ip = ((InetAddress) addresses.nextElement()).getHostAddress();
-                    allLocalMessageAddress.add(ip + clientMessagePORT);
+                    char thefirst = ip.charAt(0);
+                    if (thefirst > 47 && thefirst < 58 && !ip.contains(":"))
+                        allLocalMessageAddress.add(ip + "," + clientMessagePORT);
                 }
             }
         } catch (SocketException e) {
@@ -488,7 +620,9 @@ public class LoginClient {
                 Enumeration addresses = netInterface.getInetAddresses();
                 while (addresses.hasMoreElements()) {
                     ip = ((InetAddress) addresses.nextElement()).getHostAddress();
-                    allLocalFileAddress.add(ip + clientFilePORT);
+                    char thefirst = ip.charAt(0);
+                    if (thefirst > 47 && thefirst < 58 && !ip.contains(":"))
+                        allLocalFileAddress.add(ip + "," + clientFilePORT);
                 }
             }
         } catch (SocketException e) {
@@ -547,15 +681,19 @@ public class LoginClient {
     //接收消息的线程类
     private static class ReceiveMessageThread implements Runnable {
         private DatagramSocket ds;
+        private DatagramSocket fileds;
         private SocketAddress messageSocketAddress;
         private DatagramPacket dp;
         private byte[] by;
         private String message;
+        private String URL_ADDRESS;
 
-        public ReceiveMessageThread(DatagramSocket ds, SocketAddress messageSocketAddress) {
+        public ReceiveMessageThread(DatagramSocket ds, DatagramSocket fileds, SocketAddress messageSocketAddress, String URL_ADRESS) {
             this.ds = ds;
+            this.fileds = fileds;
             this.messageSocketAddress = messageSocketAddress;
             by = new byte[1024 * 8];
+            this.URL_ADDRESS = URL_ADRESS;
         }
 
         @Override
@@ -573,8 +711,10 @@ public class LoginClient {
                 /**
                  * ------------------------------------对收到的dp包进行各种情况的讨论--------------------------------
                  * **/
-                Gson gson1=new GsonBuilder().enableComplexMapKeySerialization().create();
-                Type type1=new TypeToken<ArrayList<String>>(){
+
+
+                Gson gson1 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                Type type1 = new TypeToken<ArrayList<String>>() {
                 }.getType();
                 message = new String(dp.getData(), 0, dp.getLength());
                 if (message.equals("PublicAddressChanged")) {
@@ -590,7 +730,7 @@ public class LoginClient {
                         e.printStackTrace();
                     }
                 } else if (message.startsWith("Chat")) {
-                    String content = message.split("/")[1];
+                    String content = message.split("/")[2];
                     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
                     Type type = new TypeToken<ChatMessage>() {
                     }.getType();
@@ -599,42 +739,57 @@ public class LoginClient {
 
                     String callBackID = chatMessage.getSenderID();
                     String myID = chatMessage.getAnotherID();
-                    byte[] bytes = ("CallBack/" + callBackID + "/" + myID).getBytes();
-                    dp = new DatagramPacket(bytes, 0, bytes.length, messageSocketAddress);
+                    byte[] bytes = ("CallBack/" + message.split("/")[1] + "/" + callBackID + "/" + myID).getBytes();
+                    /*Map<String, String> parameter9 = new HashMap<String, String>();
+                    parameter9.put("userID", callBackID);
+                    Request request = new Request(URL_ADDRESS + "/getMessageAddress", parameter9, RequestProperty.APPLICATION);
+                    String result = request.doPost();
+                    SocketAddress anotherMessageSocketAddress = new InetSocketAddress(result.split(":")[0], Integer.parseInt(result.split(":")[1]));
+                    */
+                    dp = new DatagramPacket(bytes, 0, bytes.length, messageSocketAddress/*anotherMessageSocketAddress*/);
                     try {
                         ds.send(dp);                                    //应该不用再测试是否能发送成功了
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     String nickName = LoginClient.contacts.get(callBackID).getNickName();                 //可以从静态变量中取得发送用户的所有基本信息
-                    String text = chatMessage.getMessage();
+                    String text = null;
+                    try {
+                        text = Chat.decodeChinese(chatMessage.getMessage());
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                     String sendTime = chatMessage.getSendTime();
 
-                    System.out.println("收到来自:" + callBackID + " 昵称为" + nickName + "的新消息:" + text + "\t发送时间:" + sendTime);
-                }else if(message.startsWith("LocalChat")){
-                    String content=message.split(":")[2];
+                    System.out.println("收到服务器转发的来自:" + callBackID + " 昵称为" + nickName + "的新消息:" + text + "\t发送时间:" + sendTime);
+                } else if (message.startsWith("CallBack")) {
+                    int index = Integer.parseInt(message.split("/")[1]);
+                    ifis.replace(index, true);
+                    System.out.println("外网发送信息回复:From " + message.split("/")[2] + " To " + message.split("/")[3] + " :Success");
+                } else if (message.startsWith("LocalChat")) {
+                    String content = message.split("/")[2];
                     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
                     Type type = new TypeToken<ChatMessage>() {
                     }.getType();
                     ChatMessage chatMessage = gson.fromJson(content, type);
                     chatMessage.setNature((byte) 1);
 
-                    String callBackID=chatMessage.getSenderID();
-                    String myID=chatMessage.getAnotherID();
+                    String callBackID = chatMessage.getSenderID();
+                    String myID = chatMessage.getAnotherID();
 
-                    String callBackAddress=message.split("/")[1];
-                    ArrayList<String> addresses=gson1.fromJson(callBackAddress,type1);
+                    String callBackAddress = message.split("/")[1];
+                    ArrayList<String> addresses = gson1.fromJson(callBackAddress, type1);
                     /*Gson gson1=new GsonBuilder().enableComplexMapKeySerialization().create();
                     Type type1=new TypeToken<ArrayList<String>>(){
                     }.getType();
                     ArrayList<String> addressList=gson.fromJson(callBackAddress)*/
-                    for(String address:addresses){
-                        String ip=address.split(":")[0];
-                        int port= Integer.parseInt(callBackAddress.split(":")[1]);
-                        SocketAddress socketAddress=new InetSocketAddress(ip,port);
+                    for (String address : addresses) {
+                        String ip = address.split(",")[0];
+                        int port = Integer.parseInt(address.split(",")[1]);
+                        SocketAddress socketAddress = new InetSocketAddress(ip, port);
 
-                        byte[] bytes=("CallLocalBack/"+callBackID+"/"+myID).getBytes();
-                        dp=new DatagramPacket(bytes,0,bytes.length,socketAddress);
+                        byte[] bytes = ("CallLocalBack/" + callBackID + "/" + myID).getBytes();
+                        dp = new DatagramPacket(bytes, 0, bytes.length, socketAddress);
                         try {
                             ds.send(dp);
                         } catch (IOException e) {
@@ -642,11 +797,97 @@ public class LoginClient {
                         }
                     }
 
-                    String nickName=LoginClient.contacts.get(callBackID).getNickName();
-                    String text = chatMessage.getMessage();
+                    String nickName = LoginClient.contacts.get(callBackID).getNickName();
+                    String text = null;
+                    try {
+                        text = chatMessage.getMessage();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                     String sendTime = chatMessage.getSendTime();
 
                     System.out.println("收到来自:" + callBackID + " 昵称为" + nickName + "的新消息:" + text + "\t发送时间:" + sendTime);
+                } else if (message.startsWith("OnlineTransmit")) {
+                    String receiverAddr = message.split("/")[2];                          //接收方的地址
+                    String addrlist = message.split("/")[3];                              //发送方的地址列表
+                    ArrayList<String> addresses = gson1.fromJson(addrlist, type1);
+                    for (String address : addresses) {
+                        String ip = address.split(",")[0];
+                        int port = Integer.parseInt(address.split(",")[1]);
+                        SocketAddress socketAddress = new InetSocketAddress(ip, port);
+
+                        byte[] bytes = ("Admitted/" + message.split("/")[1] + "/" + address + "/" + receiverAddr).getBytes();
+                        dp = new DatagramPacket(bytes, 0, bytes.length, socketAddress);
+                        try {
+                            ds.send(dp);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else if (message.startsWith("SendFile")) {
+                    /**接收到在线发送文件的请求**/
+                    ResponseThread responseThread = new ResponseThread(dp, fileds, URL_ADDRESS);
+                    Thread thread = new Thread(responseThread);
+                    thread.start();
+                } else if (message.startsWith("Admitted")) {
+                    int index = Integer.parseInt(message.split("/")[1]);
+                    ifis.replace(index, true);
+                    senderFileAddress.put(index, message.split("/")[2]);
+                    receiverFileAddress.put(index, message.split("/")[3]);
+                }
+            }
+        }
+
+        private class ResponseThread implements Runnable {
+            private DatagramPacket dp;
+            private DatagramSocket ds;
+            private String message;
+            private FileMessage fileMessage;
+            private String URL_ADDRESS;
+
+            public ResponseThread(DatagramPacket dp, DatagramSocket ds, String URL_ADDRESS) {
+                this.dp = dp;
+                this.ds = ds;
+                this.URL_ADDRESS = URL_ADDRESS;
+                this.message = new String(dp.getData(), 0, dp.getLength());
+                Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+                Type type = new TypeToken<FileMessage>() {
+                }.getType();
+                this.fileMessage = gson.fromJson(message.substring(9, message.length()), type);
+            }
+
+            @Override
+            public void run() {
+                System.out.println("\n在线发送请求:来自" + fileMessage.getSenderID() + "\t昵称" + fileMessage.getSenderNickName()
+                        + "\t文件名" + fileMessage.getFileName() + "\t文件大小" + fileMessage.getFileSize() + "\n");
+                System.out.println("\n是否同意接收?(Y/N)");
+                Scanner scanner = new Scanner(System.in);
+                String ifAgree = scanner.next();  /**同意或拒绝**/
+
+                /**可以在任何时候接收或拒绝**/
+                while (!ifAgree.equals("Y") && !ifAgree.equals("N")) {
+                    System.out.println("输入格式错误...");
+                    System.out.println("\n是否同意接收?(Y/N)");
+                    ifAgree = scanner.next();  /**同意或拒绝**/
+                }
+
+                if (ifAgree.equals("Y")) {
+                    //System.out.println("\n请输入文件在您PC上的全路径及文件名(包括后缀) (PS:路径可以有中文、但上传的文件本身不能含中文! 不能发送文件夹!):");
+                    System.out.println("\n请输入您的存储路径(目标文件夹全路径):");
+                    String save_path = scanner.next();
+                    FileReceiver fileReceiver = new FileReceiver((Long.parseLong(fileMessage.getFileSize())), save_path, fileMessage.getSenderAddress(), fileMessage.getReceiverAddress(), ds);
+                    /**暂停主接收?**/
+
+                    Map<String, String> parameters = new HashMap<String, String>();
+                    parameters.put("senderID", fileMessage.getSenderID());
+                    parameters.put("fileName", fileMessage.getFileName());
+
+                    System.out.println(fileMessage.getFileName());
+
+                    Request request = new Request(URL_ADDRESS + "/overrideProcess", parameters, RequestProperty.APPLICATION);
+                    String result = request.doPost();
+
+                    fileReceiver.receive();
                 }
             }
         }
@@ -699,106 +940,6 @@ public class LoginClient {
     }
 
 
-/*
-    //监听本机局域网地址的线程
-    private static class LocalAddressThread implements Runnable {
-        private String currentIP = localIP;
-        private String searchIP;
-        private String userID;
-        private String urlAddress;                                                                              //监听的地址(最后一部分)
-        private Map<String, String> requestParameters = new HashMap<String, String>();
-
-        private LocalAddressThread(String userID, String urlAddress) throws SQLException {
-            this.userID = userID;
-            this.urlAddress = urlAddress;
-            requestParameters.put("userID", this.userID);
-        }
-
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    searchIP = finaMyCurrentLocalIP();
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
-                if (currentIP.equals(searchIP)) {
-                    try {
-                        */
-/**System.out.println(currentIP + "   " + searchIP + "   " + "客户端地址正常");**//*
-
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    */
-/**
- * 如何结束main()方法?
- * **//*
-
-                    System.out.println(currentIP + "  " + searchIP + "我想结束main方法");
-
-                    */
-
-    /**
-     * 如何重启main()方法?
-     **//*
-
-                    try {
-                        LoginClient.main(null);
-                        System.exit(1);
-                    } catch (UnknownHostException e) {
-                        e.printStackTrace();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        private String finaMyCurrentLocalIP() throws UnknownHostException {
-            return getLocalHostAddress().getHostAddress();
-        }
-    }
-
-
-    //用户登录时取得自己的局域网地址(包括IP和端口)
-    //这个方法是从网络上搬运的
-    public static InetAddress getLocalHostAddress() throws UnknownHostException {
-        Enumeration allNetInterfaces;
-        try {
-            allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-            InetAddress ip = null;
-            while (allNetInterfaces.hasMoreElements()) {
-                NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
-
-                Enumeration addresses = netInterface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    ip = (InetAddress) addresses.nextElement();
-                    if (!ip.isSiteLocalAddress() && !ip.isLoopbackAddress() && ip.getHostAddress().indexOf(":") == -1) {
-                        if (ip != null && ip instanceof Inet4Address) {
-                            return ip;
-                        }
-                    }
-                }
-            }
-        } catch (SocketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
-        if (jdkSuppliedAddress == null) {
-            throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
-        }
-        return jdkSuppliedAddress;
-    }
-*/
-
-
     //监听好友中的上下线等行为(通过定时访问数据库实现)
     private static class ListenerThread implements Runnable {
         private String userID;
@@ -816,7 +957,7 @@ public class LoginClient {
         public void run() {
             while (true) {
                 try {
-                    Thread.sleep(3000);                    //睡眠5秒钟
+                    Thread.sleep(3000);                    //睡眠3秒钟
                 } catch (InterruptedException e) {
                     System.out.println("睡眠失败!/ListenerThread监听好友上下线行为");
                     e.printStackTrace();
@@ -882,7 +1023,7 @@ public class LoginClient {
                             theLatestText = contact.getTheLatestText();
                             theLatestTextTime = contact.getTheLatestTextTime();
                             System.out.println("帐号:" + ID + " 昵称:" + nickName + " 类型:" + (types == 0 ? "好友" : "群") +
-                                    (types == 0 ? (" 状态:" + (status == true ? "上线" : "下线")) : ("")) + (theLatestText == null ? (" 最后一条消息:" +
+                                    (types == 0 ? (" 状态:" + (status == true ? "上线" : "下线")) : ("")) + (theLatestText != null ? (" 最后一条消息:" +
                                     theLatestText + " 消息发送时间:" + theLatestTextTime) : ""));
                             /**替换全局变量中的元素**/
                             contacts.replace(ID, contact);
@@ -923,7 +1064,7 @@ public class LoginClient {
             parameter.put("userID", userID);
             Request request = new Request(URL_ADDRESS + "/ContactList", parameter, RequestProperty.APPLICATION);
             String result = "";
-            result=request.doPost();
+            result = request.doPost();
             //从resultInfo中获得每个单一的对象(resultInfo是json格式的数据)
             Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
             Type type = new TypeToken<Map<String, Contact>>() {
@@ -955,10 +1096,15 @@ public class LoginClient {
                     headIcon = contact.getHeadIcon();
                     types = contact.getTypes();
                     status = contact.isStatus();
-                    theLatestText = contact.getTheLatestText();
+                    theLatestText = null;
+                    try {
+                        theLatestText = contact.getTheLatestText();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                     theLatestTextTime = contact.getTheLatestTextTime();
                     System.out.println("帐号:" + ID + " 昵称:" + nickName + " 类型:" + (types == 0 ? "好友" : "群") +
-                            (types == 0 ? (" 状态:" + (status == true ? "上线" : "下线")) : ("")) + (theLatestText == null ? (" 最后一条消息:" +
+                            (types == 0 ? (" 状态:" + (status == true ? "上线" : "下线")) : ("")) + (theLatestText != null ? (" 最后一条消息:" +
                             theLatestText + " 消息发送时间:" + theLatestTextTime) : ""));
                 }
                 System.out.println();
@@ -1043,188 +1189,208 @@ public class LoginClient {
         }
     }
 
-    //发送消息的线程
-    //在此线程中停止接收方法
-    private final static class ChatSendTask implements Callable<Boolean> {
+
+    private static class UploadThread implements Runnable {
+        private String fileName;
+        private String userID;
+        private String anotherID;
+
+        public UploadThread(String fileName, String userID, String anotherID) {
+            this.fileName = fileName;
+            this.userID = userID;
+            this.anotherID = anotherID;
+        }
+
+        @Override
+        public void run() {
+            UploadFileRequest uploadFileRequest = new UploadFileRequest(fileName);                  //指定文件
+            String response = null;                                 //指定用户userID
+            try {
+                response = uploadFileRequest.upLoadFile(userID, anotherID);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (response.equals("success"))
+                System.out.println("离线文件发送成功!");
+        }
+    }
+
+    private static class ReceiveFileThread implements Runnable {
+        private String anotherID;
+        private String userID;
+        private String localPath;
+        private String fileName;
+
+        public ReceiveFileThread(String anotherID, String userID, String localPath, String fileName) {
+            this.anotherID = anotherID;
+            this.userID = userID;
+            this.localPath = localPath;
+            this.fileName = fileName;
+        }
+
+        @Override
+        public void run() {
+            DownloadFileRequest downloadFileRequest = new DownloadFileRequest(anotherID, userID, localPath, fileName);
+            try {
+                downloadFileRequest.downLoad();
+                System.out.println("文件接收成功!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private static class TryOnlineTransitThread implements Runnable {
+        private int index;
+        private DatagramSocket ds;
+        private String senderID;
+        private String anotherID;
+        private String address;
+        private String addressList;
+        private String message;
+        private SocketAddress socketAddress;
+        private DatagramPacket dp = null;
+        private byte[] bytes = null;
+
+        public TryOnlineTransitThread(int index, DatagramSocket ds, String senderID, String anotherID, String address, String addressList) {
+            this.index = index;
+            this.ds = ds;
+            this.senderID = senderID;
+            this.anotherID = anotherID;
+            this.address = address;
+            this.addressList = addressList;
+            this.message = "OnlineTransmit/" + this.index + "/" + address + "/" + addressList;
+        }
+
+        @Override
+        public void run() {
+            String ip = address.split(",")[0];
+            int port = Integer.parseInt(address.split(",")[1]);
+            socketAddress = new InetSocketAddress(ip, port);
+
+            bytes = this.message.getBytes();
+            dp = new DatagramPacket(bytes, 0, bytes.length, socketAddress);
+            try {
+                ds.send(dp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static class ReadFileResponseThread implements Runnable {
+        private String userID;
+        private String anotherID;
+        private String fileName;
+        private String URL_ADDRESS;
+        private String senderAddr;
+        private String receiverAddr;
+        private DatagramSocket ds;
+
+        private Request request;
+        private Map<String, String> parameters;
+
+
+        public ReadFileResponseThread(String userID, String anotherID, String fileName, String URL_ADDRESS, String senderAddr, String receiverAddr, DatagramSocket ds) {
+            this.userID = userID;
+            this.anotherID = anotherID;
+            this.fileName = fileName;
+            this.URL_ADDRESS = URL_ADDRESS;
+            this.senderAddr = senderAddr;
+            this.receiverAddr = receiverAddr;
+            this.ds = ds;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                parameters = new HashMap<String, String>();
+                parameters.put("userID", userID);
+                parameters.put("anotherID", anotherID);
+                parameters.put("fileName", fileName);
+                request = new Request(this.URL_ADDRESS + "/ReadFileResponse", parameters, RequestProperty.APPLICATION);
+                String isAccepted = request.doPost();             //每隔3s请求一次servlet,获得返回值
+                if (!isAccepted.equals("N")) {
+                    if (isAccepted.equals("T")) {
+                        /**这里写局域网用udp传输文件的方法**/
+                        FileSender fileSender = new FileSender(fileName, this.senderAddr, this.receiverAddr, ds);
+                        System.out.println("对方同意接收文件!文件传输开始...");
+                        System.out.println(fileSender.send());
+                        break;
+                    } else if (isAccepted.equals("F")) {
+                        System.out.println("对方拒绝接收文件" + fileName + "...");
+                    }
+                } else {
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+
+    private static class SendThread implements Runnable {
+        private int index;
         private DatagramSocket ds;
         private SocketAddress socketAddress;
         private String senderID;
         private String anotherID;
         private byte nature;
         private String sendTime;
-        private String messsage;
+        private String message;
         private DatagramPacket dp = null;
+        private DatagramPacket recevdp = null;
+        private byte[] receibytes = new byte[1024 * 6];
         private byte[] bytes = null;
         private ChatMessage chatMessage;
         private Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
 
-        public ChatSendTask(DatagramSocket messageds, SocketAddress messageSocketAddress, String senderID, String anotherID, byte nature, String sendTime, String message) {
+        public SendThread(int index, DatagramSocket messageds, SocketAddress messageSocketAddress, String senderID, String anotherID, byte nature, String sendTime, String message) {
+            this.index = index;
             this.ds = messageds;
             this.socketAddress = messageSocketAddress;
             this.senderID = senderID;
             this.anotherID = anotherID;
             this.nature = nature;
             this.sendTime = sendTime;
-            this.messsage = message;
+            this.message = message;
             this.chatMessage = new ChatMessage(senderID, anotherID, nature, sendTime, message);
         }
 
         @Override
-        public Boolean call() throws Exception {
+        public void run() {
             String content = gson.toJson(chatMessage);
-            bytes = ("Chat/" + content).getBytes();
+            bytes = ("Chat/" + this.index + "/" + content).getBytes();
             dp = new DatagramPacket(bytes, 0, bytes.length, socketAddress);
             try {
                 ds.send(dp);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            byte[] receby = new byte[1024 * 6];
-            dp = new DatagramPacket(receby, 0, receby.length);
             try {
-                do {
-                    ds.receive(dp);
-                } while (!(new String(dp.getData(), 0, dp.getLength()).startsWith("CallBack")));
-                System.out.println("成功回收数据!信息发送成功!" + new String(dp.getData(), 0, dp.getLength()));
-            } catch (IOException e) {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            return true;
+            if (!ifis.get(this.index)) {          /** ==false **/
+                System.out.println("外网发送无效，尝试数据库离线式发送...");                 /**其实是更新数据库的状态栏**/
+                Map<String, String> parameters3 = new HashMap<String, String>();
+                parameters3.put("userID", senderID);
+                parameters3.put("anotherID", anotherID);
+                parameters3.put("message", message);
+                parameters3.put("sendTime", sendTime);
+                Request request3 = new Request(URL_ADDRESS + "/updateContactStatus", parameters3, RequestProperty.APPLICATION);
+                String result3 = request3.doPost();               //result2 : success / false;
+                System.out.println(result3);
+            } else {
+                System.out.println("外网发送成功!");
+            }
+            ifis.remove(this.index);
         }
+
     }
-
-    private static class ChatLocalSendTask implements Callable<Boolean>{
-        private DatagramSocket ds;
-        private String senderID;
-        private String anotherID;
-        private SocketAddress socketAddress;
-        private byte nature;
-        private String sendTime;
-        private String messsage;
-        private DatagramPacket dp = null;
-        private byte[] bytes = null;
-        private ChatMessage chatMessage;
-        private String address;
-        private String addressList;
-        private Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-
-        public ChatLocalSendTask(DatagramSocket messageds, String senderID, String anotherID, byte nature, String sendTime, String message,String address,String addressList) {
-            this.ds = messageds;
-            this.senderID = senderID;
-            this.anotherID = anotherID;
-            this.nature = nature;
-            this.sendTime = sendTime;
-            this.messsage = message;
-            this.address=address;
-            this.addressList=addressList;
-            this.chatMessage = new ChatMessage(senderID, anotherID, nature, sendTime, message);
-        }
-
-        @Override
-        public Boolean call() throws Exception {
-            /*Map<String,String> parameters=new HashMap<String, String>();
-            parameters.put("senderID",senderID);
-            parameters.put("anotherID",anotherID);
-            Request request=new Request(LoginClient.URL_ADDRESS+"/GetLocalAddress",parameters,RequestProperty.APPLICATION);
-            String addressList=request.doPost();
-            String address=addressList.split("/")[1];*/
-            String ip=address.split(":")[0];
-            int port= Integer.parseInt(address.split(":")[1]);
-
-            socketAddress=new InetSocketAddress(ip,port);
-            String content = gson.toJson(chatMessage);
-            bytes = ("LocalChat/" + addressList + "/"+content).getBytes();
-            dp = new DatagramPacket(bytes, 0, bytes.length, socketAddress);
-            try {
-                ds.send(dp);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            byte[] receby = new byte[1024 * 6];
-            dp = new DatagramPacket(receby, 0, receby.length);
-            try {
-                do {
-                    ds.receive(dp);
-                } while (!(new String(dp.getData(), 0, dp.getLength()).startsWith("CallLocalBack")));
-                System.out.println("成功回收数据!局域网内信息发送成功!" + new String(dp.getData(), 0, dp.getLength()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return true;
-        }
-    }
-
-    private static class WaitThread implements Runnable{
-        private Thread thread;
-
-        public WaitThread(Thread thread) {
-            this.thread = thread;
-        }
-
-        @Override
-        public void run() {
-            synchronized (thread){
-                try {
-                    thread.wait();
-                }catch (InterruptedException e){
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private static class NotifyThread implements Runnable{
-        private Thread thread;
-
-        public NotifyThread(Thread thread) {
-            this.thread = thread;
-        }
-
-        @Override
-        public void run() {
-            synchronized (thread) {
-                thread.notify();
-            }
-        }
-    }
-
-
-    /*// 正确的IP拿法，即优先拿site-local地址
-    private static InetAddress getLocalHostLANAddress() throws UnknownHostException {
-        try {
-            InetAddress candidateAddress = null;
-            // 遍历所有的网络接口
-            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
-                NetworkInterface iface = (NetworkInterface) ifaces.nextElement();
-                // 在所有的接口下再遍历IP
-                for (Enumeration inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements();) {
-                    InetAddress inetAddr = (InetAddress) inetAddrs.nextElement();
-                    if (!inetAddr.isLoopbackAddress()) {// 排除loopback类型地址
-                        if (inetAddr.isSiteLocalAddress()) {
-                            // 如果是site-local地址，就是它了
-                            return inetAddr;
-                        } else if (candidateAddress == null) {
-                            // site-local类型的地址未被发现，先记录候选地址
-                            candidateAddress = inetAddr;
-                        }
-                    }
-                }
-            }
-            if (candidateAddress != null) {
-                return candidateAddress;
-            }
-            // 如果没有发现 non-loopback地址.只能用最次选的方案
-            InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
-            if (jdkSuppliedAddress == null) {
-                throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
-            }
-            return jdkSuppliedAddress;
-        } catch (Exception e) {
-            UnknownHostException unknownHostException = new UnknownHostException(
-                    "Failed to determine LAN address: " + e);
-            unknownHostException.initCause(e);
-            throw unknownHostException;
-        }
-    }*/
-
 }

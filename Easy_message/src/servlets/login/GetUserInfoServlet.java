@@ -12,25 +12,25 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet(name = "GetUserInfoServlet",urlPatterns = "/GetUserInfo")
+@WebServlet(name = "GetUserInfoServlet", urlPatterns = "/GetUserInfo")
 public class GetUserInfoServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         this.doGet(request, response);
         response.setContentType("text/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         String userID = request.getParameter("userID");
-        User user=null;
+        User user = null;
         try {
-            user=Login.getUserInfo(userID);
+            user = Login.getUserInfo(userID);
         } catch (Exception e) {
             System.out.println("获得用户数据失败!GetUserInfoServlet");
             e.printStackTrace();
         }
-        Gson gson=new Gson();
-        PrintWriter pw=response.getWriter();
-        if(user!=null){
+        Gson gson = new Gson();
+        PrintWriter pw = response.getWriter();
+        if (user != null) {
             pw.print(gson.toJson(user));
-        }else{
+        } else {
             pw.print("none");
         }
     }

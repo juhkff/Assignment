@@ -11,9 +11,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-final class RequestProperty{
-    static final String APPLICATION="application/x-www-form-urlencoded";
-    static final String JSON="text/json";
+final class RequestProperty {
+    static final String APPLICATION = "application/x-www-form-urlencoded";
+    static final String JSON = "text/json";
 }
 
 //向servlet请求的模版方法
@@ -26,20 +26,20 @@ public class Request {
     private String response = "";
     private String requestProperty;
 
-    public Request(String urlAddress, Map<String, String> parameters,String RequestProperty) {
+    public Request(String urlAddress, Map<String, String> parameters, String RequestProperty) {
         this.urlAddress = urlAddress;
         this.parameters = parameters;
-        this.requestProperty=RequestProperty;
+        this.requestProperty = RequestProperty;
     }
 
     public Request() {
 
     }
 
-    public void setAll(String urlAddress,Map<String ,String> parameters,String RequestProperty){
-        this.urlAddress=urlAddress;
-        this.parameters=parameters;
-        this.requestProperty=RequestProperty;
+    public void setAll(String urlAddress, Map<String, String> parameters, String RequestProperty) {
+        this.urlAddress = urlAddress;
+        this.parameters = parameters;
+        this.requestProperty = RequestProperty;
     }
 
     public void setUrlAddress(String urlAddress) {
@@ -83,7 +83,7 @@ public class Request {
             InputStream inputStream = uRLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             String readLine = null;
-            response="";
+            response = "";
             while ((readLine = bufferedReader.readLine()) != null) {/**  readLine!=""中readLine是不是指被等号赋值后的readLine?  **/
                 //response=bufferedReader.readLine();
                 response = response + readLine;
@@ -105,8 +105,8 @@ public class Request {
             return response;
     }                                                                                                          //返回获得的请求结果
 
-    public Map<String,String> JsonToMap(String JsonFormat){
-        Gson gson=new GsonBuilder().enableComplexMapKeySerialization().create();
+    public Map<String, String> JsonToMap(String JsonFormat) {
+        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
         Type type = new TypeToken<Map<String, String>>() {
         }.getType();
         Map<String, String> MapFormat = gson.fromJson(JsonFormat, type);

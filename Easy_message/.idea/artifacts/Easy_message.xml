@@ -9,10 +9,10 @@
         <element id="directory" name="lib">
           <element id="library" level="project" name="commons-codec-1" />
           <element id="library" level="project" name="commons-fileupload-1.3" />
+          <element id="library" level="project" name="gson-2.2.8" />
+          <element id="library" level="project" name="javamail-1.4" />
           <element id="library" level="project" name="javax" />
           <element id="library" level="project" name="mysql-connector-java-5.1.41" />
-          <element id="library" level="project" name="javamail-1.4" />
-          <element id="library" level="project" name="gson-2.2.8" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="Easy_message/web/Web" />

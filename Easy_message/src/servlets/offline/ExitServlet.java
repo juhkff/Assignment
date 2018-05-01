@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 
-@WebServlet(name = "ExitServlet",urlPatterns = "/Exit")
+@WebServlet(name = "ExitServlet", urlPatterns = "/Exit")
 public class ExitServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        this.doGet(request,response);
+        this.doGet(request, response);
         response.setContentType("text/html;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
-        String userID=request.getParameter("userID");
+        String userID = request.getParameter("userID");
         int result2 = 0;
         try {
             Exit.changeStatus(userID);                          //更新好友列表中自己的状态   (status: 1--->0 )
@@ -25,14 +25,14 @@ public class ExitServlet extends HttpServlet {
             e.printStackTrace();
         }
         try {
-            result2=Exit.updateExitTime(userID);                        //更新下线时间
+            result2 = Exit.updateExitTime(userID);                        //更新下线时间
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        PrintWriter pw=response.getWriter();
-        if(result2!=1){
+        PrintWriter pw = response.getWriter();
+        if (result2 != 1) {
             pw.print("error");
-        }else {
+        } else {
             pw.print("exit");                                           //返回的可能值:error/exit
         }
     }

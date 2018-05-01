@@ -5,10 +5,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import connection.Conn;
 import model.ChatMessage;
+import model.FileMessage;
 import p2pserver.messageServerDao.Address;
 import tools.Chat;
+import tools.Online;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.*;
 import java.sql.*;
@@ -22,6 +25,7 @@ public class MessageServer {
 
 
         while (true) {
+            //System.out.println("wait...");
             by = new byte[1024 * 8];
             dp = new DatagramPacket(by, 0, by.length);
             //System.out.println("等待消息客户端上线...");
@@ -46,14 +50,14 @@ public class MessageServer {
         @Override
         public void run() {
             String message=new String(dp.getData(),0,dp.getLength());
-            String senderID=message.split("/")[2];
-            String receiverID=message.split("/")[1];
+            String senderID=message.split("/")[3];
+            String receiverID=message.split("/")[2];
             String callBack=message.split("/")[0];                                          //不给客户端另一客户端的公网IP
             String receiverAddress=Chat.getReceiverAddress(receiverID);
             String ip=receiverAddress.split(":")[0];
             int port= Integer.parseInt(receiverAddress.split(":")[1]);
             SocketAddress socketAddress=new InetSocketAddress(ip,port);
-            byte[] bytes=callBack.getBytes();
+            byte[] bytes=message.getBytes();
             dp=new DatagramPacket(bytes,0,bytes.length,socketAddress);
             try {
                 ds.send(dp);
@@ -80,16 +84,26 @@ public class MessageServer {
         public void run() {
             System.out.println("\n");
             message=new String(dp.getData(),0,dp.getLength());
-            note=message.split("/")[1];
+            note=message.split("/")[2];
             ChatMessage chatMessage=this.gson.fromJson(note,this.type);
+            try {
+                System.out.println("发来的消息:"+chatMessage.getMessage());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             String senderID=chatMessage.getSenderID();
             String anotherID=chatMessage.getAnotherID();
             //byte nature=chatMessage.getNature();
-            String content=chatMessage.getMessage();
+            String content= null;
+            try {
+                content = chatMessage.getMessage();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             String sendTime=chatMessage.getSendTime();
             Timestamp timestamp= Timestamp.valueOf(sendTime);
             try {
-                Chat.insertChatMessage(senderID,anotherID,message,timestamp);
+                Chat.insertChatMessage(senderID,anotherID,content,timestamp);
                 Chat.updateContactStatus(senderID,anotherID);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -237,16 +251,54 @@ public class MessageServer {
             Address address = new Address();
             try {
                 this.saved_Address = address.getMessageAddress(message);                                                  //获得数据库中存储的客户端公网映射地址
-                System.out.println("saved_Address:"+saved_Address);
+                /**System.out.println("saved_Address:"+saved_Address);**/
                 this.current_Address = ((InetSocketAddress) this.dp.getSocketAddress()).getAddress().getHostAddress()+":"+((InetSocketAddress) this.dp.getSocketAddress()).getPort();     //获得当前映射地址
-                System.out.println("current_Address:"+current_Address);
+                /**System.out.println("current_Address:"+current_Address);**/
                 if (!saved_Address.equals(current_Address)) {
-                    System.out.println("不一样?");
+                    System.out.println("新旧地址不一样?");
                     dp.setData("PublicAddressChanged".getBytes(), 0, "PublicAddressChanged".getBytes().length);      //dp中还保留这来源地址
                     ds.send(dp);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static class TransmitThread implements Runnable{
+        private DatagramPacket dp;
+        private DatagramSocket ds;
+        private String message;
+        private String receiverAddress;
+        private SocketAddress socketAddress;
+        private byte[] messageby;
+
+        public TransmitThread(DatagramPacket dp, DatagramSocket ds) {
+            this.dp = dp;
+            this.ds = ds;
+            this.message=new String(dp.getData(),0,dp.getLength());
+            this.messageby=this.message.getBytes();
+        }
+
+        @Override
+        public void run() {
+            Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+            Type type = new TypeToken<FileMessage>() {
+            }.getType();
+            FileMessage fileMessage=gson.fromJson(message.substring(9,message.length()),type);;
+            System.out.println("在线发送请求:来自"+fileMessage.getSenderID()+"\t发送到"+fileMessage.getReceiverID()+"\t文件名"+fileMessage.getFileName()+"\t文件大小"+fileMessage.getFileSize());
+            String receiverMessageAddr=Online.getMessageAddressByID(fileMessage.getReceiverID());
+            this.receiverAddress=receiverMessageAddr;
+            /*String ip=this.receiverAddress.split(",")[0];
+            String port=this.receiverAddress.split(",")[1];*/
+            String ip=this.receiverAddress.split(":")[0];
+            String port=this.receiverAddress.split(":")[1];
+            this.socketAddress=new InetSocketAddress(ip, Integer.parseInt(port));
+            this.dp=new DatagramPacket(messageby,0,messageby.length,socketAddress);
+            try {
+                ds.send(dp);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -269,7 +321,7 @@ public class MessageServer {
         public void run() {
             message = new String(dp.getData(), 0, dp.getLength());
             if (message.startsWith("Heartbeat")) {
-                System.out.println("MessageServer Touch...");
+                /**System.out.println("MessageServer Touch...");**/
                 //启动登录线程对发送心跳包者执行检测地址操作
                 HeartThread heartThread = new HeartThread(dp, ds);
                 Thread thread = new Thread(heartThread);
@@ -293,6 +345,10 @@ public class MessageServer {
             }else if(message.startsWith("CallBack")){
                 CallBackThread callBackThread=new CallBackThread(dp,ds);
                 Thread thread=new Thread(callBackThread);
+                thread.start();
+            }else if (message.startsWith("SendFile")) {
+                TransmitThread transmitThread = new TransmitThread(dp, ds);
+                Thread thread = new Thread(transmitThread);
                 thread.start();
             }
         }

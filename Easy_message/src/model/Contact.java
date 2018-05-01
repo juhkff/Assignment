@@ -1,5 +1,8 @@
 package model;
 
+import tools.Chat;
+
+import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 
 public class Contact {
@@ -8,8 +11,8 @@ public class Contact {
     private byte[] headIcon;
     private byte types;
     private boolean status;
-    private String theLatestText=null;
-    private String theLatestTextTime=null;
+    private String theLatestText = null;
+    private String theLatestTextTime = null;
     //private boolean isupdate;
 
     public Contact(String ID, String nickName, byte[] headIcon, byte types, boolean status/*, boolean isupdate*/) {
@@ -21,14 +24,14 @@ public class Contact {
         //this.isupdate = isupdate;
     }
 
-    public Contact(String ID, String nickName, byte[] headIcon, byte types, boolean status, String theLatestText,String theLatestTextTime) {
+    public Contact(String ID, String nickName, byte[] headIcon, byte types, boolean status, String theLatestText, String theLatestTextTime) {
         this.ID = ID;
         this.nickName = nickName;
         this.headIcon = headIcon;
         this.types = types;
         this.status = status;
         this.theLatestText = theLatestText;
-        this.theLatestTextTime=theLatestTextTime;
+        this.theLatestTextTime = theLatestTextTime;
     }
 
     public String getTheLatestTextTime() {
@@ -39,8 +42,8 @@ public class Contact {
         this.theLatestTextTime = theLatestTextTime;
     }
 
-    public String getTheLatestText() {
-        return theLatestText;
+    public String getTheLatestText() throws UnsupportedEncodingException {
+        return Chat.decodeChinese(theLatestText);
     }
 
     public void setTheLatestText(String theLatestText) {

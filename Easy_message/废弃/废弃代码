@@ -1,0 +1,383 @@
+/*    //用户登录时取得自己的局域网地址(包括IP和端口)
+    //这个方法是从网络上搬运的
+    public static InetAddress getLocalHostAddress() throws UnknownHostException {
+        Enumeration allNetInterfaces;
+        try {
+            allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+            InetAddress ip = null;
+            while (allNetInterfaces.hasMoreElements()) {
+                NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
+
+                Enumeration addresses = netInterface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    ip = (InetAddress) addresses.nextElement();
+                    if (!ip.isSiteLocalAddress() && !ip.isLoopbackAddress() && ip.getHostAddress().indexOf(":") == -1) {
+                        if (ip != null && ip instanceof Inet4Address) {
+                            return ip;
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
+        if (jdkSuppliedAddress == null) {
+            throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
+        }
+        return jdkSuppliedAddress;
+    }
+    */
+
+
+    /* 正确的IP拿法，即优先拿site-local地址
+    private static InetAddress getLocalHostLANAddress() throws UnknownHostException {
+        try {
+            InetAddress candidateAddress = null;
+            // 遍历所有的网络接口
+            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
+                NetworkInterface iface = (NetworkInterface) ifaces.nextElement();
+                // 在所有的接口下再遍历IP
+                for (Enumeration inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements();) {
+                    InetAddress inetAddr = (InetAddress) inetAddrs.nextElement();
+                    if (!inetAddr.isLoopbackAddress()) {// 排除loopback类型地址
+                        if (inetAddr.isSiteLocalAddress()) {
+                            // 如果是site-local地址，就是它了
+                            return inetAddr;
+                        } else if (candidateAddress == null) {
+                            // site-local类型的地址未被发现，先记录候选地址
+                            candidateAddress = inetAddr;
+                        }
+                    }
+                }
+            }
+            if (candidateAddress != null) {
+                return candidateAddress;
+            }
+            // 如果没有发现 non-loopback地址.只能用最次选的方案
+            InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
+            if (jdkSuppliedAddress == null) {
+                throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
+            }
+            return jdkSuppliedAddress;
+        } catch (Exception e) {
+            UnknownHostException unknownHostException = new UnknownHostException(
+                    "Failed to determine LAN address: " + e);
+            unknownHostException.initCause(e);
+            throw unknownHostException;
+        }
+    }*/
+
+
+/**
+ * -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------System.out.println(currentIP + "   " + searchIP + "   " + "客户端地址正常");
+ * 如何结束main()方法?
+ * <p>
+ * 如何重启main()方法?
+ * --------------------------------------------------------------------------------------------------------------------------------
+ * --------------------------------------------------------------------------------------------------------------------------------System.out.println(currentIP + "   " + searchIP + "   " + "客户端地址正常");
+ * 如何结束main()方法?
+ * <p>
+ * 如何重启main()方法?
+ * --------------------------------------------------------------------------------------------------------------------------------
+ **/
+
+
+
+
+
+
+
+
+
+
+    /*
+    //生成新的Easy_message号码
+    public static String createNewID(String nickName, String passWord, boolean isMale, String birthday, String email) throws SQLException {
+        Connection connection = Conn.getConnection();
+        String sql = "SELECT userID FROM userinfo";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        Set<String> ID_List = new HashSet<String>();
+        //添加所有ID到集合ID_List中
+        while (resultSet.next()) {
+            ID_List.add(resultSet.getString("userID"));
+        }
+
+        //判断随机生成的号码是否与现有的重复
+        boolean repetitive = true;
+        boolean a = false;        //补全逻辑
+        String newID = null;
+        while (repetitive) {                                                                                      //一个逻辑坑
+            newID = create_ID();
+            Iterator<String> itr = ID_List.iterator();
+            while (itr.hasNext()) {
+                if (itr.next().equals(newID)) {
+                    a = true;
+                    break;
+                }
+            }
+            if (!a)
+                repetitive = false;
+        }
+        sql = "INSERT INTO userInfo(userID,nickName,passWord,isMale,birthday,email) VALUES (?,?,?,?,?,?)";
+        preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, newID);
+        preparedStatement.setString(2, nickName);
+        preparedStatement.setString(3, passWord);
+        preparedStatement.setBoolean(4, isMale);
+        preparedStatement.setString(5, birthday);
+        preparedStatement.setString(6, email);
+        int is_Success = preparedStatement.executeUpdate();
+        String result = is_Success + ":" + newID;
+        Conn.Close();
+        return result;
+    }
+*/
+
+
+/**--------------------------------------------------------------------------------------------------------------------------------**/
+
+
+
+
+
+
+
+        /*// 正确的IP拿法，即优先拿site-local地址
+    private static InetAddress getLocalHostLANAddress() throws UnknownHostException {
+        try {
+            InetAddress candidateAddress = null;
+            // 遍历所有的网络接口
+            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
+                NetworkInterface iface = (NetworkInterface) ifaces.nextElement();
+                // 在所有的接口下再遍历IP
+                for (Enumeration inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements();) {
+                    InetAddress inetAddr = (InetAddress) inetAddrs.nextElement();
+                    if (!inetAddr.isLoopbackAddress()) {// 排除loopback类型地址
+                        if (inetAddr.isSiteLocalAddress()) {
+                            // 如果是site-local地址，就是它了
+                            return inetAddr;
+                        } else if (candidateAddress == null) {
+                            // site-local类型的地址未被发现，先记录候选地址
+                            candidateAddress = inetAddr;
+                        }
+                    }
+                }
+            }
+            if (candidateAddress != null) {
+                return candidateAddress;
+            }
+            // 如果没有发现 non-loopback地址.只能用最次选的方案
+            InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
+            if (jdkSuppliedAddress == null) {
+                throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
+            }
+            return jdkSuppliedAddress;
+        } catch (Exception e) {
+            UnknownHostException unknownHostException = new UnknownHostException(
+                    "Failed to determine LAN address: " + e);
+            unknownHostException.initCause(e);
+            throw unknownHostException;
+        }
+    }*/
+
+
+
+    /*
+    //监听本机局域网地址的线程
+    private static class LocalAddressThread implements Runnable {
+        private String currentIP = localIP;
+        private String searchIP;
+        private String userID;
+        private String urlAddress;                                                                              //监听的地址(最后一部分)
+        private Map<String, String> requestParameters = new HashMap<String, String>();
+
+        private LocalAddressThread(String userID, String urlAddress) throws SQLException {
+            this.userID = userID;
+            this.urlAddress = urlAddress;
+            requestParameters.put("userID", this.userID);
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    searchIP = finaMyCurrentLocalIP();
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
+                if (currentIP.equals(searchIP)) {
+                    try {
+                        */
+/**System.out.println(currentIP + "   " + searchIP + "   " + "客户端地址正常");**//*
+
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    */
+/**
+ * 如何结束main()方法?
+ * **//*
+
+                    System.out.println(currentIP + "  " + searchIP + "我想结束main方法");
+
+                    */
+
+/**
+ * 如何重启main()方法?
+ **//*
+
+                    try {
+                        LoginClient.main(null);
+                        System.exit(1);
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        private String finaMyCurrentLocalIP() throws UnknownHostException {
+            return getLocalHostAddress().getHostAddress();
+        }
+    }
+
+
+    //用户登录时取得自己的局域网地址(包括IP和端口)
+    //这个方法是从网络上搬运的
+    public static InetAddress getLocalHostAddress() throws UnknownHostException {
+        Enumeration allNetInterfaces;
+        try {
+            allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+            InetAddress ip = null;
+            while (allNetInterfaces.hasMoreElements()) {
+                NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
+
+                Enumeration addresses = netInterface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    ip = (InetAddress) addresses.nextElement();
+                    if (!ip.isSiteLocalAddress() && !ip.isLoopbackAddress() && ip.getHostAddress().indexOf(":") == -1) {
+                        if (ip != null && ip instanceof Inet4Address) {
+                            return ip;
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
+        if (jdkSuppliedAddress == null) {
+            throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
+        }
+        return jdkSuppliedAddress;
+    }
+*/
+
+
+/**--------------------------------------------------------------------------------------------------------------------------------**/
+
+
+
+
+
+
+
+
+
+
+    /*ExecutorService executorService1 = Executors.newCachedThreadPool();
+                                    ChatLocalSendTask chatLocalSendTask = new ChatLocalSendTask(messageds, userID, anotherID, nature, sendTime, message);
+                                    Future<Boolean> future1 = executorService1.submit(chatLocalSendTask);
+                                    Boolean chatLocalSendResult = false;
+                                    try {
+                                        chatLocalSendResult = future1.get(1, TimeUnit.SECONDS);
+                                    } catch (TimeoutException e1) {
+                                        System.out.println("局域网发送无效，尝试数据库离线式发送...");
+                                        Map<String, String> parameters2 = new HashMap<String, String>();
+                                        parameters2.put("userID", userID);
+                                        parameters2.put("anotherID", anotherID);
+                                        parameters2.put("message", message);
+                                        parameters2.put("sendTime", sendTime);
+                                        Request request2 = new Request(URL_ADDRESS + "/OfflineChar", parameters2, RequestProperty.APPLICATION);
+                                        String result2 = request2.doPost();               //result2 : success / false;
+                                        System.out.println(result2);
+                                    }*/
+                                }
+                                /*synchronized (thread) {
+                                    thread.notify();
+                                }*/
+
+
+/** From LoginClient **/
+/*Map<String, String> parameter11 = new HashMap<String, String>();
+                                parameter11.put("userID", anotherID);
+                                Request request11 = new Request(URL_ADDRESS + "/getMessageAddress", parameter11, RequestProperty.APPLICATION);
+                                String anotherMessageAddress = request11.doPost();
+                                SocketAddress anotherMessageSocketAddr = new InetSocketAddress(anotherMessageAddress.split(":")[0], Integer.parseInt(anotherMessageAddress.split(":")[1]));
+*/
+
+/*
+                                System.out.println("外网发送无效，尝试局域网连接...");
+                                *//**
+ * PS:外网发送失效，好友数据仍然会更新(isupdate由0变为1)(虽然并没有意义)
+ * **//*
+
+ *//**尝试局域网连接**//*                                           *//**这一瞬间有可能会收不到数据**//*
+                                Map<String, String> parameters2 = new HashMap<String, String>();
+                                parameters2.put("senderID", userID);
+                                parameters2.put("anotherID", anotherID);
+                                Request request2 = new Request(LoginClient.URL_ADDRESS + "/GetLocalAddress", parameters2, RequestProperty.APPLICATION);
+                                String addressList = request2.doPost();
+                                String addresses = addressList.split("/")[1];
+                                addressList = addressList.split("/")[0];
+                                Gson gson1 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                                Type type1 = new TypeToken<ArrayList<String>>() {
+                                }.getType();
+                                ArrayList<String> addrList = new ArrayList<String>();
+                                addrList = gson1.fromJson(addresses, type1);
+                                //ArrayList<String> anotherAddrList=gson1.fromJson(addressList,type1);
+                                for (int index = 0; index < addrList.size(); index++) {
+                                    String address = addrList.get(index);
+                                    ExecutorService executorService1 = Executors.newCachedThreadPool();
+                                    ChatLocalSendTask chatLocalSendTask = new ChatLocalSendTask(messageds, userID, anotherID, nature, sendTime, message, address, addressList);
+                                    Future<Boolean> future1 = executorService1.submit(chatLocalSendTask);
+                                    Boolean chatLocalSendResult = false;
+                                    try {
+                                        chatLocalSendResult = future1.get(5000, TimeUnit.MILLISECONDS);
+                                        if (chatLocalSendResult) {
+                                            break;
+                                        }
+                                    } catch (TimeoutException e1) {
+                                        if (index < addrList.size() - 1)
+                                            continue;
+                                        else {
+                                            System.out.println("局域网发送无效，尝试数据库离线式发送...");
+                                            Map<String, String> parameters3 = new HashMap<String, String>();
+                                            parameters3.put("userID", userID);
+                                            parameters3.put("anotherID", anotherID);
+                                            parameters3.put("message", message);
+                                            parameters3.put("sendTime", sendTime);
+                                            Request request3 = new Request(URL_ADDRESS + "/OfflineChat", parameters3, RequestProperty.APPLICATION);
+                                            String result3 = request3.doPost();               //result2 : success / false;
+                                            System.out.println(result3);
+                                        }
+                                    }
+                                    */
+
+
+//thread.notify();
+                                /*NotifyThread notifyThread = new NotifyThread(thread);
+                                Thread thread2 = new Thread(notifyThread);
+                                thread2.start();*/

@@ -79,6 +79,15 @@
         用户登录成功后，访问ContactServlet，servlet接收userID，调用方法获得ArrayList<Contact>列表，对其中每个对象获得ID,用此ID查询数据库聊天表与anotherID匹配的记录，获取其中时间最新的消息.调用setTheLatestText()将消息添加进Contact对象中.返回ArrayList<Contact>列表    (Login.getContactList()方法需要重写/修改);
         客户端获得此ArrayList后获取其ID,nickName,headIcon,types,status,theLatestText将ID,nickName,headIcon,status,types和theLatestTest显式显示出来.
 
+
+
+
+        !!!在超时判断时，用于超时判断的(两个!)receive()方法也应该实现主方法中被暂停掉的receive()方法的功能.
+        外网发送通过获得返回数据确定信息发送成功的方法在一个用户同时向两个用户发送信息时会产生bug.但是问题应该不大.因为一般用户是来不及同时向两个人发送信息的(超时判定为0.5~1s).
+        客户端接收消息的线程中对receive()到的信息进行讨论的时候没有创立线程，而是直接if分支解释，这样子如果接收的请求不止一个就可能会丢失数据.(而接收文件的线程则根据相关头信息开辟新的线程)
+
+
+
         删除------------------------------客户端用Map<String userID,Boolean isInLocal>数据类型存储每个用户是否在局域网中
 
         将接收消息的线程变量receiveMessageThread设置为static全局变量.当在线时，发送数据的一瞬间，先携带接收者ID请求servlet，此servlet查询该用户是否在线(查询数据库).若在线，将全局线程wait掉，开启自线程.向子线程

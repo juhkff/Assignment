@@ -35,12 +35,12 @@ public class CompareServlet extends HttpServlet {
             System.out.println("\n手机号" + phoneNum + "注册验证失败...");
             printWriter.print(false);
         }
-        Set<String> result=SendCodeServlet.userverification.keySet();
-        Iterator<String> iterator=result.iterator();
-        while(iterator.hasNext()){
-            String key=iterator.next();
-            String value=SendCodeServlet.userverification.get(key);
-            System.out.println("key:"+key+"  value:"+value);
+        Set<String> result = SendCodeServlet.userverification.keySet();
+        Iterator<String> iterator = result.iterator();
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            String value = SendCodeServlet.userverification.get(key);
+            System.out.println("key:" + key + "  value:" + value);
         }
         System.out.println();
     }

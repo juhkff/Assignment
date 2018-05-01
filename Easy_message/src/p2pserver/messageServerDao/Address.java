@@ -8,9 +8,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Address {
-    private static Connection connection= Conn.getConnection();
+    private static Connection connection = Conn.getConnection();
     private static String sql;
     private static PreparedStatement preparedStatement;
+
     public static final String getMessageAddress(String userID) throws SQLException {
         String messageAddress = "";
         do {
@@ -25,7 +26,7 @@ public class Address {
                     throw new SQLException("查询错误!messageServer.Address.getMessageAddress");
                 messageAddress = resultSet.getString("remoteAddress");
             }
-        }while (messageAddress.equals(""));
+        } while (messageAddress.equals(""));
         return messageAddress;
     }
 }

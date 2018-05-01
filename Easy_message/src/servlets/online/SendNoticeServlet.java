@@ -12,34 +12,20 @@ import java.io.PrintWriter;
 
 import static tools.Online.sendRequest;
 
-@WebServlet(name = "SendNoticeServlet",urlPatterns = "/SendRequest")
+@WebServlet(name = "SendNoticeServlet", urlPatterns = "/SendRequest")
 public class SendNoticeServlet extends HttpServlet {
-    public static void main(String[] args) {
-        /*
-        //测试scanner.nextLine()
-        Scanner scanner=new Scanner(System.in);
-        while(true){
-            String ID=scanner.nextLine();
-            System.out.println("界面输出:"+ID);
-        }
-        */
 
-        String userID="8076357234";
-        String receiverID="1005221246";
-        String nickName="juhkgf";
-        String result=sendRequest(userID,nickName,receiverID);
-    }
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        this.doGet(request,response);
+        this.doGet(request, response);
         response.setContentType("text/html;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        String userID=request.getParameter("userID");
-        String nickName=request.getParameter("nickName");
-        String receiverID=request.getParameter("receiverID");
+        String userID = request.getParameter("userID");
+        String nickName = request.getParameter("nickName");
+        String receiverID = request.getParameter("receiverID");
         //System.out.println("收到的数据:userID--"+userID+"\tnickName--"+nickName+"\treceiverID--"+receiverID);
-        PrintWriter pw=response.getWriter();
-        String result=sendRequest(userID,nickName,receiverID);
+        PrintWriter pw = response.getWriter();
+        String result = sendRequest(userID, nickName, receiverID);
         pw.print(result);                   //pw:"CF"/"CG"
     }
 

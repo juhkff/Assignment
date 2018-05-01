@@ -11,28 +11,19 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 
-@WebServlet(name = "LocalAddressServlet",urlPatterns = "/findMyLocalIP")
+@WebServlet(name = "LocalAddressServlet", urlPatterns = "/findMyLocalIP")
 public class LocalAddressServlet extends HttpServlet {
-    public static void main(String[] args){
-        String userID="4965757872";
-        try {
-            String address=Online.getLocalAddress(userID);
-            String localIP=address.split(":")[0];
-            System.out.println(localIP);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        this.doGet(request,response);
+        this.doGet(request, response);
         response.setContentType("text/html;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        String userID=request.getParameter("userID");
+        String userID = request.getParameter("userID");
         try {
-            String address=Online.getLocalAddress(userID);
-            String localIP=address.split(":")[0];
-            PrintWriter pw=response.getWriter();
+            String address = Online.getLocalAddress(userID);
+            String localIP = address.split(":")[0];
+            PrintWriter pw = response.getWriter();
             pw.print(localIP);
         } catch (SQLException e) {
             e.printStackTrace();

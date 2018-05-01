@@ -5,16 +5,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Conn {
-    private static final String URL="jdbc:mysql://123.207.13.112:3306/easy_message?useSSL=false&autoReconnect=true&useUnicode=true&mysqlEncoding=utf8&characterEncoding=utf-8";
-    private static final String USER="root";
-    private static final String PASSWORD="7895123";
+    private static final String URL = "jdbc:mysql://123.207.13.112:3306/easy_message?useSSL=false&autoReconnect=true&useUnicode=true&mysqlEncoding=utf8&characterEncoding=utf-8";
+    private static final String USER = "root";
+    private static final String PASSWORD = "7895123";
     private static Connection connection;
 
-    public Conn(){
+    public Conn() {
     }
 
-    public static Connection getConnection(){
-        connection=null;
+    public static Connection getConnection() {
+        connection = null;
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -23,7 +23,7 @@ public class Conn {
         }
 
         try {
-            connection= DriverManager.getConnection(URL,USER,PASSWORD);
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -31,8 +31,8 @@ public class Conn {
         return connection;
     }
 
-    public static void Close(){
-        if (connection!=null){
+    public static void Close() {
+        if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
@@ -41,9 +41,9 @@ public class Conn {
         }
     }
 
-    public static void main(String[] args){
-        Connection connection=getConnection();
-        if (connection==null)
+    public static void main(String[] args) {
+        Connection connection = getConnection();
+        if (connection == null)
             System.out.println("false");
         else
             System.out.println("succeed");

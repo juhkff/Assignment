@@ -3,12 +3,18 @@ package model;
 public class User {
     private String userID;
     private String nickName;
-    /**头像**/
+    /**
+     * 头像
+     **/
     private boolean isMale;
     private String email;
     private String phoneNum;
     private String exitTime;
-    private String birthday;                        /**生日用TimeStamp还是String?**/
+    private String birthday;
+
+    /**
+     * 生日用TimeStamp还是String?
+     **/
 
     public User(String userID, String nickName, boolean isMale, String birthday, String email, String phoneNum, String exitTime) {
         this.userID = userID;
@@ -19,8 +25,10 @@ public class User {
         this.phoneNum = phoneNum;
         this.exitTime = exitTime;
     }
-    /**地址需不需要?**/
 
+    /**
+     * 地址需不需要?
+     **/
 
 
     public String getUserID() {

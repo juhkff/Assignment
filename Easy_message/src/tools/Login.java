@@ -2,7 +2,7 @@ package tools;
 
 
 import connection.Conn;
-import connection.ConnectionModel;
+
 import model.ChatMessage;
 import model.Contact;
 import model.NoticeMessage;
@@ -10,39 +10,12 @@ import model.User;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
+import java.io.UnsupportedEncodingException;
 import java.sql.*;
 import java.util.*;
-import java.util.Date;
 
 //实现登录功能
 public class Login {
-    public static void main(String[] args) throws SQLException {
-        /*ArrayList<ChatMessage> chatMessages = null;
-        String userID="5627764619";
-        String anotherID;
-        byte nature;
-        String sendTime;
-        String message;
-        ChatMessage chatMessage = null;
-        Date date=new Date();
-        Timestamp timestamp=new Timestamp(date.getTime());
-
-        Connection connection=Conn.getConnection();
-        String sql="SELECT * FROM user_"+userID+"_chatdata AS A WHERE sendTime=(SELECT MAX(sendTime) FROM user_"+userID+"_chatdata WHERE anotherID=A.anotherID ) AND nature=1 AND sendTime > \'"+timestamp+"\'";        *//**可能会出错**//*
-        PreparedStatement preparedStatement=connection.prepareStatement(sql);
-        ResultSet resultSet=preparedStatement.executeQuery();
-        while (resultSet.next()){
-            anotherID=resultSet.getString("another");
-            nature=resultSet.getByte("nature");
-            sendTime= String.valueOf(resultSet.getTimestamp("sendTime"));                                   *//**********能否强制转换?**********//*
-            message=resultSet.getString("message");
-            chatMessage=new ChatMessage(anotherID,nature,sendTime,message);
-            chatMessages.add(chatMessage);
-        }
-        Conn.Close();
-        System.out.println(chatMessage);*/
-    }
 
     //帐号和密码验证
     public static String pswVerification(String userID) throws SQLException {
@@ -76,7 +49,7 @@ public class Login {
 
                 statement1.addBatch(sql1);
             }
-            sql1="UPDATE userinfo SET isOnline=1 WHERE userID="+userID;
+            sql1 = "UPDATE userinfo SET isOnline=1 WHERE userID=" + userID;
             statement1.addBatch(sql1);
             i = statement1.executeBatch();
             connection.commit();
@@ -94,14 +67,11 @@ public class Login {
         for (int j : i)
             result += j;
         return result;
-        /*Iterator<String> itr=IDList.iterator();
-        while (itr.hasNext()){
-        }*/
     }
 
     //用户登录时获得所有好友的状态(在线or离线)
     public static ArrayList<Contact> getContactList(String userID) throws SQLException {
-        ArrayList<Contact> contactList=new ArrayList<Contact>();
+        ArrayList<Contact> contactList = new ArrayList<Contact>();
         String ID;
         String nickName;
         InputStream inputStream;
@@ -116,15 +86,15 @@ public class Login {
             sql = "SELECT ID,nickName,headIcon,types,status FROM user_" + userID + "_contactlist";
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
-                ID=resultSet.getString("ID");
-                nickName=resultSet.getString("nickName");
-                inputStream=resultSet.getBinaryStream("headIcon");
-                headIcon=null;
-                if(inputStream!=null)
-                    headIcon=new byte[inputStream.available()];
-                types=resultSet.getByte("types");
-                status=resultSet.getBoolean("status");
-                Contact contact=new Contact(ID,nickName,headIcon,types,status);
+                ID = resultSet.getString("ID");
+                nickName = resultSet.getString("nickName");
+                inputStream = resultSet.getBinaryStream("headIcon");
+                headIcon = null;
+                if (inputStream != null)
+                    headIcon = new byte[inputStream.available()];
+                types = resultSet.getByte("types");
+                status = resultSet.getBoolean("status");
+                Contact contact = new Contact(ID, nickName, headIcon, types, status);
                 contactList.add(contact);
             }
         } catch (IOException e) {
@@ -157,8 +127,8 @@ public class Login {
         return timestamp;
     }
 
-    public static final ArrayList<ChatMessage> getChatMessage(String userID,Timestamp timestamp) throws SQLException {
-        ArrayList<ChatMessage> chatMessages = null;
+    public static final ArrayList<ChatMessage> getChatMessage(String userID, Timestamp timestamp) throws SQLException, UnsupportedEncodingException {
+        ArrayList<ChatMessage> chatMessages = new ArrayList<ChatMessage>();
 
         String anotherID;
         byte nature;
@@ -166,34 +136,34 @@ public class Login {
         String message;
         ChatMessage chatMessage;
 
-        Connection connection=Conn.getConnection();
-        String sql="SELECT * FROM user_"+userID+"_chatdata AS A WHERE sendTime=(SELECT MAX(sendTime) FROM user_"+userID+"_chatdata WHERE anotherID=A.anotherID ) AND nature=1 AND sendTime > \'"+timestamp+"\'";        /**可能会出错**/
-        PreparedStatement preparedStatement=connection.prepareStatement(sql);
-        ResultSet resultSet=preparedStatement.executeQuery();
-        while (resultSet.next()){
-            anotherID=resultSet.getString("another");
-            nature=resultSet.getByte("nature");
-            sendTime= String.valueOf(resultSet.getTimestamp("sendTime"));                                   /**********能否强制转换?**********/
-            message=resultSet.getString("message");
-            chatMessage=new ChatMessage(anotherID,nature,sendTime,message);
+        Connection connection = Conn.getConnection();
+        String sql = "SELECT * FROM user_" + userID + "_chatdata AS A WHERE sendTime=(SELECT MAX(sendTime) FROM user_" + userID + "_chatdata WHERE anotherID=A.anotherID ) AND nature=1 AND sendTime > \'" + timestamp + "\'";        /**可能会出错**/
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+            anotherID = resultSet.getString("anotherID");
+            nature = resultSet.getByte("nature");
+            sendTime = String.valueOf(resultSet.getTimestamp("sendTime"));                                   /**********能否强制转换?**********/
+            message = Chat.decodeChinese(resultSet.getString("message"));
+            chatMessage = new ChatMessage(anotherID, nature, sendTime, message);
             chatMessages.add(chatMessage);
         }
         Conn.Close();
         return chatMessages;
     }
 
-    public static ArrayList<NoticeMessage> getNoticeMessage(String userID,Timestamp timestamp) throws SQLException {
-        ArrayList<NoticeMessage> noticeMessages=new ArrayList<NoticeMessage>();
+    public static ArrayList<NoticeMessage> getNoticeMessage(String userID, Timestamp timestamp) throws SQLException {
+        ArrayList<NoticeMessage> noticeMessages = new ArrayList<NoticeMessage>();
         NoticeMessage noticeMessage;
-        Connection connection=Conn.getConnection();
-        String sql="SELECT * FROM user_"+userID+"_noticelist";
-        PreparedStatement preparedStatement=connection.prepareStatement(sql);
-        ResultSet resultSet=preparedStatement.executeQuery(sql);
-        while (resultSet.next()){
-            String anotherID=resultSet.getString("anotherID");
-            String nickName=resultSet.getString("nickName");
-            byte property=resultSet.getByte("property");
-            noticeMessage=new NoticeMessage(anotherID,nickName,property);
+        Connection connection = Conn.getConnection();
+        String sql = "SELECT * FROM user_" + userID + "_noticelist";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ResultSet resultSet = preparedStatement.executeQuery(sql);
+        while (resultSet.next()) {
+            String anotherID = resultSet.getString("anotherID");
+            String nickName = resultSet.getString("nickName");
+            byte property = resultSet.getByte("property");
+            noticeMessage = new NoticeMessage(anotherID, nickName, property);
             noticeMessages.add(noticeMessage);
         }
         Conn.Close();
@@ -201,38 +171,45 @@ public class Login {
     }
 
     public final static User getUserInfo(String userID) throws Exception {
-        Connection connection=Conn.getConnection();
-        String sql="SELECT * FROM userinfo WHERE userID=?";
-        PreparedStatement preparedStatement=connection.prepareStatement(sql);
-        preparedStatement.setString(1,userID);
+        Connection connection = Conn.getConnection();
+        String sql = "SELECT * FROM userinfo WHERE userID=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, userID);
         ResultSet resultSet = preparedStatement.executeQuery();
         User user = null;
-        int i=0;
-        while (resultSet.next()){
-            String nickName=resultSet.getString("nickName");
-            boolean isMale=resultSet.getBoolean("isMale");                          /**似乎默认为false**/
-            String email=resultSet.getString("email");                              /**数据为空时无此条数据**/
-            String phoneNum=resultSet.getString("phoneNum");
-            String exitTime= String.valueOf(resultSet.getTimestamp("exitTime"));
-            String birthday= String.valueOf(resultSet.getTimestamp("birthday"));    /**若无则json中表示为字符串null**/
-            user=new User(userID,nickName,isMale,birthday,email,phoneNum,exitTime);
+        int i = 0;
+        while (resultSet.next()) {
+            String nickName = resultSet.getString("nickName");
+            boolean isMale = resultSet.getBoolean("isMale");                          /**似乎默认为false**/
+            String email = resultSet.getString("email");                              /**数据为空时无此条数据**/
+            String phoneNum = resultSet.getString("phoneNum");
+            String exitTime = String.valueOf(resultSet.getTimestamp("exitTime"));
+            String birthday = String.valueOf(resultSet.getTimestamp("birthday"));    /**若无则json中表示为字符串null**/
+            user = new User(userID, nickName, isMale, birthday, email, phoneNum, exitTime);
             i++;
         }
         Conn.Close();
-        if(i==1&&user!=null){
+        if (i == 1 && user != null) {
             return user;
-        }
-        else {
+        } else {
             throw new Exception("查询用户不只一个!tools.Login.getUserInfo");
         }
     }
 
     public final static void deleteAllNoticeMessage(String userID) throws SQLException {
-        Connection connection=Conn.getConnection();
-        String sql="DELETE FROM user_"+userID+"_noticelist";
-        PreparedStatement preparedStatement=connection.prepareStatement(sql);
+        Connection connection = Conn.getConnection();
+        String sql = "DELETE FROM user_" + userID + "_noticelist";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.execute();
     }
+}
+
+
+
+
+
+
+
 
 /*    //用户登录时取得自己的局域网地址(包括IP和端口)
     //这个方法是从网络上搬运的
@@ -305,5 +282,3 @@ public class Login {
             throw unknownHostException;
         }
     }*/
-
-}

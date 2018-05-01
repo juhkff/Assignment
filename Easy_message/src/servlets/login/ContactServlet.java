@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import connection.Conn;
 import model.Contact;
+import tools.Chat;
 import tools.Login;
 
 import javax.servlet.ServletException;
@@ -23,20 +24,9 @@ import java.util.Map;
 
 @WebServlet(name = "ContactServlet", urlPatterns = "/ContactList")
 public class ContactServlet extends HttpServlet {
-    public static void main(String[] args) {
-        String userID = "1005221246";
-        ArrayList<Contact> contactList;
-        try {
-            contactList = Login.getContactList(userID);
-            for (Contact contact : contactList)
-                System.out.println(contact.getID() + "\t" + contact.getNickName());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     ArrayList<Contact> contactList;
-    Map<String, Contact> contacts=new HashMap<String,Contact>();
+    Map<String, Contact> contacts = new HashMap<String, Contact>();
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         this.doGet(request, response);
@@ -51,7 +41,7 @@ public class ContactServlet extends HttpServlet {
         }
         if (contactList != null) {
             Connection connection = Conn.getConnection();
-            String sql = "SELECT *,MAX(sendTime) FROM user_" + userID + "_chatdata";
+            String sql = "SELECT * FROM user_" + userID + "_chatdata WHERE sendTime IN ( SELECT MAX(sendTime) FROM user_" + userID + "_chatdata GROUP BY anotherID ) GROUP BY anotherID ";
             PreparedStatement preparedStatement = null;
             try {
                 preparedStatement = connection.prepareStatement(sql);
@@ -61,7 +51,7 @@ public class ContactServlet extends HttpServlet {
                     String anotherID = resultSet.getString("anotherID");
                     if (anotherID == null)
                         break;
-                    String message = resultSet.getString("message");
+                    String message = Chat.decodeChinese(resultSet.getString("message"));
                     String theLatestTextTime = String.valueOf(resultSet.getTimestamp("sendTime"));
                     for (Contact contact : contactList) {
                         if (contact.getID().equals(anotherID)) {

@@ -2,13 +2,15 @@ package tools;
 
 import connection.Conn;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 public class Exit {
-    public static void main(String[] args) throws SQLException {
-        String userID="5627764619";
-        changeStatus(userID);
-    }
+
     public static int[] changeStatus(String userID) throws SQLException {
         //int result = 0;
         Connection connection = Conn.getConnection();
@@ -26,36 +28,27 @@ public class Exit {
                 sql1 = "UPDATE user_" + resultSet.getString("ID") + "_contactlist SET status=0,isupdate=1 WHERE ID=" + userID;
                 statement1.addBatch(sql1);
             }
-            sql1="UPDATE userinfo SET isOnline=0 WHERE userID="+userID;
+            sql1 = "UPDATE userinfo SET isOnline=0 WHERE userID=" + userID;
             statement1.addBatch(sql1);
             i = statement1.executeBatch();
             connection.commit();
         } finally {
             Conn.Close();
         }
-        /*for (int j : i)
-            result += j;
-        if (result != 2) {
-            try {
-                throw new SQLException("用户退出时更新列表错误!Exit.java/changeStatus");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }*/
         return i;
     }
 
     public static int updateExitTime(String userID) throws SQLException {
-        int result=0;
-        Connection connection=Conn.getConnection();
-        String sql="UPDATE userinfo SET exitTime=? WHERE userID=?";
-        PreparedStatement preparedStatement=connection.prepareStatement(sql);
-        DateTime dateTime=new DateTime();
-        preparedStatement.setTimestamp(1,dateTime.getCurrentDateTime());                                //数据库中如果是date而不是datetime则不能保存日期
-        preparedStatement.setString(2,userID);
-        result=preparedStatement.executeUpdate();
+        int result = 0;
+        Connection connection = Conn.getConnection();
+        String sql = "UPDATE userinfo SET exitTime=? WHERE userID=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        DateTime dateTime = new DateTime();
+        preparedStatement.setTimestamp(1, dateTime.getCurrentDateTime());                                //数据库中如果是date而不是datetime则不能保存日期
+        preparedStatement.setString(2, userID);
+        result = preparedStatement.executeUpdate();
         Conn.Close();
-        if(result!=1)
+        if (result != 1)
             throw new SQLException("更新时间出错!Exit.updateExitTime");
         else
             return result;

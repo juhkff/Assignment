@@ -20,6 +20,24 @@ import java.util.Map;
 //登录验证密码
 
 public class LoginServlet extends HttpServlet {
+    public static void main(String[] args) throws SQLException {
+        String userID="6979682227";
+        String passWord="aqko251068";
+        String password = Login.pswVerification(userID);
+        if (password == null)
+            System.out.println("null");                                           //（帐号不存在）登录失败
+        else if (!password.equals(passWord))
+            System.out.println("false");                                          //（密码错误）登录失败
+        else if (password.equals(passWord)) {
+            System.out.println("true");                                           //登录成功
+            Login.changeStatus(userID);                                 //修改好友看自己的状态
+        }
+        /**
+         * pw使用多次print方法会有干扰吗
+         * **/
+        else
+            System.out.println("error");                                          //其它情况
+    }
     private Map<String, String> contactList;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

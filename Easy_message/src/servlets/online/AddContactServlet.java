@@ -15,26 +15,26 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet(name = "AddContactServlet",urlPatterns = "/AddContact")
+@WebServlet(name = "AddContactServlet", urlPatterns = "/AddContact")
 public class AddContactServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        this.doGet(request,response);
+        this.doGet(request, response);
         response.setContentType("text/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        String userID=request.getParameter("userID");
-        Map<String,String> userList = null;
+        String userID = request.getParameter("userID");
+        Map<String, String> userList = null;
         try {
-            userList=Online.getAddList(userID);
+            userList = Online.getAddList(userID);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        String result="";
-        if(userList.size()>0) {
+        String result = "";
+        if (userList.size() > 0) {
             Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
             result = gson.toJson(userList);
         }
-        PrintWriter pw=response.getWriter();
+        PrintWriter pw = response.getWriter();
         pw.print(result);
         //result的可能值:"" ; Map序列的Json形式
     }
