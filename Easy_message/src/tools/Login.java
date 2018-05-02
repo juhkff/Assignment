@@ -127,26 +127,47 @@ public class Login {
         return timestamp;
     }
 
-    public static final ArrayList<ChatMessage> getChatMessage(String userID, Timestamp timestamp) throws SQLException, UnsupportedEncodingException {
+    public static final ArrayList<ChatMessage> getChatMessage(String userID, Timestamp timestamp) throws SQLException, IOException {
         ArrayList<ChatMessage> chatMessages = new ArrayList<ChatMessage>();
 
         String anotherID;
         byte nature;
         String sendTime;
-        String message;
+        String message=null;
+        byte[] imgBytes=null;
+        InputStream inputStream=null;
         ChatMessage chatMessage;
 
         Connection connection = Conn.getConnection();
-        String sql = "SELECT * FROM user_" + userID + "_chatdata AS A WHERE sendTime=(SELECT MAX(sendTime) FROM user_" + userID + "_chatdata WHERE anotherID=A.anotherID ) AND nature=1 AND sendTime > \'" + timestamp + "\'";        /**可能会出错**/
+        String sql = "SELECT * FROM user_" + userID + "_chatdata AS A WHERE sendTime=(SELECT MAX(sendTime) FROM user_" + userID + "_chatdata WHERE anotherID=A.anotherID ) AND nature IN (1,6) AND sendTime > \'" + timestamp + "\'";        /**可能会出错**/
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
             anotherID = resultSet.getString("anotherID");
             nature = resultSet.getByte("nature");
             sendTime = String.valueOf(resultSet.getTimestamp("sendTime"));                                   /**********能否强制转换?**********/
-            message = Chat.decodeChinese(resultSet.getString("message"));
-            chatMessage = new ChatMessage(anotherID, nature, sendTime, message);
-            chatMessages.add(chatMessage);
+            message=resultSet.getString("message");
+            /**
+             * if (message!=null)
+                message = Chat.decodeChinese(resultSet.getString("message"));
+             **/
+            //if(message==null){
+            /**---发送的可能情况说明了不可能出现文本和图片都为null值的情况---**/
+                //imgBytes
+            //}
+            inputStream=resultSet.getBinaryStream("img");
+            if(inputStream!=null){
+                imgBytes=new byte[inputStream.available()];
+                inputStream.read(imgBytes,0,inputStream.available());
+            }
+
+            if(message!=null) {
+                chatMessage = new ChatMessage(anotherID, nature, sendTime, message);
+                chatMessages.add(chatMessage);
+            }else if (inputStream!=null){
+                chatMessage=new ChatMessage(anotherID,nature,sendTime,imgBytes);
+                chatMessages.add(chatMessage);
+            }
         }
         Conn.Close();
         return chatMessages;

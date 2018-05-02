@@ -8,24 +8,24 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>$Title$</title>
+    <title>测试</title>
 </head>
 <body>
 
-<form action="/UploadFileServlet" method="post" enctype="multipart/form-data">
+<form action="/Easy_message/UploadFileServlet" method="post" enctype="multipart/form-data">
     <tr>
         <td>userID:</td>
         <td><input type="text" placeholder="userID" name="userID"></td>
         <td>anotherID</td>
         <td><input type="text" placeholder="anotherID" name="anotherID"></td>
-        <td>本地目录：</td>
+        <td>本地目：</td>
         <td><input type="file" name="upload"></td>
         <td><input type="submit" value="上传"></td>
     </tr>
 
 </form>
 
-<form action="/GetChat" method="post">
+<form action="/Easy_message/GetChat" method="post">
     <table>
         <tr>
             <td>userID:</td>

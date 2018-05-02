@@ -1,0 +1,4 @@
+<div>
+<p>显示图</p>
+<img src="/Easy_message/getImg"<%--"927_2015091021942371.jpg"--%>>
+</div>

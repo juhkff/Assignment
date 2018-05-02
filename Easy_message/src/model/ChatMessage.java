@@ -5,11 +5,11 @@ import tools.Chat;
 import java.io.UnsupportedEncodingException;
 
 public class ChatMessage {
-    private String senderID = null;
-    private String anotherID;
+    private String anotherID;               /**anotherID即是senderID**/
     private byte nature;
     private String sendTime;
-    private String message;
+    private String message=null;
+    private byte[] img=null;                     /**聊天图片**/
     private String isAccept = "";
 
     public ChatMessage(String anotherID, byte nature, String sendTime, String message) {
@@ -19,16 +19,14 @@ public class ChatMessage {
         this.message = message;
     }
 
-    public ChatMessage(String senderID, String anotherID, byte nature, String sendTime, String message) {
-        this.senderID = senderID;
+    public ChatMessage(String anotherID, byte nature, String sendTime, byte[] img) {
         this.anotherID = anotherID;
         this.nature = nature;
         this.sendTime = sendTime;
-        this.message = message;
+        this.img = img;
     }
 
-    public ChatMessage(String senderID, String anotherID, byte nature, String sendTime, String message, String isAccept) {
-        this.senderID = senderID;
+    public ChatMessage(String anotherID, byte nature, String sendTime, String message, String isAccept) {
         this.anotherID = anotherID;
         this.nature = nature;
         this.sendTime = sendTime;
@@ -36,12 +34,12 @@ public class ChatMessage {
         this.isAccept = isAccept;
     }
 
-    public String getSenderID() {
-        return senderID;
-    }
-
-    public void setSenderID(String senderID) {
-        this.senderID = senderID;
+    public ChatMessage(String anotherID, byte nature, String sendTime, byte[] img, String isAccept) {
+        this.anotherID = anotherID;
+        this.nature = nature;
+        this.sendTime = sendTime;
+        this.img = img;
+        this.isAccept = isAccept;
     }
 
     public String getAnotherID() {
@@ -74,6 +72,14 @@ public class ChatMessage {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public byte[] getImg() {
+        return img;
+    }
+
+    public void setImg(byte[] img) {
+        this.img = img;
     }
 
     public String getIsAccept() {

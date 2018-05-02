@@ -158,8 +158,9 @@ public class LoginClient {
 
             } while (!messageresult.equals("success") && !fileresult.equals("success"));
 
+
             //建立接收消息的线程
-            ReceiveMessageThread receiveMessageThread = new ReceiveMessageThread(messageds, fileds, messageSocketAddress, URL_ADDRESS);
+            ReceiveMessageThread receiveMessageThread = new ReceiveMessageThread(messageds, fileds, messageSocketAddress, URL_ADDRESS, userID);
             Thread thread = new Thread(receiveMessageThread);
             thread.start();
 
@@ -216,28 +217,105 @@ public class LoginClient {
                         if (chatMessage.getNature() == 1)                   //1:他向我说; 0:我向他说
                             System.out.println("" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
                         else if (chatMessage.getNature() == 0)
-                            System.out.println("\t\t\t" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
+                            System.out.println("\t\t\t\t\t\t" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
                         else if (chatMessage.getNature() == 2)
-                            System.out.println("\t\t\t文件:" + chatMessage.getMessage() + " sendTime : " + chatMessage.getSendTime());
+                            System.out.println("\t\t\t\t\t\t文件:" + chatMessage.getMessage() + " sendTime : " + chatMessage.getSendTime());
                         else if (chatMessage.getNature() == 3)
                             System.out.println("文件:" + chatMessage.getMessage() + " sendTime : " + chatMessage.getSendTime());
+                        else if (chatMessage.getNature() == 5)
+                            System.out.println("\t\t\t\t\t\t图片:" + chatMessage.getImg() + " sendTime : " + chatMessage.getSendTime());
+                        else if (chatMessage.getNature() == 6)
+                            System.out.println("图片" + chatMessage.getImg() + " sendTime : " + chatMessage.getSendTime());
                     }
                     //DateTime dateTime = new DateTime();
                     byte nature = 0;
                     while (true) {
-                        System.out.println("\n发送消息(Exit退出):\tImg/发送图片\tSubmit/发送离线文件\tReceive/接收离线文件\tOnlineTransmit/发送在线文件\t");
+                        System.out.println("\n发送消息(Exit退出):\tImg/发送图片\tSubmit/发送离线文件\tReceive/接收离线文件\tOnlineTransmit/发送在线文件\tHistory/聊天记录\t");
                         scanner.nextLine();
                         String message = scanner.nextLine();
                         if (message.equals("Exit"))
                             break;
-                        else if(message.equals("Img")){
-                            System.out.println("输入您要发送的图片全路径");
-                            String img_path=scanner.next();
+                        else if (message.equals("History")) {
+                            System.out.println("聊天记录");
+                            int num = historyChatMessages.size();
+                            if (num <= 10) {
+                                for (ChatMessage chatMessage : historyChatMessages) {
+                                    if (chatMessage.getNature() == 1)                   //1:他向我说; 0:我向他说
+                                        System.out.println("" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
+                                    else if (chatMessage.getNature() == 0)
+                                        System.out.println("\t\t\t\t\t\t" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
+                                    else if (chatMessage.getNature() == 2)
+                                        System.out.println("\t\t\t\t\t\t文件:" + chatMessage.getMessage() + " sendTime : " + chatMessage.getSendTime());
+                                    else if (chatMessage.getNature() == 3)
+                                        System.out.println("文件:" + chatMessage.getMessage() + " sendTime : " + chatMessage.getSendTime());
+                                    else if (chatMessage.getNature() == 5)
+                                        System.out.println("\t\t\t\t\t\t图片:" + chatMessage.getImg() + " sendTime : " + chatMessage.getSendTime());
+                                    else if (chatMessage.getNature() == 6)
+                                        System.out.println("图片" + chatMessage.getImg() + " sendTime : " + chatMessage.getSendTime());
+                                }
+                            } else {
+                                int j = 0;
+                                String resp = "next";
+                                do {
+                                    if (!resp.equals("next")) {
+                                        System.out.println("格式错误，请重新输入!");
+                                        resp = scanner.next();
+                                        continue;
+                                    }
+                                    j++;
+                                    int k = 10 * (j - 1);
+                                    for (; k < 10 * j && k < historyChatMessages.size(); k++) {
+                                        ChatMessage chatMessage = historyChatMessages.get(k);
+                                        if (chatMessage.getNature() == 1)                   //1:他向我说; 0:我向他说
+                                            System.out.println("" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
+                                        else if (chatMessage.getNature() == 0)
+                                            System.out.println("\t\t\t\t\t\t" + chatMessage.getSendTime() + " : " + chatMessage.getMessage());
+                                        else if (chatMessage.getNature() == 2)
+                                            System.out.println("\t\t\t\t\t\t文件:" + chatMessage.getMessage() + " sendTime : " + chatMessage.getSendTime());
+                                        else if (chatMessage.getNature() == 3)
+                                            System.out.println("文件:" + chatMessage.getMessage() + " sendTime : " + chatMessage.getSendTime());
+                                        else if (chatMessage.getNature() == 5)
+                                            System.out.println("\t\t\t\t\t\t图片:" + chatMessage.getImg() + " sendTime : " + chatMessage.getSendTime());
+                                        else if (chatMessage.getNature() == 6)
+                                            System.out.println("图片" + chatMessage.getImg() + " sendTime : " + chatMessage.getSendTime());
+                                    }
+                                    if (k == historyChatMessages.size() - 1)
+                                        break;
+                                    System.out.println("下一页(next);退出(quit)");
+                                    resp = scanner.next();
+                                } while (resp.equals("quit"));
+                            }
+                        } else if (message.equals("Img")) {
+                            System.out.println("输入您要发送的图片全路径(包括文件名及其后缀)");
+                            String img_path = scanner.next();
+                            java.io.File Img = new java.io.File(img_path);
+                            InputStream inputStream = new FileInputStream(Img);
                             System.out.println("确认发送?(Y/N)");
-                            String ifAgree=scanner.next();
-                            if(ifAgree.equals("Y")){
+                            String ifAgree = scanner.next();
+                            while (!ifAgree.equals("Y") && !ifAgree.equals("N")) {
+                                System.out.println("输入格式错误，请重新输入!");
+                                ifAgree = scanner.next();
+                            }
+                            if (ifAgree.equals("Y")) {
                                 //发送图片
-                            }else {
+                                byte[] ImgBytes = new byte[inputStream.available()];
+                                inputStream.read(ImgBytes, 0, inputStream.available());
+                                String ImgByteTrans = gson.toJson(ImgBytes);
+                                String sendTime = String.valueOf(new DateTime().getCurrentDateTime());
+                                Map<String, String> parameters15 = new HashMap<String, String>();
+                                parameters15.put("userID", userID);
+                                parameters15.put("anotherID", anotherID);
+                                parameters15.put("FileBytes", ImgByteTrans);
+                                parameters15.put("sendTime", sendTime);
+                                Request request15 = new Request(URL_ADDRESS + "/SendImg", parameters15, RequestProperty.APPLICATION);
+                                String result15 = request15.doPost();
+                                if (result15.equals("success"))
+                                    System.out.println("图片发送成功!");
+                                else if (result15.equals("error"))
+                                    System.out.println("图片发送失败...");
+                                else
+                                    System.out.println("出错?");
+                            } else {
                                 continue;
                             }
                         } else if (!message.equals("Submit") && !message.equals("Receive") && !message.equals("OnlineTransmit")) {
@@ -428,11 +506,11 @@ public class LoginClient {
                                     System.out.println("请求发送失败...");
                                 }
                             }
-                        }else if (message.equals("CreateGroup")){
+                        } else if (message.equals("CreateGroup")) {
                             /**创建群**/
                             //CreateGroupThread createGroupThread=new ChatNoticeThread(...);
                             System.out.println("请输入群名:");
-                            String groupName=scanner.nextLine();
+                            String groupName = scanner.nextLine();
                         }
                     }
                 } else if (/*scanner.nextLine()*/nextCommand.equals("Add")) {
@@ -502,7 +580,7 @@ public class LoginClient {
                     NoticeMessage noticeMessage = noticeMessages.get(index - 1);
                     System.out.print("\n确定您要处理的请求为:");
                     if (noticeMessage.getProperty() == 0)
-                        System.out.println("来自帐号" + noticeMessage.getAnotherID() + "的昵称为" + noticeMessage.getNickName() + "的好友邀请? (Y)");
+                        System.out.println("来自帐号 " + noticeMessage.getAnotherID() + "的昵称为" + noticeMessage.getNickName() + "的好友邀请? (Y)");
                     /**
                      *          其它情况
                      * **/
@@ -562,6 +640,9 @@ public class LoginClient {
                         System.out.println("离线文件上传失败...");
                         e.printStackTrace();
                     }
+                }else if (nextCommand.equals("CreateGroup")){
+                    /**创建群聊**/
+
                 }
 
                 //处理局域网通信的识别问题
@@ -639,7 +720,9 @@ public class LoginClient {
 */
 
     //开启所有线程的方法
-    private static void startAllThread(String userID, DatagramSocket messageds, DatagramSocket fileds, SocketAddress messageSocketAddress, SocketAddress fileSocketAddress) throws SQLException {
+    private static void startAllThread(String userID, DatagramSocket messageds, DatagramSocket fileds, SocketAddress messageSocketAddress, SocketAddress fileSocketAddress) throws SQLException, InterruptedException {
+
+
         /**
          * 接收消息的线程应该为全局线程
          **/
@@ -651,7 +734,17 @@ public class LoginClient {
         HeartThread heartThread = new HeartThread(userID, messageds, fileds, messageSocketAddress, fileSocketAddress);
         Thread thread1 = new Thread(heartThread);
         thread1.start();
-       /* //建立监听本机局域网地址的线程
+
+        /**创建获取好友列表的线程**/
+        /**
+         * 应该和后面的线程组放在一起?
+         * **/
+        ContactListThread contactListThread = new ContactListThread(userID, URL_ADDRESS + "/ContactList");
+        Thread thread6 = new Thread(contactListThread);
+        thread6.start();
+        thread6.join();                                                             /**这个join应该吧管用**/
+
+        /* //建立监听本机局域网地址的线程
         LocalAddressThread localAddressThread = new LocalAddressThread(userID, "/findMyLocalIP");
         Thread thread2 = new Thread(localAddressThread);
         thread2.start();*/
@@ -668,13 +761,13 @@ public class LoginClient {
         Thread thread5 = new Thread(chatNoticeThread);
         thread4.start();
         thread5.start();
-        /**创建获取好友列表的线程**/
-        /**
+        /**创建获取好友列表的线程**//*
+         *//**
          * 应该和后面的线程组放在一起?
-         * **/
+         * **//*
         ContactListThread contactListThread = new ContactListThread(userID, URL_ADDRESS + "/ContactList");
         Thread thread6 = new Thread(contactListThread);
-        thread6.start();
+        thread6.start();*/
 
     }
 
@@ -687,13 +780,15 @@ public class LoginClient {
         private byte[] by;
         private String message;
         private String URL_ADDRESS;
+        private String userID;
 
-        public ReceiveMessageThread(DatagramSocket ds, DatagramSocket fileds, SocketAddress messageSocketAddress, String URL_ADRESS) {
+        public ReceiveMessageThread(DatagramSocket ds, DatagramSocket fileds, SocketAddress messageSocketAddress, String URL_ADRESS, String userID) {
             this.ds = ds;
             this.fileds = fileds;
             this.messageSocketAddress = messageSocketAddress;
             by = new byte[1024 * 8];
             this.URL_ADDRESS = URL_ADRESS;
+            this.userID = userID;
         }
 
         @Override
@@ -737,8 +832,9 @@ public class LoginClient {
                     ChatMessage chatMessage = gson.fromJson(content, type);
                     chatMessage.setNature((byte) 1);
 
-                    String callBackID = chatMessage.getSenderID();
-                    String myID = chatMessage.getAnotherID();
+                    String callBackID = chatMessage.getAnotherID();
+                    //String myID = chatMessage.getAnotherID();
+                    String myID = userID;
                     byte[] bytes = ("CallBack/" + message.split("/")[1] + "/" + callBackID + "/" + myID).getBytes();
                     /*Map<String, String> parameter9 = new HashMap<String, String>();
                     parameter9.put("userID", callBackID);
@@ -774,8 +870,9 @@ public class LoginClient {
                     ChatMessage chatMessage = gson.fromJson(content, type);
                     chatMessage.setNature((byte) 1);
 
-                    String callBackID = chatMessage.getSenderID();
-                    String myID = chatMessage.getAnotherID();
+                    String callBackID = chatMessage.getAnotherID();
+                    //String myID = chatMessage.getAnotherID();
+                    String myID = this.userID;
 
                     String callBackAddress = message.split("/")[1];
                     ArrayList<String> addresses = gson1.fromJson(callBackAddress, type1);
@@ -1070,7 +1167,6 @@ public class LoginClient {
             Type type = new TypeToken<Map<String, Contact>>() {
             }.getType();
             contacts = gson.fromJson(result, type);
-
             /***
              * contact即是每个联系人的Map对象，键值对为<userID,Contact>格式.
              * 具体的应用就看客户端了
@@ -1171,6 +1267,7 @@ public class LoginClient {
         private Map<String, String> parameter = new HashMap<String, String>();
         private Request request;
         private String notices;
+        private ArrayList<ChatMessage> chatMessages;
 
         public ChatNoticeThread(String userID) {
             this.userID = userID;
@@ -1180,11 +1277,52 @@ public class LoginClient {
 
         @Override
         public void run() {
-            this.notices = this.request.doPost();
-            if (notices.equals("") || notices.equals("none")) {
-                System.out.println("\n您离线时未收到过任何消息!");
-            } else {
-                /**解析Json**/
+            /*try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }*/
+            while (true) {
+                this.notices = this.request.doPost();
+                if (notices.equals("") || notices.equals("none")) {
+                    //System.out.println("\n您(离线时)未收到过任何消息!");
+                } else {
+                    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+                    Type type = new TypeToken<ArrayList<ChatMessage>>() {
+                    }.getType();
+                    this.chatMessages = gson.fromJson(this.notices, type);
+                    /**解析Json**/
+                    String senderID;
+                    String senderName;
+                    String content = null;
+                    byte nature;
+                    byte[] imgBytes = new byte[0];
+                    String sendTime;
+                    System.out.println("\n未读聊天消息:\n");
+                    for (ChatMessage chatMessage : chatMessages) {
+                        senderID = chatMessage.getAnotherID();
+                        senderName = contacts.get(senderID).getNickName();                    /**根据ID获得发送者的昵称**/
+                        try {
+                            content = chatMessage.getMessage();
+                            imgBytes = chatMessage.getImg();
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        sendTime = chatMessage.getSendTime();
+                        nature = chatMessage.getNature();
+                        if (content != null && nature == 1)
+                            System.out.println("来自" + senderID + "  昵称为 " + senderName + " 的消息: " + content + " 发送时间: " + sendTime);
+                        else if (imgBytes != null && nature == 5)
+                            System.out.println("来自" + senderID + "  昵称为" + senderName + " 的图片: " + imgBytes + " 发送时间: " + sendTime);
+                    }
+                    //System.out.println("\n未读聊天消息显示完毕!\n");
+                }
+
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -1358,7 +1496,7 @@ public class LoginClient {
             this.nature = nature;
             this.sendTime = sendTime;
             this.message = message;
-            this.chatMessage = new ChatMessage(senderID, anotherID, nature, sendTime, message);
+            this.chatMessage = new ChatMessage(senderID, nature, sendTime, message);
         }
 
         @Override

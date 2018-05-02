@@ -4,7 +4,7 @@ import com.sun.deploy.net.URLEncoder;
 import connection.Conn;
 import model.ChatMessage;
 
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -24,7 +24,7 @@ public class Chat {
         return result;
     }
 
-    public final static ArrayList<ChatMessage> getChatHistoryList(String userID, String anotherID) throws SQLException {
+    public final static ArrayList<ChatMessage> getChatHistoryList(String userID, String anotherID) throws SQLException, IOException {
         ArrayList<ChatMessage> chatMessages = new ArrayList<ChatMessage>();
         Connection connection = Conn.getConnection();
         String sql = "SELECT * FROM user_" + userID + "_chatdata WHERE anotherID=? ORDER BY sendTime ASC";
@@ -34,9 +34,20 @@ public class Chat {
         while (resultSet.next()) {
             byte nature = (byte) resultSet.getInt("nature");
             String message = resultSet.getString("message");
+            InputStream inputStream=resultSet.getBinaryStream("img");
+            byte[] bytes=null;
+            if(inputStream!=null){
+                bytes=new byte[inputStream.available()];
+                inputStream.read(bytes,0,inputStream.available());
+            }
             String sendTime = String.valueOf(resultSet.getTimestamp("sendTime"));
-            ChatMessage chatMessage = new ChatMessage(anotherID, nature, sendTime, message);
-            chatMessages.add(chatMessage);
+            if(message!=null) {
+                ChatMessage chatMessage = new ChatMessage(anotherID, nature, sendTime, message);
+                chatMessages.add(chatMessage);
+            }else if (inputStream!=null){
+                ChatMessage chatMessage=new ChatMessage(anotherID,nature,sendTime,bytes);
+                chatMessages.add(chatMessage);
+            }
         }
         return chatMessages;
     }
@@ -59,6 +70,34 @@ public class Chat {
             Conn.Close();
         }
     }
+
+    public final static void insertChatMessage(String userID, String anotherID, byte[] imgBytes, Timestamp sendTime) throws SQLException {
+        try {
+            //InputStream inputStream=new FileInputStream(img);
+            InputStream inputStream=new ByteArrayInputStream(imgBytes);
+            Connection connection = Conn.getConnection();
+            //connection.setAutoCommit(false);
+            String sql = "INSERT INTO user_" + userID + "_chatdata ( anotherID , nature , img , sendTime ) VALUES (?,?,?,"+"\'" + sendTime + "\')";
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);
+            preparedStatement.setString(1,anotherID);
+            preparedStatement.setByte(2, (byte) 5);
+            preparedStatement.setBinaryStream(3,inputStream,inputStream.available());
+            int result_1=preparedStatement.executeUpdate();
+            //sql = "INSERT INTO user_" + userID + "_chatdata ( anotherID , nature , img , sendTime ) VALUES (" + anotherID + "," + 5 + ",\'" + message + "\',\'" + sendTime + "\')";
+            sql = "INSERT INTO user_" + anotherID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (?,?,?,"+"\'"+ sendTime + "\')";
+            preparedStatement=connection.prepareStatement(sql);
+            preparedStatement.setString(1,userID);
+            preparedStatement.setByte(2, (byte) 6);
+            preparedStatement.setBinaryStream(3,inputStream,inputStream.available());
+            int result_2=preparedStatement.executeUpdate();
+            System.out.println("图片成功插入数据库两方的_chatdata中!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            Conn.Close();
+        }
+    }
+
 
     public final static String getReceiverAddress(String anotherID) {
         try {
@@ -138,4 +177,6 @@ public class Chat {
         }
         return null;
     }
+
+
 }

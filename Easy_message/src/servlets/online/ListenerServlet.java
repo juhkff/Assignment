@@ -77,11 +77,25 @@ public class ListenerServlet extends HttpServlet {
                         String anotherID = resultSet.getString("anotherID");
                         if (anotherID == null)
                             break;
-                        String message = Chat.decodeChinese(resultSet.getString("message"));
+                        String message = null;
+                        InputStream inputStream1=null;
+                        message=resultSet.getString("message");
+                        if(message!=null)
+                            message=Chat.decodeChinese(message);
+                        else if(message==null) {
+                            inputStream1 = resultSet.getBinaryStream("img");
+                            if (inputStream1 != null) {
+                                byte[] bytes1 = new byte[inputStream1.available()];
+                                inputStream1.read(bytes1);
+                            }
+                        }
                         String theLatestTextTime = String.valueOf(resultSet.getTimestamp("sendTime"));
                         for (Contact contact : contactList) {
                             if (contact.getID().equals(anotherID)) {
-                                contact.setTheLatestText(message);
+                                if(message!=null)
+                                    contact.setTheLatestText(message);
+                                else if (inputStream1!=null)
+                                    contact.setTheLatestText("<图片>");
                                 contact.setTheLatestTextTime(theLatestTextTime);
                                 break;
                             }

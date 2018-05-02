@@ -130,8 +130,8 @@ public class Register {
             //PreparedStatement preparedStatement = (PreparedStatement) connection.createStatement();
             Statement statement = connection.createStatement();
             statement.addBatch(sql);
-            sql = "CREATE TABLE user_" + userID + "_ChatData(anotherID varchar(11) not null comment '另一用户的userID' , nature tinyint(1) not null comment '聊天性质(谁向谁发送信息;0代表我向他,1代表他向我,5代表我向他发图片,6代表他向我发图片)' " +
-                    "default 1 , message text comment '聊天内容', img mediumblob comment '聊天图片(表情包)' , sendTime datetime not null comment '消息发送时间' , isAccepted char(1) default 'N' comment '(特指文件是否被同意接收)' )";
+            sql = "CREATE TABLE user_" + userID + "_ChatData(anotherID varchar(11) not null comment '另一用户的userID' , nature tinyint(1) not null comment '聊天性质(谁向谁发送信息;0代表我向他,1代表他向我,2代表我向他发文件,3代表他向我发文件,5代表我向他发图片,6代表他向我发图片)' " +
+                    "default 1 , message text comment '聊天内容' , img mediumblob comment '聊天图片(表情包)' , sendTime datetime not null comment '消息发送时间' , isAccepted char(1) default 'N' comment '(特指文件是否被同意接收)' )";
             statement.addBatch(sql);
             sql = "CREATE TABLE user_" + userID + "_NoticeList(anotherID varchar(11) not null comment '发送邀请的用户的userID或群ID' , nickName varchar(255) not null comment '群名或好友名' , property tinyint(10) not null comment '性质(群邀请或好友邀请等，默认0好友邀请)' default 0 )";
             statement.addBatch(sql);

@@ -91,7 +91,7 @@ public class MessageServer {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            String senderID=chatMessage.getSenderID();
+            String senderID=chatMessage.getAnotherID();
             String anotherID=chatMessage.getAnotherID();
             //byte nature=chatMessage.getNature();
             String content= null;

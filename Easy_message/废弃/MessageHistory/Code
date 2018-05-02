@@ -1,0 +1,20 @@
+Map<String,String> parameters17=new HashMap<String, String>();
+parameters17.put("userID",userID);
+parameters17.put("anotherID",anotherID);
+Request request17=new Request(URL_ADDRESS+"/MessageHistory",parameters17,RequestProperty.APPLICATION);
+String MessageLists=request17.doPost();
+
+
+
+public static ArrayList<ChatMessage> getHistoryMessage(String userID, String anotherID) {
+        ArrayList<ChatMessage> chatMessages=new ArrayList<ChatMessage>();
+        try {
+        Connection connection=Conn.getConnection();
+        String sql="SELECT * FROM user_"+userID+"_chatdata WHERE anotherID=?";
+        PreparedStatement preparedStatement=connection.prepareStatement(sql);
+        }catch (SQLException e) {
+        e.printStackTrace();
+        } finally {
+        Conn.Close();
+        }
+}
