@@ -1,9 +1,7 @@
 package servlets.login;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import model.ChatMessage;
-import model.NoticeMessage;
+import model.message.NoticeMessage;
 import tools.Login;
 
 import javax.servlet.ServletException;

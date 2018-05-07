@@ -38,6 +38,7 @@ public class LoginServlet extends HttpServlet {
         else
             System.out.println("error");                                          //其它情况
     }
+
     private Map<String, String> contactList;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -57,14 +58,13 @@ public class LoginServlet extends HttpServlet {
             else if (password.equals(passWord)) {
                 pw.print("true");                                           //登录成功
                 Login.changeStatus(userID);                                 //修改好友看自己的状态
+                Login.changeStatusInGroup(userID);                          //修改群中自己的状态
             }
             /**
              * pw使用多次print方法会有干扰吗
              * **/
             else
                 pw.print("error");                                          //其它情况
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -1,17 +1,51 @@
 package tools;
 
 import connection.Conn;
-import model.User;
-import test.Client.Request;
+import model.contact.Contact;
+import model.property.User;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class Online {
+
+    //辅助方法，获得用户已添加的好友ID列表
+    public static final ResultSet getFriendIDResultSet(String userID,Connection connection){
+        ResultSet resultSet = null;
+        try {
+            //Connection connection=Conn.getConnection();
+            String sql="SELECT ID FROM user_"+userID+"_contactlist WHERE types=0";
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);
+            resultSet=preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in Online.getFriendIDList !");
+        } finally {
+//            Conn.Close();
+        }
+        return resultSet;
+    }
+
+    //辅助方法，获得用户已添加的群ID列表
+    public static final ResultSet getGroupIDResultSet(String userID,Connection connection){
+        ResultSet resultSet=null;
+        try {
+            Connection connection1=Conn.getConnection();
+            String sql="SELECT ID FROM user_"+userID+"_contactlist WHERE types=1";
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);
+            resultSet=preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in Online.getGroupIDResultSet() !");
+        } finally {
+            Conn.Close();
+        }
+        return resultSet;
+    }
 
     public static final String getMessageAddressByID(String userID) {
         String result = "error in tools.Online.getMessageAddressByID";
@@ -54,26 +88,46 @@ public class Online {
         return result;
     }
 
-    //监控并随时更新用户的本地局域网地址
-    public static final int updateLocalAddress(String userID, String localAddress) throws SQLException {
+    //添加好友而非群
+    public static Map<String, Contact> getAddList(String theuserID) throws SQLException {
+        Map<String, Contact> userList = new HashMap<String, Contact>();
         Connection connection = Conn.getConnection();
-        String sql = "";
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        return 0;
-    }
-
-    public static Map<String, String> getAddList(String userID) throws SQLException {
-        Map<String, String> userList = new HashMap<String, String>();
-        Connection connection = Conn.getConnection();
-        String sql = "SELECT userinfo.userID,userinfo.nickName FROM userinfo LEFT JOIN user_" + userID + "_contactlist ON userinfo.userID=user_" + userID + "_contactlist.ID  WHERE user_" + userID + "_contactlist.ID IS NULL AND userinfo.userID!=\'" + userID + "\'";
+        String sql = "SELECT userinfo.userID,userinfo.nickName,userinfo.headIcon,userinfo.intro,userinfo.isMale,userinfo.isOnline FROM userinfo LEFT JOIN user_" + theuserID + "_contactlist ON userinfo.userID=user_" + theuserID + "_contactlist.ID  WHERE user_" + theuserID + "_contactlist.ID IS NULL AND userinfo.userID!=\'" + theuserID + "\'";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         ResultSet resultSet = preparedStatement.executeQuery();
+        String userID;
+        String nickName;
+        byte[] headIcon = null;
+        String intro=null;
+        Boolean isMale;
+        Boolean isOnline;
+
         while (resultSet.next()) {
-            userList.put(resultSet.getString("userID"), resultSet.getString("nickName"));
+            userID=resultSet.getString("userID");
+            nickName=resultSet.getString("nickName");
+            InputStream inputStream=resultSet.getBinaryStream("headIcon");
+            if (inputStream==null)
+                headIcon=null;
+            else{
+                try {
+                    headIcon=new byte[inputStream.available()];
+                    inputStream.read(headIcon,0,inputStream.available());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.out.println("error in Online.getAddList()!");
+                }
+            }
+            intro=resultSet.getString("intro");
+            isMale=resultSet.getBoolean("isMale");
+            isOnline=resultSet.getBoolean("isOnline");
+            Contact contact=new Contact(userID,nickName,headIcon,intro,isMale, (byte) 0,isOnline);
+            userList.put(userID,contact);
+            //userList.put(resultSet.getString("userID"), resultSet.getString("nickName"));
         }
         Conn.Close();
         return userList;
     }
+
 
     public final static String sendRequest(String userID, String nickName, String receiverID) {
         String result = "";
@@ -117,6 +171,7 @@ public class Online {
     }
 
 
+    /**同意好友邀请**/
     public final static int sendAgreeResponse(String userID, String nickName, String receiverID) throws SQLException {
         Connection connection = Conn.getConnection();
         String sql = "INSERT INTO user_" + receiverID + "_noticelist ( anotherID , nickName , property ) VALUES (?,?,?)";
@@ -131,9 +186,7 @@ public class Online {
     }
 
 
-    /**
-     * 根据userID找出用户的方法
-     **/
+    /**根据userID找出用户的方法**/
     public static final User findUserByUserID(String userID) throws SQLException {
         Connection connection = Conn.getConnection();
         String sql = "SELECT * FROM userinfo WHERE userID=?";
@@ -158,6 +211,7 @@ public class Online {
         return user;
     }
 
+    /**添加好友**/
     public final static void bothAddFriend(String userID, String ID, String nickName) throws SQLException, IOException {
         Connection connection = Conn.getConnection();
         String sql = "SELECT headIcon,nickName,isOnline FROM userinfo WHERE userID=?";
@@ -204,5 +258,60 @@ public class Online {
         preparedStatement1.setBoolean(5, true);
         int j = preparedStatement1.executeUpdate();
         Conn.Close();
+    }
+
+    public static String commitUserInfo(User user) {
+        String result=null;
+        InputStream inputStream=null;
+        inputStream=new ByteArrayInputStream(user.getHeadIcon());
+        try {
+            Connection connection=Conn.getConnection();
+            String sql="UPDATE userinfo SET nickName=?,passWord=?,headIcon=?,isMale=?,birthday=?,email=?,phoneNum=?,intro=? WHERE userID=?";
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);
+            preparedStatement.setString(1,user.getNickName());
+            preparedStatement.setString(2,user.getPassWord());
+//            InputStream inputStream=null;
+//            inputStream=new ByteArrayInputStream(user.getHeadIcon());
+            preparedStatement.setBinaryStream(3,inputStream);
+            preparedStatement.setBoolean(4,user.isMale());
+            preparedStatement.setTimestamp(5, Timestamp.valueOf(user.getBirthday()));
+            preparedStatement.setString(6,user.getEmail());
+            preparedStatement.setString(7,user.getPhoneNum());
+            preparedStatement.setString(8,user.getIntro());
+            preparedStatement.setString(9,user.getUserID());
+            int commitResult=preparedStatement.executeUpdate();
+
+            ResultSet friendIDResultSetresultSet=Online.getFriendIDResultSet(user.getUserID(),connection);
+            while (friendIDResultSetresultSet.next()) {
+                String ID=friendIDResultSetresultSet.getString("ID");
+                String sql1 = "UPDATE user_"+ID+"_contactlist SET nickName=?,headIcon=?,isupdate=1 WHERE ID=?";
+                PreparedStatement preparedStatement1 = connection.prepareStatement(sql1);
+                preparedStatement1.setString(1,user.getNickName());
+//                InputStream inputStream1=null;
+//                inputStream1 = new ByteArrayInputStream(user.getHeadIcon());
+                preparedStatement1.setBinaryStream(2,inputStream);
+                preparedStatement1.setString(3,user.getUserID());
+                int commitResult1=preparedStatement1.executeUpdate();
+            }
+            ResultSet groupIDResultSet=Online.getGroupIDResultSet(user.getUserID(),connection);
+
+
+            while (groupIDResultSet.next()){
+                String ID=groupIDResultSet.getString("ID");
+                String sql2="UPDATE group_"+ID+"_member SET userName=?,userHeadIcon=? WHERE userID=?";
+                PreparedStatement preparedStatement2=connection.prepareStatement(sql2);
+                preparedStatement2.setString(1,user.getNickName());
+                preparedStatement2.setBinaryStream(2,inputStream);
+                preparedStatement2.setString(3,user.getUserID());
+                int commitResult2=preparedStatement2.executeUpdate();
+            }
+            result="success";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            result="error in Tools.Online.commitUserInfo";
+        } finally {
+            Conn.Close();
+        }
+        return result;
     }
 }

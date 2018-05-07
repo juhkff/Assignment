@@ -1,19 +1,12 @@
 package p2pserver;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import connection.Conn;
-import model.FileMessage;
 import p2pserver.fileServerDao.Address;
-
-import java.lang.reflect.Type;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;

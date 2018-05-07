@@ -2,6 +2,7 @@ package servlets.online;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import model.contact.Contact;
 import tools.Online;
 
 import javax.servlet.ServletException;
@@ -12,18 +13,33 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet(name = "AddContactServlet", urlPatterns = "/AddContact")
 public class AddContactServlet extends HttpServlet {
+    public static void main(String[] args){
+        String userID="2461247724";
+
+        Map<String, Contact> userList = null;
+        try {
+            userList = Online.getAddList(userID);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        String result = "";
+        if (userList.size() > 0) {
+            Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+            result = gson.toJson(userList);
+        }
+        System.out.println(result);
+    }
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         this.doGet(request, response);
         response.setContentType("text/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
         String userID = request.getParameter("userID");
-        Map<String, String> userList = null;
+        Map<String, Contact> userList = null;
         try {
             userList = Online.getAddList(userID);
         } catch (SQLException e) {

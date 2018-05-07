@@ -1,8 +1,7 @@
 package tools;
 
-import com.sun.deploy.net.URLEncoder;
 import connection.Conn;
-import model.ChatMessage;
+import model.message.ChatMessage;
 
 import java.io.*;
 import java.sql.*;
@@ -20,8 +19,11 @@ public class Chat {
         return result;
     }
     public static String decodeChinese(String ChineseCode) throws UnsupportedEncodingException {
-        String result=java.net.URLDecoder.decode(ChineseCode,"UTF-8");
-        return result;
+        if(ChineseCode!=null) {
+            String result = java.net.URLDecoder.decode(ChineseCode, "UTF-8");
+            return result;
+        }else
+            return null;
     }
 
     public final static ArrayList<ChatMessage> getChatHistoryList(String userID, String anotherID) throws SQLException, IOException {
@@ -84,7 +86,7 @@ public class Chat {
             preparedStatement.setBinaryStream(3,inputStream,inputStream.available());
             int result_1=preparedStatement.executeUpdate();
             //sql = "INSERT INTO user_" + userID + "_chatdata ( anotherID , nature , img , sendTime ) VALUES (" + anotherID + "," + 5 + ",\'" + message + "\',\'" + sendTime + "\')";
-            sql = "INSERT INTO user_" + anotherID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (?,?,?,"+"\'"+ sendTime + "\')";
+            sql = "INSERT INTO user_" + anotherID + "_chatdata ( anotherID , nature , img , sendTime ) VALUES (?,?,?,"+"\'"+ sendTime + "\')";
             preparedStatement=connection.prepareStatement(sql);
             preparedStatement.setString(1,userID);
             preparedStatement.setByte(2, (byte) 6);

@@ -27,10 +27,21 @@ public class FileReceiver {
         BufferedOutputStream bos=null;
 
         try {
-            File pathFile = new File(SAVE_FILE_PATH);
-            if (!pathFile.exists())                                                                  //创建上级目录
+            String[] parts=SAVE_FILE_PATH.split("\\\\");
+            String path="";
+            for(int i=0;i<parts.length-1;i++){
+                path+=parts[i]+"\\";
+            }
+            File pathFile=new File(path);
+            if(!pathFile.exists()) {                      //创建上级目录
                 pathFile.mkdirs();
-
+                System.out.println("创建上级目录: "+path);
+            }
+            File file = new File(SAVE_FILE_PATH);
+            if (!file.exists()) {
+                file.createNewFile();               //创建文件
+                System.out.println("创建文件: "+SAVE_FILE_PATH);
+            }
             dpk=new DatagramPacket(buf, buf.length,senderSocketAddress);
             //dsk=new DatagramSocket(UDPUtils.PORT+1,InetAddress.getByName("localhost"));
             bos=new BufferedOutputStream(new FileOutputStream(SAVE_FILE_PATH));

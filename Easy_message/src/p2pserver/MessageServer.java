@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import connection.Conn;
-import model.ChatMessage;
-import model.FileMessage;
+import model.message.ChatMessage;
+import model.message.FileMessage;
 import p2pserver.messageServerDao.Address;
 import tools.Chat;
 import tools.Online;
@@ -85,13 +85,15 @@ public class MessageServer {
             System.out.println("\n");
             message=new String(dp.getData(),0,dp.getLength());
             note=message.split("/")[2];
+            System.out.println("note:\n"+note);
             ChatMessage chatMessage=this.gson.fromJson(note,this.type);
             try {
                 System.out.println("发来的消息:"+chatMessage.getMessage());
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            String senderID=chatMessage.getAnotherID();
+//            String senderID=chatMessage.getAnotherID();
+            String senderID=chatMessage.getSenderID();
             String anotherID=chatMessage.getAnotherID();
             //byte nature=chatMessage.getNature();
             String content= null;

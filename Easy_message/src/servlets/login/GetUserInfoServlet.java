@@ -1,7 +1,7 @@
 package servlets.login;
 
 import com.google.gson.Gson;
-import model.User;
+import model.property.User;
 import tools.Login;
 
 import javax.servlet.ServletException;
@@ -14,6 +14,12 @@ import java.io.PrintWriter;
 
 @WebServlet(name = "GetUserInfoServlet", urlPatterns = "/GetUserInfo")
 public class GetUserInfoServlet extends HttpServlet {
+    public static void main(String[] args) throws Exception {
+        String userID="1578184936";
+        User user=null;
+        user = Login.getUserInfo(userID);
+        System.out.println(user.getExitTime());
+    }
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         this.doGet(request, response);
         response.setContentType("text/json;charset=UTF-8");

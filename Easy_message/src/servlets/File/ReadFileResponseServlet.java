@@ -1,6 +1,6 @@
 package servlets.File;
 
-import model.Contact;
+import model.contact.Contact;
 import tools.file.File;
 
 import javax.servlet.ServletException;

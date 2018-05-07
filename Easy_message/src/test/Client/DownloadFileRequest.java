@@ -6,16 +6,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class DownloadFileRequest {
-    private String senderID;
-    private String receiverID;
-    private File file;
-    private String localPath;
-    private String remotePath;
+    private String senderID=null;
+    private String receiverID=null;
+    private File file=null;
+    private String localPath=null;
+    private String remotePath=null;
     private FileOutputStream fileOutputStream;
     private HttpURLConnection httpURLConnection;
     private InputStream inputStream = null;
-    private String fileName;
-
+    private String fileName=null;
+    private String groupID=null;
     public DownloadFileRequest(String senderID, String receiverID, String localPath, String fileName) {
         this.senderID = senderID;
         this.receiverID = receiverID;
@@ -25,6 +25,16 @@ public class DownloadFileRequest {
         if (!this.file.exists())
             this.file.mkdirs();
         this.fileName = fileName;
+    }
+
+    public DownloadFileRequest(String groupID,String localPath,String fileName){
+        this.groupID=groupID;
+        this.localPath=localPath;
+        this.remotePath="content/"+this.groupID+"/"+fileName;
+        this.file=new File(this.localPath);
+        if(!this.file.exists())
+            this.file.mkdirs();
+        this.fileName=fileName;
     }
 
     public final String downLoad() throws IOException {

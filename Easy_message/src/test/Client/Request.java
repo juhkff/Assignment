@@ -72,7 +72,10 @@ public class Request {
             Iterator iterator = paraSet.iterator();
             while (iterator.hasNext()) {
                 String next = (String) iterator.next();
-                content += (next + "=" + URLEncoder.encode(parameters.get(next), "UTF-8") + "&");
+                if(parameters.get(next)==null){
+                    content+=(next + "=" + null + "&");
+                }else
+                    content += (next + "=" + URLEncoder.encode(parameters.get(next), "UTF-8") + "&");
             }
             content = content.substring(0, content.length() - 1);                                                //截去最后的&，将参数值送入请求
             //for (String parameter:parameters)

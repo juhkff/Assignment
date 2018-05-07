@@ -1,9 +1,17 @@
 package test.Client;
 
+import com.fasterxml.jackson.databind.type.ArrayType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import model.*;
+import model.contact.Contact;
+import model.group.Group;
+import model.group.GroupMessage;
+import model.group.SimpleGroup;
+import model.message.ChatMessage;
+import model.message.FileMessage;
+import model.message.NoticeMessage;
+import model.property.User;
 import tools.Chat;
 import tools.DateTime;
 import tools.file.File;
@@ -13,25 +21,36 @@ import tools.file.model.FileSender;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.*;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
 public class LoginClient {
+    /**
+     * 设置全局变量
+     **/
     public static final String URL_ADDRESS = "http://123.207.13.112:8080/Easy_message";
-    /**
-     * 将线程中获得的ArrayList<NoticeMessage>存储为全局变量
-     **/
-    public static ArrayList<NoticeMessage> noticeMessages;
-    public static Map<String, Contact> contacts;
 
+    //将线程中获得的ArrayList<NoticeMessage>存储为全局变量
+    public static ArrayList<NoticeMessage> noticeMessages;
     /**
-     * 存储接发过程中的一些判断
+     * 好友列表
      **/
+    public static Map<String, Contact> contacts;
+    /**
+     * 群列表
+     **/
+    public static Map<String, SimpleGroup> groups = new HashMap<String, SimpleGroup>();
+
+    //存储接发过程中的一些判断
     //public static ArrayList<TransmitModel> ThreadPools=new ArrayList<TransmitModel>();
     public static Map<Integer, Boolean> ifis = new HashMap<Integer, Boolean>();
     public static Map<Integer, String> senderFileAddress = new HashMap<Integer, String>();
     public static Map<Integer, String> receiverFileAddress = new HashMap<Integer, String>();
     public static int Thread_Index = 1;
+
+    //用于退出群时终止相关监听线程的判断
+    public static Map<String, Boolean> ifbreak = new HashMap<String, Boolean>();
 
     /**
      * 小细节：这里要是不用Map<String,Contact>类型而用<ArrayList>类型的话，在根据ID查找用户上就会很吃效率(大概)
@@ -40,10 +59,16 @@ public class LoginClient {
     //public static DatagramSocket messageds = null;
     //public static DatagramSocket fileds = null;
     public static void main(String[] args) throws Exception {
-        //String userID = "7272022651";               //juhkff
-        String userID = "1578184936";               //juhkgf
+        String userID = "2461247724";               //juhkff
+        //String userID = "8133523681";               //juhkgf
         String passWord = "aqko251068";
+
+        /**登录工作过程**/
         String nickName;
+        byte[] headIcon;
+        String exitTime;
+
+        /**与udp相关的基础工作**/
         //final String MESSAGE_SERVER_IP = "123.56.12.225";
         final String MESSAGE_SERVER_IP = "123.207.13.112";
         //final String MESSAGE_SERVER_IP = "localhost";
@@ -72,6 +97,7 @@ public class LoginClient {
         parameters.put("passWord", passWord);
         Request request = new Request(URL_ADDRESS + "/Login", parameters, RequestProperty.APPLICATION);
         String result = request.doPost();     //获得验证结果
+        User user = null;
         if (result.equals("null"))
             System.out.println("帐号不存在，登录失败!");
         else if (result.equals("false"))
@@ -90,10 +116,16 @@ public class LoginClient {
                 Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
                 Type type = new TypeToken<User>() {
                 }.getType();
-                User user = gson.fromJson(userInfo, type);
-                System.out.println("用户的数据(已经转换为了User类对象):" + userInfo);       /**输出用户基本信息**/
+                user = gson.fromJson(userInfo, type);
+                /*加上密码*/
+                user.setPassWord(passWord);
 
-                nickName = user.getNickName();                                                /**获取用户的nickName属性**/
+                /**输出用户基本信息**/
+                System.out.println("用户的数据(已经转换为了User类对象):" + userInfo);
+                /**获取用户的nickName属性**/
+                nickName = user.getNickName();
+                headIcon = user.getHeadIcon();
+                exitTime = user.getExitTime();
             }
 
 
@@ -101,7 +133,8 @@ public class LoginClient {
             String messageresult;
             String fileresult;
 
-
+            //获取客户端上线时的局域网地址
+            /**暴力获取**/
             do {
                 try {
                     messageds = new DatagramSocket();
@@ -170,19 +203,21 @@ public class LoginClient {
             thread10.start();*/
 
             //创建所有线程
-            startAllThread(userID, messageds, fileds, messageSocketAddress, fileSocketAddress);
-
+            startAllThread(userID, messageds, fileds, messageSocketAddress, fileSocketAddress, exitTime);
 
             /**---------------------------------以下情景为模拟用户使用程序，注意聊天应自动建立线程(不建立线程则无法实现多窗口聊天)--------------------------------**/
 
-
             String nextCommand;
             while (true) {
-                System.out.println("\n聊天/Chat\t添加联系人/Add\t退出程序/Exit\t处理请求/Deal\t上传离线文件/Submit\t创建群/CreateGroup\t");
+                /**交互指令**/
+                System.out.println("\n聊天/Chat\t进入群操作界面/Groups\t添加好友/Add\t添加群/AddGroup退出程序/Exit\t处理请求/Deal\t上传离线文件/Submit\t创建群/CreateGroup\t更改个人信息/UpdateInfo");
                 System.out.print("输入 您要进行的操作 :______\b\b\b\b\b\b");
                 nextCommand = scanner.nextLine();
-                if (/*scanner.next()*/nextCommand.equals("Chat")) {
+
+                if (nextCommand.equals("Chat")) {
+                    /**与聊天有关的操作**/
                     System.out.println("--------------------------------------------------------------好友聊天界面--------------------------------------------------------------");
+
                     System.out.print("\n输入进行聊天的userID(0退出):______\b\b\b\b\b\b");
                     String anotherID;
                     int i = 0;
@@ -230,12 +265,14 @@ public class LoginClient {
                     //DateTime dateTime = new DateTime();
                     byte nature = 0;
                     while (true) {
+                        /**互动操作**/
                         System.out.println("\n发送消息(Exit退出):\tImg/发送图片\tSubmit/发送离线文件\tReceive/接收离线文件\tOnlineTransmit/发送在线文件\tHistory/聊天记录\t");
                         scanner.nextLine();
                         String message = scanner.nextLine();
                         if (message.equals("Exit"))
                             break;
                         else if (message.equals("History")) {
+                            /**获取聊天记录**/
                             System.out.println("聊天记录");
                             int num = historyChatMessages.size();
                             if (num <= 10) {
@@ -283,9 +320,10 @@ public class LoginClient {
                                         break;
                                     System.out.println("下一页(next);退出(quit)");
                                     resp = scanner.next();
-                                } while (resp.equals("quit"));
+                                } while (!resp.equals("quit"));
                             }
                         } else if (message.equals("Img")) {
+                            /**发送图片**/
                             System.out.println("输入您要发送的图片全路径(包括文件名及其后缀)");
                             String img_path = scanner.next();
                             java.io.File Img = new java.io.File(img_path);
@@ -319,6 +357,7 @@ public class LoginClient {
                                 continue;
                             }
                         } else if (!message.equals("Submit") && !message.equals("Receive") && !message.equals("OnlineTransmit")) {
+                            /**发送消息**/
                             if (message.contains("'")) {
                                 String[] temp = message.split("'");
                                 message = "";
@@ -391,6 +430,7 @@ public class LoginClient {
                                 e.printStackTrace();
                             }
                         } else if (message.equals("Receive")) {
+                            /**接收/下载 (对方发送的)离线文件**/
                             System.out.println("\n请输入您要接收的离线文件名(包括后缀):");
                             String fileName = scanner.nextLine();
                             System.out.println("\n请输入您要存到的地方(即本地目录):");
@@ -408,7 +448,7 @@ public class LoginClient {
                             System.out.println("\n请输入文件在您PC上的全路径及文件名(包括后缀) (PS:路径可以有中文、但上传的文件本身不能含中文! 不能发送文件夹!):");
                             String fileName = scanner.nextLine();
 
-//                            System.out.println("尝试局域网发送...");
+                            /**尝试局域网发送**/
                             Map<String, String> parameters2 = new HashMap<String, String>();
                             parameters2.put("senderID", userID);
                             parameters2.put("anotherID", anotherID);
@@ -452,8 +492,9 @@ public class LoginClient {
                                     }
                                 }
                             }
-                            /**实现起来有点找不到头绪,就随便写写了...**/
 
+
+                            /**实现起来有点找不到头绪,就随便写写了...**/
                             ///**
                             // * 这里写用udp传输文件的方法,------>ds用fileds!!!
                             // * **/
@@ -478,9 +519,11 @@ public class LoginClient {
                                 } else {
                                     fileSize = Size + "MB";
                                 }*/
+                                /**获得文件输入流后改名以便于发送和接收**/
+                                String fileNameChanged = fileName.split("\\\\")[fileName.split("\\\\").length - 1];
                                 String fileSize = String.valueOf(file.length());
                                 System.out.println("等待对方同意接收...");
-                                FileMessage fileMessage = new FileMessage(userID, contacts.get(userID).getNickName(), anotherID, contacts.get(anotherID).getNickName(), senderAddr, receiverAddr, fileName, fileSize);
+                                FileMessage fileMessage = new FileMessage(userID, contacts.get(userID).getNickName(), anotherID, contacts.get(anotherID).getNickName(), senderAddr, receiverAddr, fileNameChanged, fileSize);
                                 Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
                                 String fileMes = gson2.toJson(fileMessage);
 
@@ -491,7 +534,7 @@ public class LoginClient {
                                 Map<String, String> parameters3 = new HashMap<String, String>();
                                 parameters3.put("userID", userID);
                                 parameters3.put("anotherID", anotherID);
-                                parameters3.put("message", fileName);
+                                parameters3.put("message", fileNameChanged);
                                 String sendTime = String.valueOf(new DateTime().getCurrentDateTime());
                                 parameters3.put("sendTime", sendTime);
                                 Request request3 = new Request(URL_ADDRESS + "/sendFileRequest", parameters3, RequestProperty.APPLICATION);
@@ -499,38 +542,242 @@ public class LoginClient {
                                 if (result3.equals("success")) {
                                     /**通过一方向数据库表中插入此条发送文件的信息，另一方更新数据库表中修改此条文件的接收
                                      * 情况，发送方检测此条文件的发送情况来实现双方同意的情况下开始文件传输**/
-                                    ReadFileResponseThread readFileResponse = new ReadFileResponseThread(userID, anotherID, fileName, URL_ADDRESS, senderAddr, receiverAddr, fileds);
+                                    ReadFileResponseThread readFileResponse = new ReadFileResponseThread(userID, anotherID, fileName,fileNameChanged ,URL_ADDRESS, senderAddr, receiverAddr, fileds);
                                     Thread thread9 = new Thread(readFileResponse);
                                     thread9.start();
                                 } else {
                                     System.out.println("请求发送失败...");
                                 }
                             }
-                        } else if (message.equals("CreateGroup")) {
-                            /**创建群**/
-                            //CreateGroupThread createGroupThread=new ChatNoticeThread(...);
-                            System.out.println("请输入群名:");
-                            String groupName = scanner.nextLine();
                         }
                     }
-                } else if (/*scanner.nextLine()*/nextCommand.equals("Add")) {
+                } else if (nextCommand.equals("Groups")) {
+                    System.out.println("请输入您想要进入的群ID");
+                    String groupID = scanner.nextLine();
+                    SimpleGroup simpleGroup = groups.get(groupID);
+                    String groupName = simpleGroup.getGroupName();
+                    byte[] groupIcon = simpleGroup.getGroupIcon();                          /**null值**/
+                    String groupIcon_Trans = new Gson().toJson(groupIcon);                  /**字符串的"null"**/
+                    String theLatestMessage = simpleGroup.getTheLatestMessage();
+                    String theLatestSendTime = simpleGroup.getTheLatestSendTime();
+                    Map<String, String> parameters31 = new HashMap<String, String>();
+                    parameters31.put("URL_ADDRESS", URL_ADDRESS);
+                    parameters31.put("groupID", groupID);
+                    parameters31.put("groupName", groupName);
+                    parameters31.put("groupIcon", groupIcon_Trans);
+                    parameters31.put("theLatestMessage", theLatestMessage);
+                    parameters31.put("theLatestSendTime", theLatestSendTime);
+                    Request request31 = new Request(URL_ADDRESS + "/GetFullGroup", parameters31, RequestProperty.APPLICATION);
+                    String group_Trans = request31.doPost();
+
+                    Gson gson31 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                    Type type31 = new TypeToken<Group>() {
+                    }.getType();
+                    /**获得具有完整信息的群对象(但不包括群聊天记录)**/
+                    Group group = gson31.fromJson(group_Trans, type31);
+                    System.out.println("您进入到了该群中.");
+                    /**获得该群聊天记录**/
+                    Map<String, String> parameters32 = new HashMap<String, String>();
+                    parameters32.put("groupID", groupID);
+                    parameters32.put("exitTime", exitTime);
+                    Request request32 = new Request(URL_ADDRESS + "/GetGroupChat", parameters32, RequestProperty.APPLICATION);
+                    String result32 = request32.doPost();
+                    Gson gson32 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                    Type type32 = new TypeToken<ArrayList<GroupMessage>>() {
+                    }.getType();
+                    /**获得聊天信息列表并输出信息到控制台上(从上次退出时间开始的所有消息都在里面)**/
+                    ArrayList<GroupMessage> groupMessages = gson32.fromJson(result32, type32);
+                    for (GroupMessage groupMessage : groupMessages) {
+                        /** 转换编码 **/
+                        groupMessage.setContent(Chat.decodeChinese(groupMessage.getContent()));
+                        /**PS:发送者头像是通过调用获取Group内部类指定ID的对象的方法，并调用此对象的getUserHeadIcon()方法获得的**/
+                        if (groupMessage.getStatus() == 0) {
+                            if (groupMessage.getContent() != null)
+                                System.out.println("发送者头像:(无法显示)"/*+(group.getGroupMember(groupMessage.getSenderID()).getUserHeadIcon())*/ + groupMessage.getSenderName() + " : " + groupMessage.getContent() + "(" + groupMessage.getSendTime() + ")");
+                            else if (groupMessage.getImg() != null)
+                                System.out.println("发送者头像:(无法显示)"/*+(group.getGroupMember(groupMessage.getSenderID()).getUserHeadIcon())*/ + groupMessage.getSenderName() + " : " + "图片: " +/*groupMessage.getContent()*/"(无法显示)" + "(" + groupMessage.getSendTime() + ")");
+                        } else if (groupMessage.getStatus() == 1) {
+                            System.out.println("文件 From: " + groupMessage.getSenderName() + "发送者头像: (无法显示)"/*+(group.getGroupMember(groupMessage.getSenderID()).getUserHeadIcon())*/ + "\tName: " + groupMessage.getContent());
+                        }
+                    }
+
+                    System.out.println("\n聊天/Send\t发送图片/SendImg\t修改此群信息/Update\t退出该群/Quit\t退出群聊/ExitChat\tSendFile/上传文件");
+                    String next;
+                    while (true) {
+                        next = null;
+                        next = scanner.nextLine();
+                        if (next.equals("Send")) {
+                            /**聊天**/
+                            System.out.println("输入您想说的:");
+                            String content = scanner.nextLine();
+                            String sendTime = String.valueOf(new DateTime().getCurrentDateTime());
+                            /**转换编码**/
+                            content = Chat.encodeChinese(content);
+
+                            Map<String, String> parameters33 = new HashMap<String, String>();
+                            parameters33.put("groupID", groupID);
+                            parameters33.put("senderID", userID);
+                            parameters33.put("senderName", nickName);
+                            parameters33.put("sendTime", sendTime);
+                            parameters33.put("Status", "0");
+                            parameters33.put("Content", content);
+
+                            Request request33 = new Request(URL_ADDRESS + "/GroupSend", parameters33, RequestProperty.APPLICATION);
+                            String result33 = request33.doPost();
+                            System.out.println("发送成功!");
+                        } else if (next.equals("SendImg")) {
+                            /**发送群聊图片**/
+                            System.out.println("输入您要发送的图片全路径(包括文件名及其后缀)");
+                            String img_path = scanner.next();
+                            java.io.File Img = new java.io.File(img_path);
+                            InputStream inputStream = new FileInputStream(Img);
+                            System.out.println("确认发送?(Y/N)");
+                            String ifAgree = scanner.next();
+                            while (!ifAgree.equals("Y") && !ifAgree.equals("N")) {
+                                System.out.println("输入格式错误，请重新输入!");
+                                ifAgree = scanner.next();
+                            }
+                            if (ifAgree.equals("Y")) {
+                                //发送图片
+                                byte[] ImgBytes = new byte[inputStream.available()];
+                                inputStream.read(ImgBytes, 0, inputStream.available());
+                                Gson gson = new Gson();
+                                String ImgByteTrans = gson.toJson(ImgBytes);
+                                String sendTime = String.valueOf(new DateTime().getCurrentDateTime());
+                                Map<String, String> parameters15 = new HashMap<String, String>();
+                                parameters15.put("senderID", userID);
+                                parameters15.put("senderName", user.getNickName());
+                                parameters15.put("sendTime", sendTime);
+                                parameters15.put("groupID", groupID);
+                                parameters15.put("ImgBytes", ImgByteTrans);
+                                Request request15 = new Request(URL_ADDRESS + "/SendGroupImg", parameters15, RequestProperty.APPLICATION);
+                                String result15 = request15.doPost();
+                                if (result15.equals("success"))
+                                    System.out.println("图片发送成功!");
+
+                                /*else if (result15.equals("error"))
+                                    System.out.println("图片发送失败...");
+                                else
+                                    System.out.println("出错?");*/
+                            } else {
+                                continue;
+                            }
+                        } else if (next.equals("Update")) {
+                            /**修改此群信息**/
+                            System.out.println("\n检测您的身份...");
+                            boolean isCreator = tools.Group.isCreator(group.getGroupMember(userID), groupID);
+                            if (isCreator) {
+                                System.out.println("您能够修改群消息...\n修改界面：");
+                                System.out.println("旧的群昵称: " + group.getGroupName() +
+                                        "\n旧的群头像: (无法显示)" +/*group.getGroupIcon()+*/
+                                        "\n旧的群介绍: " + group.getGroupIntro()
+                                );
+                                System.out.println("新的群昵称: ");
+                                String newGroupName = scanner.nextLine();
+
+                                System.out.println("选择新头像路径：");
+                                String path = scanner.nextLine();
+                                java.io.File file = new java.io.File(path);
+                                InputStream inputStream = null;
+                                inputStream = new FileInputStream(file);
+                                byte[] bytes = null;
+                                if (inputStream != null) {
+                                    bytes = new byte[inputStream.available()];
+                                    inputStream.read(bytes, 0, inputStream.available());
+                                    inputStream.close();
+                                }
+
+                                System.out.println("新的群介绍: ");
+                                String newGroupIntro = scanner.nextLine();
+
+                                group.setGroupName(newGroupName);
+                                group.setGroupIcon(bytes);
+                                group.setGroupIntro(newGroupIntro);
+
+                                /**提交修改后的群信息资料**/
+                                Map<String, String> parameters40 = new HashMap<String, String>();
+                                Gson gson40 = new Gson();
+                                String groupTrans = gson40.toJson(group);
+                                parameters40.put("groupTrans", groupTrans);
+                                Request request40 = new Request(URL_ADDRESS + "/ChangeGroupInfo", parameters40, RequestProperty.APPLICATION);
+                                String result40 = request40.doPost();
+                                System.out.println(result40);
+                            }else {
+                                System.out.println("您没有修改的权限...");
+                            }
+                        } else if (next.equals("Quit")) {
+                            /**退出该群**/
+                            Map<String, String> parameters35 = new HashMap<String, String>();
+                            parameters35.put("userID", userID);
+                            parameters35.put("groupID", groupID);
+                            Request request35 = new Request(URL_ADDRESS + "/QuitGroup", parameters35, RequestProperty.APPLICATION);
+                            String result35 = request35.doPost();
+
+                            /**将全局变量群列表中的相应群删除**/
+                            groups.remove(groupID);
+                            /**将判断键值对中该群ID对应的值改为false**/
+                            ifbreak.replace(groupID, false);
+
+                            /**再加载一次登录时读取群列表的操作**/
+                            /**实际程序应该用不到这步**/
+                            GroupListThread groupListThread = new GroupListThread(userID, URL_ADDRESS);
+                            Thread thread7 = new Thread(groupListThread);
+                            thread7.start();
+                        } else if (next.equals("ExitChat"))
+                            break;
+                        else if (next.equals("SendFile")) {
+                            /**发送文件**/
+                            try {
+                                System.out.println("\n请输入文件在您PC上的全路径及文件名(包括后缀) (PS:路径可以有中文、但上传的文件本身不能含中文! 不能发送文件夹!):");
+                                String fileName = scanner.nextLine();
+                                if (File.isChinese(fileName)) {
+                                    System.out.println("不能有中文!");
+                                    continue;
+                                }
+                                System.out.println("文件上传中,请等待成功提示(您可以退出此窗口,但不要退出程序...)");
+                                GroupUploadThread groupUploadThread = new GroupUploadThread(userID, user.getNickName(), fileName, groupID);
+                                Thread thread1 = new Thread(groupUploadThread);
+                                thread1.start();
+                            } catch (Exception e) {
+                                System.out.println("离线文件传送失败...");
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    /**获得群聊信息和群成员列表**/
+                } else if (nextCommand.equals("Add")) {
+                    /**添加好友**/
                     System.out.println("--------------------------------------------------------------添加好友界面--------------------------------------------------------------");
-                    /**--------------------添加好友------------------**/
                     Map<String, String> parameter = new HashMap<String, String>();
                     parameter.put("userID", userID);
                     Request request1 = new Request(URL_ADDRESS + "/AddContact", parameter, RequestProperty.APPLICATION);
                     String content = request1.doPost();
                     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-                    Type type = new TypeToken<Map<String, String>>() {
+                    Type type = new TypeToken<Map<String, Contact>>() {
                     }.getType();
                     //Map<userID,nickName>
-                    Map<String, String> userList = gson.fromJson(content, type);
+                    Map<String, Contact> userList = gson.fromJson(content, type);
                     if (userList != null && userList.size() > 0) {
                         System.out.println();
-                        System.out.println("可添加的联系人列表:");
+                        System.out.println("可添加列表:");
                         for (String ID : userList.keySet()) {
-                            String thenickName = userList.get(ID);
-                            System.out.println("帐号:" + ID + "\t昵称:" + thenickName);
+                            Contact contact = userList.get(ID);
+                            //String thenickName = contact.getNickName();
+                            Boolean isMale = contact.isMale();
+                            String male;
+                            if (isMale == null)
+                                male = "未设定";
+                            else if (isMale)
+                                male = "男";
+                            else
+                                male = "女";
+                            System.out.println("帐号:" + ID +
+                                    "\t昵称:" + contact.getNickName() +
+                                    "\t性别:" + male +
+                                    "\t头像:" + /*contact.getHeadIcon()*/"无法显示" +
+                                    "\t个人介绍/个性签名:" + contact.getIntro() +
+                                    "\t是否在线:" + contact.isStatus()
+                            );
                         }
                         System.out.print("输入您要添加的userID(0退出):__________\b\b\b\b\b\b\b\b\b\b");
                         String receiverID;
@@ -557,7 +804,58 @@ public class LoginClient {
                         else
                             throw new Exception("发送邀请出错!LoginClient");
                     }
-                } else if (/*scanner.nextLine()*/nextCommand.equals("Exit")) {
+                } else if (nextCommand.equals("AddGroup")) {
+                    /**添加群**/
+                    Map<String, String> parameters21 = new HashMap<String, String>();
+                    parameters21.put("userID", userID);
+                    Request request21 = new Request(URL_ADDRESS + "/AddGroup", parameters21, RequestProperty.APPLICATION);
+                    String groupListTrans = request21.doPost();
+                    Gson gson21 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                    Type type21 = new TypeToken<ArrayList<SimpleGroup>>() {
+                    }.getType();
+                    ArrayList<SimpleGroup> groupList = gson21.fromJson(groupListTrans, type21);
+                    /**获得Group列表**/
+                    for (SimpleGroup group : groupList) {
+                        System.out.println(
+                                "群ID: " + group.getGroupID() +
+                                        "\t群昵称: " + group.getGroupName() +
+                                        "\t群头像: " +/*group.getGroupIcon()*/"无法显示"
+                        );
+                    }
+
+                    System.out.println("\n输入您想要加入的群:");
+                    /**获得想要加入的群ID**/
+                    String groupID = scanner.nextLine();
+                    Gson gson30 = new Gson();
+                    String headIconTrans = gson30.toJson(headIcon);
+                    Map<String, String> parameters30 = new HashMap<String, String>();
+                    parameters30.put("URL_ADDRESS", URL_ADDRESS);
+                    parameters30.put("userID", userID);
+                    parameters30.put("groupID", groupID);
+                    parameters30.put("userName", nickName);
+                    parameters30.put("userHeadIconTrans", headIconTrans);
+                    Request request30 = new Request(URL_ADDRESS + "/JoinGroup", parameters30, RequestProperty.APPLICATION);
+                    /**客户端获得的返回值是SimpleGroup对象**/
+                    String result30 = request30.doPost();
+//                    System.out.println(result30);
+                    Gson gson31=new GsonBuilder().enableComplexMapKeySerialization().create();
+                    Type type31=new TypeToken<SimpleGroup>(){}.getType();
+                    SimpleGroup simpleGroup=gson31.fromJson(result30,type31);
+                    /**将新获得的群的SimpleGroup对象添加到groups全局变量中**/
+                    groups.put(simpleGroup.getGroupID(),simpleGroup);
+
+                    /**添加监听此群的线程**/
+                    GroupListenerThread groupListenerThread = new GroupListenerThread(userID, groupID, exitTime, URL_ADDRESS);
+                    Thread thread30 = new Thread(groupListenerThread);
+                    thread30.start();
+
+                    /**再加载一次登录时读取群列表的操作**/
+                    /**实际程序应该用不到这步**/
+                    GroupListThread groupListThread = new GroupListThread(userID, URL_ADDRESS);
+                    Thread thread8 = new Thread(groupListThread);
+                    thread8.start();
+                } else if (nextCommand.equals("Exit")) {
+                    /**退出程序的过程**/
                     Map<String, String> parameter = new HashMap<String, String>();
                     parameter.put("userID", userID);
                     Request request2 = new Request(URL_ADDRESS + "/Exit", parameter, RequestProperty.APPLICATION);
@@ -568,6 +866,7 @@ public class LoginClient {
                     } else if (content.equals("error"))
                         System.out.println("退出异常!");
                 } else if (nextCommand.equals("Deal")) {
+                    /**处理好友请求**/
                     System.out.print("您要处理第几个请求？请输入数字(0为退出):");
                     int index = scanner.nextInt();
                     if (index == 0) {
@@ -606,9 +905,15 @@ public class LoginClient {
                                     parameters1.put("property", String.valueOf(noticeMessage.getProperty()));
                                     request1.setAll(URL_ADDRESS + "/AgreeFriend", parameters1, RequestProperty.APPLICATION);
                                     String result1 = request1.doPost();                      //返回结果"success"
-                                    if (result1.equals("success"))
+                                    if (result1.equals("success")) {
                                         System.out.println("添加成功!");
 
+                                        /**重新开启一个获取联系人的线程**/
+                                        ContactListThread contactListThread = new ContactListThread(userID, URL_ADDRESS + "/ContactList");
+                                        Thread thread6 = new Thread(contactListThread);
+                                        thread6.start();
+                                        thread6.join();
+                                    }
                                     /**
                                      *
                                      * 应该再开启一个定时循环读取最新消息的线程(包括删除)
@@ -640,21 +945,145 @@ public class LoginClient {
                         System.out.println("离线文件上传失败...");
                         e.printStackTrace();
                     }
-                }else if (nextCommand.equals("CreateGroup")){
+                } else if (nextCommand.equals("CreateGroup")) {
                     /**创建群聊**/
+                    Gson gson = new Gson();
+                    String headIcon_Trans = gson.toJson(headIcon);                    //headIcon_Transy有可能等于null类型
+                    System.out.println("输入群名称:");
+                    String groupName = scanner.nextLine();
+                    String createTime = String.valueOf(new DateTime().getCurrentDateTime());
+                    Map<String, String> parameters20 = new HashMap<String, String>();
+                    parameters20.put("groupName", groupName);
+                    parameters20.put("creatorID", userID);
+                    parameters20.put("headIcon", headIcon_Trans);
+                    parameters20.put("createTime", createTime);
+                    parameters20.put("creatorName", nickName);
+                    Request request20 = new Request(URL_ADDRESS + "/CreateNewGroup", parameters20, RequestProperty.APPLICATION);
+                    /**servlet返回新创建的群的ID**/
+                    String result20 = request20.doPost();
+                    String groupID = result20;
+                    if (!request20.equals("error!CreateGroupServlet in Group.createNewGroup")) {
+                        System.out.println("创建群成功!群ID: " + groupID);
+                    }
+                    /**添加监听此群消息的线程**/
+                    GroupListenerThread groupListenerThread = new GroupListenerThread(userID, groupID, exitTime, URL_ADDRESS);
+                    Thread thread20 = new Thread(groupListenerThread);
+                    thread20.start();
+
+                    /**再加载一次登录时读取群列表的操作**/
+                    /**实际程序应该用不到这步**/
+                    GroupListThread groupListThread = new GroupListThread(userID, URL_ADDRESS);
+                    Thread thread7 = new Thread(groupListThread);
+                    thread7.start();
+                } else if (nextCommand.equals("UpdateInfo")) {
+                    /**更改个人信息**/
+
+                    /**显示个人信息**/
+                    System.out.println("\n您当前的个人信息:\n");
+                    System.out.println("\n帐号:" + user.getUserID() +
+                            "\n密码: " + user.getPassWord() +
+                            "\n昵称:" + user.getNickName() +
+                            "\n性别:" + (user.isMale() == true ? "男" : "女") +
+                            "\n生日:" + user.getBirthday() +
+                            "\n手机号:" + user.getPhoneNum() +
+                            "\n电子邮箱:" + user.getEmail() +
+                            "\n头像:" +/*user.getHeadIcon()*/"无法呈现" +
+                            "\n个人介绍" + (user.getIntro() == null ? "暂无" : user.getIntro()) +
+                            "\n最后登录时间" + user.getExitTime());
+
+                    /** 更新用户信息 **/
+                    for (int i = 1; i < user.getPropertyNum(); i++) {
+                        switch (i) {
+                            case 1: {
+                                System.out.println("旧密码:" + user.getPassWord() + "\t输入新密码: ");
+                                user.setPassWord(scanner.nextLine());
+                                break;
+                            }
+                            case 2: {
+                                System.out.println("旧昵称:" + user.getNickName() + "\t输入新昵称: ");
+                                user.setNickName(scanner.nextLine());
+                                break;
+                            }
+                            case 3: {
+                                System.out.println("旧性别:" + (user.isMale() == true ? "男" : "女") + "\t输入新性别(男输入Y，女输入N):");
+                                user.setMale(((scanner.next().equals("Y")) ? true : false));
+                                break;
+                            }
+                            case 4: {
+                                System.out.println("旧生日:" + user.getBirthday() + "\t新生日(必须按照格式填写!格式: 2017-12-06 23:41:55 ):");
+                                String ifisbirthday = null;
+                                do {
+                                    if (ifisbirthday != null)
+                                        System.out.println("格式输入错误!请重新输入!");
+                                    ifisbirthday = scanner.nextLine();
+                                } while (!ifisbirthday.matches("\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d"));
+                                user.setBirthday(ifisbirthday);
+                                System.out.println("成功更新用户生日! " + ifisbirthday);
+                                break;
+                            }
+                            case 5: {
+                                System.out.println("旧手机号: " + user.getPhoneNum() + "\t新手机号: ");
+                                user.setPhoneNum(scanner.next());
+                                break;
+                            }
+                            case 6: {
+                                System.out.println("旧电子邮箱: " + user.getEmail() + "\t新电子邮箱: ");
+                                String newEmail=scanner.nextLine();
+                                if(newEmail==null||newEmail.equals("")){
+                                    newEmail=scanner.nextLine();
+                                }
+                                user.setEmail(/*scanner.nextLine()*/newEmail);
+                                break;
+                            }
+                            case 7: {
+                                System.out.print("当前头像: " + "暂不显示\t新头像: ");
+                                System.out.println("更新头像？(Y/N)");
+                                String ifupdate = scanner.next();
+                                if (ifupdate.equals("Y")) {
+                                    System.out.println("选择新头像路径：");
+                                    String path = scanner.nextLine();
+                                    while (path==null||path.equals("")){
+                                        System.out.println("选择新头像路径：");
+                                        path = scanner.nextLine();
+                                    }
+                                    java.io.File file = new java.io.File(path);
+                                    InputStream inputStream = new FileInputStream(file);
+                                    byte[] bytes;
+                                    if (inputStream != null) {
+                                        bytes = new byte[inputStream.available()];
+                                        inputStream.read(bytes, 0, inputStream.available());
+                                        user.setHeadIcon(bytes);
+                                    }
+                                } else {
+                                    break;
+                                }
+                                break;
+                            }
+                            case 8: {
+                                System.out.println("旧个人介绍: " + user.getIntro() + "\t新个人介绍: ");
+                                user.setIntro(scanner.nextLine());
+                                break;
+                            }
+                            case 9: {
+                                System.out.println("上次下线时间: " + user.getExitTime());
+                                break;
+                            }
+                        }
+                    }
+
+                    /**提交修改**/
+                    Gson gson = new Gson();
+                    String commitChange = gson.toJson(user);
+                    Map<String, String> parameters18 = new HashMap<String, String>();
+                    parameters18.put("user", commitChange);
+                    Request request18 = new Request(URL_ADDRESS + "/CommitChange", parameters18, RequestProperty.APPLICATION);
+                    String result18 = request18.doPost();
+                    System.out.println(result18);
+                    System.out.println("修改个人信息过程结束!");
 
                 }
 
-                //处理局域网通信的识别问题
-                //如果接收方的IP和本机IP前三位相同，则认为在同一个局域网内   可行度低，因为并不能确保这样就一定在一个局域网内
-            /*设置一个全局环境变量Set<String userID>.当点开一个聊天窗口就开启一个线程，由本用户发送"LocalConnect:userID"到消息服务器，服务器解析后取得对应userID的公网地址，向其
-            发送数据包令其向本用户发送"TryLocalConnect:userID"的数据包.本用户若接收到此数据包，则将userID添加到Set中(若key已存在，则更新value).表示可以与其进行局域网消息发送，并
-            向服务器发送"ConnectSuccess:userID(me)userID(him/her)/"的数据包，服务器收到此数据包后开启一个监听局域网连接的线程(此线程可结束)，在此线程中取出并局部存储本机userID+
-            局域网地址及连接到的用户的userID+其局域网地址，然后每隔一定时间再取出用户的局域网地址进行比较，若相同则跳过，若不同则查出并用while循环向向本机公网地址发送
-            "ChangeLocalConnect:userID"，本机接收后向服务器发送"I_KNOW_LOCAL_CHANGE"，获取userID，移除Set中的相应userID，并再次开启发送"LocalConnect:userID"的线程.服务器获取
-            "I_KNOW_LOCAL_CHANGE"则将用户表中isKnown改为true
-            在打开至少一个聊天界面时，另一个监听线程应持续运行，此线程作用为每隔一段时间
-            */
+
                 scanner.nextLine();
             }
         }
@@ -713,14 +1142,8 @@ public class LoginClient {
 
     }
 
-   /* //获得localIP
-    private static String getLocalIP() {
-        return localIP;
-    }
-*/
-
     //开启所有线程的方法
-    private static void startAllThread(String userID, DatagramSocket messageds, DatagramSocket fileds, SocketAddress messageSocketAddress, SocketAddress fileSocketAddress) throws SQLException, InterruptedException {
+    private static void startAllThread(String userID, DatagramSocket messageds, DatagramSocket fileds, SocketAddress messageSocketAddress, SocketAddress fileSocketAddress, String exitTime) throws SQLException, InterruptedException {
 
 
         /**
@@ -736,13 +1159,33 @@ public class LoginClient {
         thread1.start();
 
         /**创建获取好友列表的线程**/
-        /**
-         * 应该和后面的线程组放在一起?
-         * **/
         ContactListThread contactListThread = new ContactListThread(userID, URL_ADDRESS + "/ContactList");
         Thread thread6 = new Thread(contactListThread);
         thread6.start();
-        thread6.join();                                                             /**这个join应该吧管用**/
+        thread6.join();                                                             /**这个join应该管用**/
+
+        /**创建获取群列表的线程**/
+        GroupListThread groupListThread = new GroupListThread(userID, URL_ADDRESS);
+        Thread thread7 = new Thread(groupListThread);
+        thread7.start();
+        thread7.join();
+
+        /**对每个群都建立一个监听群消息的线程**/
+        for (int i = 0; i < groups.size(); i++) {
+            Set<String> groupIDList = groups.keySet();
+            Iterator<String> iterator = groupIDList.iterator();
+            while (iterator.hasNext()) {
+                String groupID = iterator.next();
+                GroupListenerThread groupListenerThread = new GroupListenerThread(userID, groupID, exitTime, URL_ADDRESS);
+                Thread thread = new Thread(groupListenerThread);
+                thread.start();
+            }
+        }
+
+        /**建立用户全群监听线程**/
+        AllGroupListenerThread allGroupListenerThread=new AllGroupListenerThread(userID,URL_ADDRESS);
+        Thread thread=new Thread(allGroupListenerThread);
+        thread.start();
 
         /* //建立监听本机局域网地址的线程
         LocalAddressThread localAddressThread = new LocalAddressThread(userID, "/findMyLocalIP");
@@ -832,7 +1275,8 @@ public class LoginClient {
                     ChatMessage chatMessage = gson.fromJson(content, type);
                     chatMessage.setNature((byte) 1);
 
-                    String callBackID = chatMessage.getAnotherID();
+//                    String callBackID = chatMessage.getAnotherID();
+                    String callBackID = chatMessage.getSenderID();
                     //String myID = chatMessage.getAnotherID();
                     String myID = userID;
                     byte[] bytes = ("CallBack/" + message.split("/")[1] + "/" + callBackID + "/" + myID).getBytes();
@@ -972,6 +1416,10 @@ public class LoginClient {
                     //System.out.println("\n请输入文件在您PC上的全路径及文件名(包括后缀) (PS:路径可以有中文、但上传的文件本身不能含中文! 不能发送文件夹!):");
                     System.out.println("\n请输入您的存储路径(目标文件夹全路径):");
                     String save_path = scanner.next();
+                    if(!save_path.endsWith("\\"))
+                        save_path+=("\\"+fileMessage.getFileName());
+                    else
+                        save_path+=fileMessage.getFileName();
                     FileReceiver fileReceiver = new FileReceiver((Long.parseLong(fileMessage.getFileSize())), save_path, fileMessage.getSenderAddress(), fileMessage.getReceiverAddress(), ds);
                     /**暂停主接收?**/
 
@@ -1037,7 +1485,7 @@ public class LoginClient {
     }
 
 
-    //监听好友中的上下线等行为(通过定时访问数据库实现)
+    //监听好友(非群)中的上下线等行为(通过定时访问数据库实现)
     private static class ListenerThread implements Runnable {
         private String userID;
         private String urlAddress;
@@ -1119,7 +1567,7 @@ public class LoginClient {
                             status = contact.isStatus();
                             theLatestText = contact.getTheLatestText();
                             theLatestTextTime = contact.getTheLatestTextTime();
-                            System.out.println("帐号:" + ID + " 昵称:" + nickName + " 类型:" + (types == 0 ? "好友" : "群") +
+                            System.out.println("帐号:" + ID + " 昵称:" + nickName + "头像: (无法显示)" + " 类型:" + (types == 0 ? "好友" : "群") +
                                     (types == 0 ? (" 状态:" + (status == true ? "上线" : "下线")) : ("")) + (theLatestText != null ? (" 最后一条消息:" +
                                     theLatestText + " 消息发送时间:" + theLatestTextTime) : ""));
                             /**替换全局变量中的元素**/
@@ -1199,7 +1647,7 @@ public class LoginClient {
                         e.printStackTrace();
                     }
                     theLatestTextTime = contact.getTheLatestTextTime();
-                    System.out.println("帐号:" + ID + " 昵称:" + nickName + " 类型:" + (types == 0 ? "好友" : "群") +
+                    System.out.println("帐号:" + ID + " 昵称:" + nickName + "头像:(忽略)" + " 类型:" + (types == 0 ? "好友" : "群") +
                             (types == 0 ? (" 状态:" + (status == true ? "上线" : "下线")) : ("")) + (theLatestText != null ? (" 最后一条消息:" +
                             theLatestText + " 消息发送时间:" + theLatestTextTime) : ""));
                 }
@@ -1210,6 +1658,57 @@ public class LoginClient {
         }
     }
 
+    //获取群列表的线程
+    private final static class GroupListThread implements Runnable {
+        private Map<String, SimpleGroup> simpleGroupArrayList = new HashMap<String, SimpleGroup>();
+        private String userID;
+        private String URL_ADDRESS;
+        private Map<String, String> parameters = new HashMap<String, String>();
+        private Request request;
+        private String groupsTrans;
+        private Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+        private Type type = new TypeToken<Map<String, SimpleGroup>>() {
+        }.getType();
+
+        public GroupListThread(String userID, String URL_ADDRESS) {
+            this.userID = userID;
+            this.URL_ADDRESS = URL_ADDRESS;
+            parameters.put("userID", this.userID);
+            this.request = new Request(this.URL_ADDRESS + "/GroupList", parameters, RequestProperty.APPLICATION);
+        }
+
+        @Override
+        public void run() {
+            this.groupsTrans = this.request.doPost();
+            if (!groupsTrans.equals("none")) {
+                //获得群集合
+                this.simpleGroupArrayList = this.gson.fromJson(groupsTrans, type);
+            } else
+                this.simpleGroupArrayList = null;
+            //groups = this.simpleGroupArrayList;
+            if (/*contacts*/this.simpleGroupArrayList != null) {
+                groups = this.simpleGroupArrayList;
+                System.out.println("\n您的群列表\n");
+                Set<String> simpleGroupSet = this.simpleGroupArrayList.keySet();
+                Iterator<String> stringIterator = simpleGroupSet.iterator();
+                while (stringIterator.hasNext()) {
+                    String groupID = stringIterator.next();
+                    SimpleGroup simpleGroup = this.simpleGroupArrayList.get(groupID);
+
+                    System.out.println("群ID: " + simpleGroup.getGroupID() +
+                            "群昵称: " + simpleGroup.getGroupName() +
+                            "\t群头像:" +/*simpleGroup.getGroupIcon()*/"无法显示" +
+                            "\t群最新消息:" + simpleGroup.getTheLatestMessage() +
+                            "\t最新消息发送时间: " + simpleGroup.getTheLatestSendTime()
+                    );
+                }
+            } else {
+                System.out.println("群列表为空!");
+            }
+        }
+    }
+
+    //获取消息提醒的线程
     private final static class MessageNoticeThread implements Runnable {
         private String userID;
         private Map<String, String> parameter = new HashMap<String, String>();
@@ -1243,9 +1742,18 @@ public class LoginClient {
                             System.out.println("\n来自帐号:" + anotherID + "  昵称为" + nickName + " 的用户的好友邀请");
                         else if (property == 1)
                             System.out.println("1");
-                        else if (property == 2)
+                        else if (property == 2) {
                             System.out.println("\n添加好友:" + anotherID + "  昵称:" + nickName + "  成功");
-                        else if (property == 3)
+                            /**重新开启一个获取联系人的线程**/
+                            ContactListThread contactListThread = new ContactListThread(userID, URL_ADDRESS + "/ContactList");
+                            Thread thread6 = new Thread(contactListThread);
+                            thread6.start();
+                            try {
+                                thread6.join();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (property == 3)
                             System.out.println("3");
                     }
                 }
@@ -1262,6 +1770,7 @@ public class LoginClient {
         }
     }
 
+    //获取聊天消息的线程
     private final static class ChatNoticeThread implements Runnable {
         private String userID;
         private Map<String, String> parameter = new HashMap<String, String>();
@@ -1282,52 +1791,60 @@ public class LoginClient {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }*/
-            while (true) {
-                this.notices = this.request.doPost();
-                if (notices.equals("") || notices.equals("none")) {
-                    //System.out.println("\n您(离线时)未收到过任何消息!");
-                } else {
-                    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-                    Type type = new TypeToken<ArrayList<ChatMessage>>() {
-                    }.getType();
-                    this.chatMessages = gson.fromJson(this.notices, type);
-                    /**解析Json**/
-                    String senderID;
-                    String senderName;
-                    String content = null;
-                    byte nature;
-                    byte[] imgBytes = new byte[0];
-                    String sendTime;
-                    System.out.println("\n未读聊天消息:\n");
-                    for (ChatMessage chatMessage : chatMessages) {
-                        senderID = chatMessage.getAnotherID();
-                        senderName = contacts.get(senderID).getNickName();                    /**根据ID获得发送者的昵称**/
-                        try {
-                            content = chatMessage.getMessage();
-                            imgBytes = chatMessage.getImg();
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-                        sendTime = chatMessage.getSendTime();
-                        nature = chatMessage.getNature();
-                        if (content != null && nature == 1)
-                            System.out.println("来自" + senderID + "  昵称为 " + senderName + " 的消息: " + content + " 发送时间: " + sendTime);
-                        else if (imgBytes != null && nature == 5)
-                            System.out.println("来自" + senderID + "  昵称为" + senderName + " 的图片: " + imgBytes + " 发送时间: " + sendTime);
-                    }
-                    //System.out.println("\n未读聊天消息显示完毕!\n");
-                }
+//            while (true) {
+            this.notices = this.request.doPost();
+            if (notices.equals("") || notices.equals("none")) {
+                //System.out.println("\n您(离线时)未收到过任何消息!");
+            } else {
+                Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+                Type type = new TypeToken<ArrayList<ChatMessage>>() {
+                }.getType();
+                this.chatMessages = gson.fromJson(this.notices, type);
+                /**解析Json**/
+                String senderID;
+                String senderName;
+                String content = null;
 
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                byte[] senderHeadIcon = null;                    /**发送方的头像不是从ChatMessage类中获得的，而是从联系人列表中摘取的**/
+
+                byte nature;
+                byte[] imgBytes = null;
+                String sendTime;
+                System.out.println("\n未读聊天消息:\n");
+                for (ChatMessage chatMessage : chatMessages) {
+                    senderHeadIcon = null;
+
+                    senderID = chatMessage.getAnotherID();
+                    senderName = contacts.get(senderID).getNickName();                    /**根据ID获得发送者的昵称**/
+
+                    senderHeadIcon = contacts.get(senderID).getHeadIcon();                  /**根据ID获得发送者的头像**/
+
+                    try {
+                        content = chatMessage.getMessage();
+                        imgBytes = chatMessage.getImg();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                    sendTime = chatMessage.getSendTime();
+                    nature = chatMessage.getNature();
+                    if (content != null && nature == 1)
+                        System.out.println("来自" + senderID + "  昵称为 " + senderName + "发送者头像为: (无法显示)" + " 的消息: " + content + " 发送时间: " + sendTime);
+                    else if (imgBytes != null && nature == 5)
+                        System.out.println("来自" + senderID + "  昵称为" + senderName + "发送者头像为: (无法显示)" + " 的图片: " + /*imgBytes*/"(无法显示)" + " 发送时间: " + sendTime);
                 }
+                //System.out.println("\n未读聊天消息显示完毕!\n");
             }
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+//            }
         }
     }
 
-
+    //发送文件的线程
     private static class UploadThread implements Runnable {
         private String fileName;
         private String userID;
@@ -1353,11 +1870,13 @@ public class LoginClient {
         }
     }
 
+    //接收离线文件的线程
     private static class ReceiveFileThread implements Runnable {
-        private String anotherID;
-        private String userID;
+        private String anotherID = null;
+        private String userID = null;
         private String localPath;
         private String fileName;
+        private String groupID = null;
 
         public ReceiveFileThread(String anotherID, String userID, String localPath, String fileName) {
             this.anotherID = anotherID;
@@ -1366,19 +1885,36 @@ public class LoginClient {
             this.fileName = fileName;
         }
 
+        public ReceiveFileThread(String groupID, String localPath, String fileName) {
+            this.groupID = groupID;
+            this.localPath = localPath;
+            this.fileName = fileName;
+        }
+
         @Override
         public void run() {
-            DownloadFileRequest downloadFileRequest = new DownloadFileRequest(anotherID, userID, localPath, fileName);
-            try {
-                downloadFileRequest.downLoad();
-                System.out.println("文件接收成功!");
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (anotherID != null) {
+                DownloadFileRequest downloadFileRequest = new DownloadFileRequest(anotherID, userID, localPath, fileName);
+                try {
+                    downloadFileRequest.downLoad();
+                    System.out.println("文件接收成功!");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (this.groupID != null) {
+                /**下载群文件**/
+                DownloadFileRequest downloadFileRequest = new DownloadFileRequest(groupID, localPath, fileName);
+                try {
+                    downloadFileRequest.downLoad();
+                    System.out.println("文件接收成功!");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-
+    //在线发送消息的线程
     private static class TryOnlineTransitThread implements Runnable {
         private int index;
         private DatagramSocket ds;
@@ -1417,10 +1953,12 @@ public class LoginClient {
         }
     }
 
+    //发送在线文件后接收开始信号的线程
     private static class ReadFileResponseThread implements Runnable {
         private String userID;
         private String anotherID;
         private String fileName;
+        private String fileNameChanged;
         private String URL_ADDRESS;
         private String senderAddr;
         private String receiverAddr;
@@ -1430,10 +1968,11 @@ public class LoginClient {
         private Map<String, String> parameters;
 
 
-        public ReadFileResponseThread(String userID, String anotherID, String fileName, String URL_ADDRESS, String senderAddr, String receiverAddr, DatagramSocket ds) {
+        public ReadFileResponseThread(String userID, String anotherID, String fileName, String fileNameChanged, String URL_ADDRESS, String senderAddr, String receiverAddr, DatagramSocket ds) {
             this.userID = userID;
             this.anotherID = anotherID;
             this.fileName = fileName;
+            this.fileNameChanged=fileNameChanged;
             this.URL_ADDRESS = URL_ADDRESS;
             this.senderAddr = senderAddr;
             this.receiverAddr = receiverAddr;
@@ -1446,7 +1985,7 @@ public class LoginClient {
                 parameters = new HashMap<String, String>();
                 parameters.put("userID", userID);
                 parameters.put("anotherID", anotherID);
-                parameters.put("fileName", fileName);
+                parameters.put("fileName", fileNameChanged);
                 request = new Request(this.URL_ADDRESS + "/ReadFileResponse", parameters, RequestProperty.APPLICATION);
                 String isAccepted = request.doPost();             //每隔3s请求一次servlet,获得返回值
                 if (!isAccepted.equals("N")) {
@@ -1457,7 +1996,7 @@ public class LoginClient {
                         System.out.println(fileSender.send());
                         break;
                     } else if (isAccepted.equals("F")) {
-                        System.out.println("对方拒绝接收文件" + fileName + "...");
+                        System.out.println("对方拒绝接收文件" + fileNameChanged + "...");
                     }
                 } else {
                     try {
@@ -1470,7 +2009,7 @@ public class LoginClient {
         }
     }
 
-
+    //发送消息的线程
     private static class SendThread implements Runnable {
         private int index;
         private DatagramSocket ds;
@@ -1496,7 +2035,7 @@ public class LoginClient {
             this.nature = nature;
             this.sendTime = sendTime;
             this.message = message;
-            this.chatMessage = new ChatMessage(senderID, nature, sendTime, message);
+            this.chatMessage = new ChatMessage(senderID, anotherID, nature, sendTime, message);
         }
 
         @Override
@@ -1530,5 +2069,180 @@ public class LoginClient {
             ifis.remove(this.index);
         }
 
+    }
+
+    //(每个群)监听群消息更新的线程
+    private static class GroupListenerThread implements Runnable {
+        private String userID;
+        private String groupID;
+        private String referredTime;
+        private String URL_ADDRESS;
+        private Map<String, String> parameters = new HashMap<String, String>();
+        private Request request;
+        private Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+        private Type type = new TypeToken<ArrayList<GroupMessage>>() {
+        }.getType();
+        private ArrayList<GroupMessage> groupMessages = null;
+
+        public GroupListenerThread(String userID, String groupID, String exitTime, String URL_ADDRESS) {
+            this.userID = userID;
+            this.groupID = groupID;
+            this.referredTime = exitTime;
+            this.URL_ADDRESS = URL_ADDRESS;
+            this.parameters.put("userID", userID);
+            this.parameters.put("groupID", groupID);
+            this.parameters.put("referredTime", referredTime);
+            this.request = new Request(this.URL_ADDRESS + "/GroupListener", parameters, RequestProperty.APPLICATION);
+            /**向全局变量ifbreak中添加此群的存在判断键值对**/
+            ifbreak.put(this.groupID, true);
+        }
+
+        @Override
+        public void run() {
+            String result = null;
+            while (true) {
+                /**用户退出该群时，会将ifbreak中该群对应的值改为false，若检查为false，则退出此线程**/
+                if (!ifbreak.get(this.groupID))
+                    break;
+                result = null;
+                this.request = new Request(this.URL_ADDRESS + "/GroupListener", this.parameters, RequestProperty.APPLICATION);
+                groupMessages = null;
+                result = this.request.doPost();
+                if (!result.equals("none")) {
+                    /**获得消息列表**/
+                    groupMessages = gson.fromJson(result, type);
+                    System.out.println("\n收到新的群聊消息!");
+                    for (GroupMessage groupMessage : groupMessages) {
+                        try {
+                            /**转换编码**/
+                            groupMessage.setContent(Chat.decodeChinese(groupMessage.getContent()));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                            System.out.println("error in LoginClient GroupListenerThread !");
+                        }
+                        /**PS:发送者头像是通过调用获取Group内部类指定ID的对象的方法，并调用此对象的getUserHeadIcon()方法获得的**/
+                        if (groupMessage.getStatus() == 0) {
+                            if (groupMessage.getContent() != null)
+                                System.out.println("From: " + groupID + " 群昵称: " + groups.get(groupID).getGroupName() + "发送者头像:(无法显示)"/*+(group.getGroupMember(groupMessage.getSenderID()).getUserHeadIcon())*/ + groupMessage.getSenderName() + " : " + groupMessage.getContent() + "(" + groupMessage.getSendTime() + ")");
+                            else if (groupMessage.getImg() != null)
+                                System.out.println("From: " + groupID + " 群昵称: " + groups.get(groupID).getGroupName() + "发送者头像:(无法显示)"/*+(group.getGroupMember(groupMessage.getSenderID()).getUserHeadIcon())*/ + groupMessage.getSenderName() + " : " + "发送的图片:" +/*groupMessage.getImg()*/"(无法显示)" + "(" + groupMessage.getSendTime() + ")");
+                        } else if (groupMessage.getStatus() == 1) {
+                            System.out.println("From: " + groupID + " 群昵称: " + groups.get(groupID).getGroupName() + "文件 From: " + groupMessage.getSenderName() + "发送者头像: (无法显示)"/*+(group.getGroupMember(groupMessage.getSenderID()).getUserHeadIcon())*/ + "\tName: " + groupMessage.getContent());
+                        }
+                    }
+                    /**更改groups全局变量中的最新消息以及最新消息发送时间**/
+                    groups.get(groupID).setTheLatestMessage(groupMessages.get(groupMessages.size() - 1).getContent());
+                    groups.get(groupID).setTheLatestSendTime(groupMessages.get(groupMessages.size() - 1).getSendTime());
+
+                    /**更换参考时间为接收到的消息的最新时间**/
+                    parameters.replace("referredTime", groupMessages.get(groupMessages.size() - 1).getSendTime());
+
+                    /**以下代码是为了让程序能够在控制台上显示出变化加的额外程序，实际中应该不需要**/
+                    Map<String, String> parameters2 = new HashMap<String, String>();
+                    parameters2.put("userID", userID);
+                    parameters2.put("groupID", groupID);
+                    Request request2 = new Request(this.URL_ADDRESS + "/UpdateGroupInfo", parameters2, RequestProperty.APPLICATION);
+                    String result2 = request2.doPost();
+
+                } else if (result.equals("none")) {
+                    //System.out.println("暂无新消息!");
+                }
+
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    System.out.println("error when GroupListenerThread sleep !");
+                }
+            }
+        }
+    }
+
+    //监听所有群更新情况的线程
+    private static class AllGroupListenerThread implements Runnable {
+        private String userID;
+        private String URL_ADDRESS;
+        private Map<String, String> parameters = new HashMap<String, String>();
+        private Request request;
+        private Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+        private Type type = new TypeToken<Map<String, SimpleGroup>>() {
+        }.getType();
+        private String result;
+
+        public AllGroupListenerThread(String userID, String URL_ADDRESS) {
+            this.userID = userID;
+            this.URL_ADDRESS = URL_ADDRESS;
+            this.parameters.put("userID", userID);
+            this.request = new Request(this.URL_ADDRESS + "/ListenAllGroups", parameters, RequestProperty.APPLICATION);
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                result = null;
+                result = this.request.doPost();
+                if (!result.equals("none")) {
+                    Map<String, SimpleGroup> simpleGroupMap = gson.fromJson(result, type);
+                    /**获得更新群SimpleGroup列表**/
+                    System.out.println("\n联系人中有更新的群列表:");
+                    Set<String> groupSet = simpleGroupMap.keySet();
+                    Iterator<String> iterator = groupSet.iterator();
+                    String groupID;
+                    while (iterator.hasNext()) {
+                        groupID = iterator.next();
+                        SimpleGroup simpleGroup = simpleGroupMap.get(groupID);
+                        try {
+                            /**转换编码**/
+                            simpleGroup.setTheLatestMessage(Chat.decodeChinese(simpleGroup.getTheLatestMessage()));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println("群ID:" + simpleGroup.getGroupID() +
+                                "\t群昵称: " + simpleGroup.getGroupName() +
+                                "\t群头像: " +/*simpleGroup.getGroupIcon()*/"(无法显示)" +
+                                "\t最后一条消息: " + simpleGroup.getTheLatestMessage() +
+                                "\t最后消息发送时间: " + simpleGroup.getTheLatestSendTime()
+                        );
+
+                        /**用此SimpleGroup对象去替换全局变量**/
+                        groups.replace(groupID, simpleGroup);
+                    }
+                }
+
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    //发送群文件的线程
+    private static class GroupUploadThread implements Runnable {
+        private String userID;
+        private String userName;
+        private String fileName;
+        private String groupID;
+
+        public GroupUploadThread(String userID, String userName, String fileName, String groupID) {
+            this.userID = userID;
+            this.userName = userName;
+            this.fileName = fileName;
+            this.groupID = groupID;
+        }
+
+        @Override
+        public void run() {
+            GroupUploadFileRequest groupUploadFileRequest = new GroupUploadFileRequest(fileName);                  //指定文件
+            String response = null;                                 //指定用户userID
+            try {
+                response = groupUploadFileRequest.upLoadFile(groupID, userID, userName);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (response.equals("success"))
+                System.out.println("离线文件发送成功!");
+        }
     }
 }

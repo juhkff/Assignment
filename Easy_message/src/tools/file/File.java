@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import connection.Conn;
-import model.FileMessage;
 import tools.DateTime;
+import tools.Group;
 
 import java.lang.reflect.Type;
 import java.sql.*;
@@ -23,6 +23,36 @@ public class File {
             String sql = "INSERT INTO user_" + userID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (" + anotherID + "," + 2 + ",\'" + fileName + "\',\'" + sendTime + "\')";
             statement.addBatch(sql);
             sql = "INSERT INTO user_" + anotherID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (" + userID + "," + 3 + ",\'" + fileName + "\',\'" + sendTime + "\')";
+            statement.addBatch(sql);
+            statement.executeBatch();
+            connection.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            Conn.Close();
+        }
+    }
+
+    //上传群文件后修改数据库的操作
+    public static void upLoadNewFile(String userID, String senderID,String senderName,String fileName) {
+        /**fileName是文件全路径**/
+        /**userID其实是groupID**/
+        try {
+            Timestamp sendTime = new DateTime().getCurrentDateTime();
+            Connection connection = Conn.getConnection();
+            connection.setAutoCommit(false);
+            Statement statement = connection.createStatement();
+            String sql = "INSERT INTO group_" + userID + "chatdata( senderID , senderName , sendTime , Status , Content ) VALUES (" + senderID + "," + senderName + ",\'" + sendTime + "\', 1 ,\'" + fileName + "\')";
+            statement.addBatch(sql);
+
+            /**可有可无**/
+            ResultSet resultSet=Group.getMemberIDList(userID);
+            while (resultSet.next()){
+                String memberID=resultSet.getString("userID");
+                /**更改群中每个用户的表中该群的isupdate值(为了能在控制台上显示有所变化)**/
+                tools.Group.updateGroupInfo(memberID,userID);
+            }
+
             statement.addBatch(sql);
             statement.executeBatch();
             connection.commit();
@@ -143,4 +173,5 @@ public class File {
         }
         return result;
     }
+
 }

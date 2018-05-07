@@ -1,4 +1,7 @@
-<%--
+<%@ page import="test.Client.Request" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="test.Client.LoginClient" %><%--
   Created by IntelliJ IDEA.
   User: dell
   Date: 3/21/2018
@@ -11,7 +14,23 @@
     <title>测试</title>
 </head>
 <body>
+<%
+    Map<String,String> parameters=new HashMap<String, String>();
+    parameters.put("nouse","nouse");
+    Request request1=new Request(LoginClient.URL_ADDRESS +"/GetNum",parameters,"application/x-www-form-urlencoded");
+    String thenum=request1.doPost();
+    int num= Integer.parseInt(thenum);
 
+    for(int i=1;i<=num;i++){
+%>
+<div>
+    <p>显示图<%=i%></p>
+    <img src="/Easy_message/getImg?num=<%=i+""%>"<%--"927_2015091021942371.jpg"--%>>
+</div>
+
+<%
+    }
+%>
 <form action="/Easy_message/UploadFileServlet" method="post" enctype="multipart/form-data">
     <tr>
         <td>userID:</td>

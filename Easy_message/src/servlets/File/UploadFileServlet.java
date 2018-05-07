@@ -107,11 +107,15 @@ public class UploadFileServlet extends HttpServlet {
                         item.write(file);
                         item.delete();
                     }
+
+                    /**用户单纯的离线上传是不需要这一步的**/
+                    tools.file.File.upLoadNewFile(userID, anotherID, fileName);
+                    Chat.updateContactStatus(userID, anotherID);
                 }
             }
 
-            tools.file.File.upLoadNewFile(userID, anotherID, fileName);
-            Chat.updateContactStatus(userID, anotherID);
+//            tools.file.File.upLoadNewFile(userID, anotherID, fileName);
+//            Chat.updateContactStatus(userID, anotherID);
 
             PrintWriter pw = response.getWriter();
             pw.print("success");

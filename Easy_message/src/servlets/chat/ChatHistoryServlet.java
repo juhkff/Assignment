@@ -2,7 +2,7 @@ package servlets.chat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import model.ChatMessage;
+import model.message.ChatMessage;
 import tools.Chat;
 
 import javax.servlet.ServletException;
@@ -14,10 +14,25 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 @WebServlet(name = "ChatHistoryServlet", urlPatterns = "/getChatHistory")
 public class ChatHistoryServlet extends HttpServlet {
+    public static void main(String[] args){
+        String userID="1578184936";
+        String anotherID="7272022651";
+
+        ArrayList<ChatMessage> chatMessages = null;
+        try {
+            chatMessages = Chat.getChatHistoryList(userID, anotherID);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+        String chatMessageList = gson.toJson(chatMessages);
+        System.out.println(chatMessageList);
+    }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         this.doGet(request, response);

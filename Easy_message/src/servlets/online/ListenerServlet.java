@@ -3,7 +3,7 @@ package servlets.online;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import connection.Conn;
-import model.Contact;
+import model.contact.Contact;
 import tools.Chat;
 
 import javax.servlet.ServletException;
@@ -43,8 +43,8 @@ public class ListenerServlet extends HttpServlet {
         boolean status;
 
         Connection connection = Conn.getConnection();
-        String sql1 = "SELECT * FROM user_" + userID + "_contactlist WHERE isupdate=1";
-        String sql2 = "UPDATE user_" + userID + "_contactlist SET isupdate=0 WHERE isupdate=1";
+        String sql1 = "SELECT * FROM user_" + userID + "_contactlist WHERE isupdate=1 AND types=0";
+        String sql2 = "UPDATE user_" + userID + "_contactlist SET isupdate=0 WHERE isupdate=1 AND types=0";
         try {
             PreparedStatement preparedStatement1 = connection.prepareStatement(sql1);
             PreparedStatement preparedStatement2 = connection.prepareStatement(sql2);
@@ -56,8 +56,11 @@ public class ListenerServlet extends HttpServlet {
                 nickName = resultSet.getString("nickName");
                 inputStream = resultSet.getBinaryStream("headIcon");
                 headIcon = null;
-                if (inputStream != null)
+                if (inputStream != null) {
                     headIcon = new byte[inputStream.available()];
+                    inputStream.read(headIcon,0,inputStream.available());
+                    inputStream.close();
+                }
                 types = resultSet.getByte("types");
                 status = resultSet.getBoolean("status");
                 Contact contact = new Contact(ID, nickName, headIcon, types, status);

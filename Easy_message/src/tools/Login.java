@@ -3,14 +3,13 @@ package tools;
 
 import connection.Conn;
 
-import model.ChatMessage;
-import model.Contact;
-import model.NoticeMessage;
-import model.User;
+import model.message.ChatMessage;
+import model.contact.Contact;
+import model.message.NoticeMessage;
+import model.property.User;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.sql.*;
 import java.util.*;
 
@@ -35,7 +34,7 @@ public class Login {
     public static int changeStatus(String userID) throws SQLException {
         Connection connection = Conn.getConnection();
         connection.setAutoCommit(false);
-        String sql = "SELECT ID FROM user_" + userID + "_contactlist";            //查询自己好友列表，得到所有好友ID的集合
+        String sql = "SELECT ID FROM user_" + userID + "_contactlist WHERE types=0";            //查询自己好友列表，得到所有好友ID的集合
         int[] i = new int[0];
         try {
             Statement statement = connection.createStatement();
@@ -69,6 +68,28 @@ public class Login {
         return result;
     }
 
+    //用户登录时更改群表中自己的状态
+    public final static void changeStatusInGroup(String userID) {
+        try {
+            Connection connection = Conn.getConnection();
+            connection.setAutoCommit(false);
+            String sql = "SELECT ID FROM user_" + userID + "_contactlist WHERE types=1";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            String sql1;
+            while (resultSet.next()) {
+                sql1 = "UPDATE group_" + resultSet.getString("ID") + "_member SET userStatus=1 WHERE user";
+                statement.addBatch(sql1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in Login.changeStatusInGroup!");
+        } finally {
+            Conn.Close();
+        }
+    }
+
+
     //用户登录时获得所有好友的状态(在线or离线)
     public static ArrayList<Contact> getContactList(String userID) throws SQLException {
         ArrayList<Contact> contactList = new ArrayList<Contact>();
@@ -83,15 +104,18 @@ public class Login {
             Statement statement = connection.createStatement();
             String sql = "UPDATE user_" + userID + "_contactlist SET isupdate=0 WHERE isupdate=1";
             statement.execute(sql);
-            sql = "SELECT ID,nickName,headIcon,types,status FROM user_" + userID + "_contactlist";
+            sql = "SELECT ID,nickName,headIcon,types,status FROM user_" + userID + "_contactlist WHERE types=0";
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
                 ID = resultSet.getString("ID");
                 nickName = resultSet.getString("nickName");
                 inputStream = resultSet.getBinaryStream("headIcon");
                 headIcon = null;
-                if (inputStream != null)
+                if (inputStream != null) {
                     headIcon = new byte[inputStream.available()];
+                    inputStream.read(headIcon, 0, inputStream.available());
+                    inputStream.close();
+                }
                 types = resultSet.getByte("types");
                 status = resultSet.getBoolean("status");
                 Contact contact = new Contact(ID, nickName, headIcon, types, status);
@@ -133,9 +157,9 @@ public class Login {
         String anotherID;
         byte nature;
         String sendTime;
-        String message=null;
-        byte[] imgBytes=null;
-        InputStream inputStream=null;
+        String message = null;
+        byte[] imgBytes = null;
+        InputStream inputStream = null;
         ChatMessage chatMessage;
 
         Connection connection = Conn.getConnection();
@@ -146,26 +170,26 @@ public class Login {
             anotherID = resultSet.getString("anotherID");
             nature = resultSet.getByte("nature");
             sendTime = String.valueOf(resultSet.getTimestamp("sendTime"));                                   /**********能否强制转换?**********/
-            message=resultSet.getString("message");
+            message = resultSet.getString("message");
             /**
              * if (message!=null)
-                message = Chat.decodeChinese(resultSet.getString("message"));
+             message = Chat.decodeChinese(resultSet.getString("message"));
              **/
             //if(message==null){
             /**---发送的可能情况说明了不可能出现文本和图片都为null值的情况---**/
-                //imgBytes
+            //imgBytes
             //}
-            inputStream=resultSet.getBinaryStream("img");
-            if(inputStream!=null){
-                imgBytes=new byte[inputStream.available()];
-                inputStream.read(imgBytes,0,inputStream.available());
+            inputStream = resultSet.getBinaryStream("img");
+            if (inputStream != null) {
+                imgBytes = new byte[inputStream.available()];
+                inputStream.read(imgBytes, 0, inputStream.available());
             }
 
-            if(message!=null) {
+            if (message != null) {
                 chatMessage = new ChatMessage(anotherID, nature, sendTime, message);
                 chatMessages.add(chatMessage);
-            }else if (inputStream!=null){
-                chatMessage=new ChatMessage(anotherID,nature,sendTime,imgBytes);
+            } else if (inputStream != null) {
+                chatMessage = new ChatMessage(anotherID, nature, sendTime, imgBytes);
                 chatMessages.add(chatMessage);
             }
         }
@@ -201,12 +225,19 @@ public class Login {
         int i = 0;
         while (resultSet.next()) {
             String nickName = resultSet.getString("nickName");
+            InputStream inputStream = resultSet.getBinaryStream("headIcon");
+            byte[] headIcon = null;
+            if (inputStream != null) {
+                headIcon = new byte[inputStream.available()];
+                inputStream.read(headIcon, 0, inputStream.available());
+                inputStream.close();
+            }
             boolean isMale = resultSet.getBoolean("isMale");                          /**似乎默认为false**/
             String email = resultSet.getString("email");                              /**数据为空时无此条数据**/
             String phoneNum = resultSet.getString("phoneNum");
             String exitTime = String.valueOf(resultSet.getTimestamp("exitTime"));
             String birthday = String.valueOf(resultSet.getTimestamp("birthday"));    /**若无则json中表示为字符串null**/
-            user = new User(userID, nickName, isMale, birthday, email, phoneNum, exitTime);
+            user = new User(userID, nickName, headIcon, isMale, email, phoneNum, exitTime, birthday);
             i++;
         }
         Conn.Close();
@@ -222,7 +253,11 @@ public class Login {
         String sql = "DELETE FROM user_" + userID + "_noticelist";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.execute();
+
+        Conn.Close();
     }
+
+
 }
 
 
