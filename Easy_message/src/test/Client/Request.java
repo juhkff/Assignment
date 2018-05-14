@@ -11,11 +11,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-final class RequestProperty {
-    static final String APPLICATION = "application/x-www-form-urlencoded";
-    static final String JSON = "text/json";
-}
-
 //向servlet请求的模版方法
 public class Request {
     private String urlAddress;
@@ -83,7 +78,9 @@ public class Request {
             dataOutputStream.writeBytes(content);
             dataOutputStream.flush();
             dataOutputStream.close();
+            //System.out.println("Inputstream连接...");
             InputStream inputStream = uRLConnection.getInputStream();
+
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             String readLine = null;
             response = "";

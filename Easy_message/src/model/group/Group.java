@@ -6,10 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import test.Client.Request;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Group {
     private String URL_ADDRESS;
@@ -62,6 +59,23 @@ public class Group {
             this.members = gson.fromJson(members_Trans, type);
         }
 
+        public ArrayList<GroupMember> getMemberList(){
+            ArrayList<GroupMember> groupMemberArrayList=new ArrayList<GroupMember>();
+            Set<String> stringSet=members.keySet();
+            Iterator<String> iterator=stringSet.iterator();
+            while (iterator.hasNext()){
+                String ID=iterator.next();
+                GroupMember groupMember=members.get(ID);
+                groupMemberArrayList.add(groupMember);
+            }
+
+            return groupMemberArrayList;
+        }
+
+        public Map<String,GroupMember> getMemberMap(){
+            return members;
+        }
+
         public GroupMember getMember(String memberID) {
             return members.get(memberID);
         }
@@ -87,14 +101,27 @@ public class Group {
                 result += "\nID: " + groupMember.getUserID() +
                         "\t昵称: " + groupMember.getUserName() +
                         "\t头像: " +/*groupMember.getUserHeadIcon()*/"无法显示" +
-                        "\t身份: " + userStatus;
+                        "\t身份: " + userStatus +
+                        "\t在线状态: " + (groupMember.isUserOnline()?"在线":"下线")
+                ;
             }
             return result;
         }
     }
 
+    public String showMembers(){
+        return this.members.toString();
+    }
+
     public GroupMember getGroupMember(String memberID) {
         return members.getMember(memberID);
+    }
+
+    public void replaceGroupMemver(GroupMember groupMember){
+        getGroupMember(groupMember.getUserID()).setUserName(groupMember.getUserName());
+        getGroupMember(groupMember.getUserID()).setUserHeadIcon(groupMember.getUserHeadIcon());
+        getGroupMember(groupMember.getUserID()).setUserStatus(groupMember.getUserStatus());
+        getGroupMember(groupMember.getUserID()).setUserOnline(groupMember.isUserOnline());
     }
 
     public String getGroupID() {

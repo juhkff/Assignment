@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import model.group.SimpleGroup;
 import test.Client.LoginClient;
 import tools.Group;
+import wrapper.StaticVariable;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,6 +19,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.Scanner;
+import static wrapper.StaticVariable.*;
 
 @WebServlet(name = "JoinGroupServlet",urlPatterns = "/JoinGroup")
 public class JoinGroupServlet extends HttpServlet {
@@ -30,7 +32,7 @@ public class JoinGroupServlet extends HttpServlet {
         //InputStream inputStream=new ByteArrayInputStream(null);         /** 在此构造方法里不能出现null! **/
 
         String userID="8133523681";
-        String URL_ADDRESS=LoginClient.URL_ADDRESS;
+        String URL_ADDRESS=/*LoginClient.*/StaticVariable.URL_ADDRESS;
         String groupID="950876";
         String userName="juhkgf";
         String userHeadIconTrans=null;

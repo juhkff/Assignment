@@ -26,10 +26,10 @@ public class User {
      * 头像
      **/
     private byte[] headIcon=null;
-    private boolean isMale;
+    private boolean isMale=false;
     private String email=null;
-    private String phoneNum;
-    private String exitTime;
+    private String phoneNum=null;
+    private String exitTime=null;
     private String birthday=null;
     private String intro=null;
 
@@ -82,19 +82,18 @@ public class User {
         this.intro = intro;
     }
 
-    /* public User(int propertyNum, String userID, String passWord, String nickName, byte[] headIcon, boolean isMale, String email, String phoneNum, String exitTime, String birthday, String intro) {
-//        this.propertyNum = propertyNum;
+    public User(String userID, String nickName, String intro) {
         this.userID = userID;
-        this.passWord = passWord;
+        this.nickName = nickName;
+        this.intro = intro;
+    }
+
+    public User(String userID, String nickName, byte[] headIcon, String intro) {
+        this.userID = userID;
         this.nickName = nickName;
         this.headIcon = headIcon;
-        this.isMale = isMale;
-        this.email = email;
-        this.phoneNum = phoneNum;
-        this.exitTime = exitTime;
-        this.birthday = birthday;
         this.intro = intro;
-    }*/
+    }
 
     public String getUserID() {
         return userID;

@@ -105,8 +105,8 @@ public class MessageServer {
             String sendTime=chatMessage.getSendTime();
             Timestamp timestamp= Timestamp.valueOf(sendTime);
             try {
-                Chat.insertChatMessage(senderID,anotherID,content,timestamp);
-                Chat.updateContactStatus(senderID,anotherID);
+                Chat.insertChatMessageForServer(senderID,anotherID,content,timestamp);
+//                Chat.updateContactStatus(senderID,anotherID);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -150,7 +150,7 @@ public class MessageServer {
             message = new String(dp.getData(), 0, dp.getLength());
             userID = message.split("/")[1];                                                        //从数据包内容中获得用户userID
             localAddress = message.split("/")[2];
-            /* System.out.print("客户端聊天系统上线!客户端本次登录地址:");*/
+            /* System.out.print("Ch客户端本次登录地址:");*/
             ;
             InetSocketAddress inetSocketAddress = (InetSocketAddress) dp.getSocketAddress();
             clientIP = inetSocketAddress.getAddress().getHostAddress();                                   //获取客户端IP
@@ -196,40 +196,6 @@ public class MessageServer {
                     e.printStackTrace();
                 }
             }
-            /*} else if (localAddress.equals("NO")) {
-                Connection connection = Conn.getConnection();
-                String sql = "UPDATE userinfo SET remoteAddress=? WHERE userID=?";
-                int result = -1;
-                try {
-                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                    preparedStatement.setString(1, address);
-                    preparedStatement.setString(2, userID);
-                    result = preparedStatement.executeUpdate();
-                } catch (SQLException e) {
-                    System.out.println("用户" + userID + "登录失败!");
-                    try {
-                        throw new Exception("用户" + userID + "登录失败!");
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                    e.printStackTrace();
-                }
-                if (result != 1) {
-                    try {
-                        throw new Exception("消息地址更新执行异常(公网映射地址异常)!");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    by = "success".getBytes();
-                    dp.setData(by, 0, by.length);                                                     //若成功登录则给客户端发送success字符串
-                    try {
-                        ds.send(dp);                                                                        //dp中还保留着发送地址
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }*/
         }
     }
 
@@ -293,8 +259,6 @@ public class MessageServer {
             System.out.println("在线发送请求:来自"+fileMessage.getSenderID()+"\t发送到"+fileMessage.getReceiverID()+"\t文件名"+fileMessage.getFileName()+"\t文件大小"+fileMessage.getFileSize());
             String receiverMessageAddr=Online.getMessageAddressByID(fileMessage.getReceiverID());
             this.receiverAddress=receiverMessageAddr;
-            /*String ip=this.receiverAddress.split(",")[0];
-            String port=this.receiverAddress.split(",")[1];*/
             String ip=this.receiverAddress.split(":")[0];
             String port=this.receiverAddress.split(":")[1];
             this.socketAddress=new InetSocketAddress(ip, Integer.parseInt(port));

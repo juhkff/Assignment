@@ -5,12 +5,21 @@ public class GroupMember {
     private String userName;
     private byte[] userHeadIcon=null;
     private byte userStatus;
+    private boolean userOnline=false;
 
-    public GroupMember(String userID, String userName, byte[] userHeadIcon, byte userStatus) {
+    /*public GroupMember(String userID, String userName, byte[] userHeadIcon, byte userStatus) {
         this.userID = userID;
         this.userName = userName;
         this.userHeadIcon = userHeadIcon;
         this.userStatus = userStatus;
+    }*/
+
+    public GroupMember(String userID, String userName, byte[] userHeadIcon, byte userStatus, boolean userOnline) {
+        this.userID = userID;
+        this.userName = userName;
+        this.userHeadIcon = userHeadIcon;
+        this.userStatus = userStatus;
+        this.userOnline = userOnline;
     }
 
     public String getUserID() {
@@ -43,5 +52,13 @@ public class GroupMember {
 
     public void setUserStatus(byte userStatus) {
         this.userStatus = userStatus;
+    }
+
+    public boolean isUserOnline() {
+        return userOnline;
+    }
+
+    public void setUserOnline(boolean userOnline) {
+        this.userOnline = userOnline;
     }
 }

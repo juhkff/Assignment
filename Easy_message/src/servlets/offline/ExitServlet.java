@@ -21,6 +21,7 @@ public class ExitServlet extends HttpServlet {
         int result2 = 0;
         try {
             Exit.changeStatus(userID);                          //更新好友列表中自己的状态   (status: 1--->0 )
+            Exit.changeGroupStatus(userID);                     //更新群列表中自己的状态
         } catch (SQLException e) {
             e.printStackTrace();
         }

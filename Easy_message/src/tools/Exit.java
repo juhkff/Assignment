@@ -15,7 +15,7 @@ public class Exit {
         //int result = 0;
         Connection connection = Conn.getConnection();
         connection.setAutoCommit(false);                                            /**手动提交**/
-        String sql = "SELECT ID FROM user_" + userID + "_contactlist";            //查询自己好友列表，得到所有好友ID的集合
+        String sql = "SELECT ID FROM user_" + userID + "_contactlist WHERE types=0";            //查询自己好友列表，得到所有好友ID的集合
         int[] i = {-1, -1};
         try {
             Statement statement = connection.createStatement();
@@ -52,5 +52,30 @@ public class Exit {
             throw new SQLException("更新时间出错!Exit.updateExitTime");
         else
             return result;
+    }
+
+    public static void changeGroupStatus(String userID) throws SQLException {
+        Connection connection = Conn.getConnection();
+        connection.setAutoCommit(false);                                            /**手动提交**/
+        String sql = "SELECT ID FROM user_" + userID + "_contactlist WHERE types=1";            //查询自己群列表，得到所有群ID的集合
+        int[] i;
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            String sql1;
+            Statement statement1 = connection.createStatement();
+            //Set<String> IDList=new HashSet<String>();
+            while (resultSet.next()) {
+                //IDList.add(resultSet.getString("ID"));
+                sql1 = "UPDATE group_" + resultSet.getString("ID") + "_member  SET userOnline=0,isUpdate=1 WHERE userID=" + userID;
+                statement1.addBatch(sql1);
+            }
+            sql1 = "UPDATE userinfo SET isOnline=0 WHERE userID=" + userID;
+            statement1.addBatch(sql1);
+            i = statement1.executeBatch();
+            connection.commit();
+        } finally {
+            Conn.Close();
+        }
     }
 }

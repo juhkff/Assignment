@@ -5,6 +5,7 @@ import connection.Conn;
 
 import model.message.ChatMessage;
 import model.contact.Contact;
+import model.message.ContactMessage;
 import model.message.NoticeMessage;
 import model.property.User;
 
@@ -78,7 +79,7 @@ public class Login {
             ResultSet resultSet = statement.executeQuery(sql);
             String sql1;
             while (resultSet.next()) {
-                sql1 = "UPDATE group_" + resultSet.getString("ID") + "_member SET userStatus=1 WHERE user";
+                sql1 = "UPDATE group_" + resultSet.getString("ID") + "_member SET userOnline=1,isUpdate=1 WHERE userID="+userID;
                 statement.addBatch(sql1);
             }
         } catch (SQLException e) {
@@ -258,6 +259,95 @@ public class Login {
     }
 
 
+    public static ArrayList<ContactMessage> getContactMessageList(String userID, String exitTime) {
+        ArrayList<ContactMessage> contactMessages=new ArrayList<ContactMessage>();
+        try {
+            Connection connection=Conn.getConnection();
+            String sql="SELECT count(1),anotherID FROM user_"+userID+"_chatdata WHERE sendTime>? GROUP BY anotherID";
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);
+            preparedStatement.setTimestamp(1, Timestamp.valueOf(exitTime));
+
+            ResultSet resultSet=preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String anotherID=resultSet.getString("anotherID");
+                User user=Online.findUserByUserID(anotherID);
+                String nickName=user.getNickName();
+                byte[] headIcon=user.getHeadIcon();
+                int messageNum=resultSet.getInt("count(1)");
+                ContactMessage contactMessage=new ContactMessage(anotherID,nickName,headIcon,messageNum);
+                contactMessages.add(contactMessage);
+            }
+
+            sql="SELECT anotherID,message FROM user_"+userID+"_chatdata WHERE sendTime IN (SELECT max(sendTime) FROM user_"+userID+"_chatdata group by anotherID)  group by anotherID";
+            preparedStatement=connection.prepareStatement(sql);
+            resultSet=preparedStatement.executeQuery();
+            while (resultSet.next()){
+                String anotherID=resultSet.getString("anotherID");
+                String message=resultSet.getString("message");
+                for(ContactMessage contactMessage:contactMessages){
+                    if(contactMessage.getUserID().equals(anotherID)){
+                        contactMessage.setTheLattestmessage(message);
+                    }
+                }
+            }
+
+            sql="SELECT ID FROM user_"+userID+"_contactlist WHERE types=1";
+            preparedStatement=connection.prepareStatement(sql);
+            resultSet=preparedStatement.executeQuery();
+            ArrayList<String> IDList=new ArrayList<String>();
+            while (resultSet.next()){
+                String ID=resultSet.getString("ID");
+                IDList.add(ID);
+            }
+            ArrayList<ContactMessage> groupContact=new ArrayList<ContactMessage>();
+            //获得每个群里在某一时间点之后的信息:数量，最新消息
+            for(String ID:IDList){
+                sql="SELECT * FROM groups WHERE groupID="+ID;
+                preparedStatement=connection.prepareStatement(sql);
+//                preparedStatement.setString(1,exitTime);
+                resultSet=preparedStatement.executeQuery();
+//                int messageNum=0;
+//                String message;
+                while (resultSet.next()){
+//                    messageNum++;
+                    String groupID=resultSet.getString("groupID");
+                    String groupName=resultSet.getString("groupName");
+                    InputStream inputStream=null;
+                    byte[] headIcon=null;
+                    inputStream=resultSet.getBinaryStream("groupIcon");
+                    if (inputStream!=null){
+                        headIcon=new byte[inputStream.available()];
+                        inputStream.read(headIcon,0,inputStream.available());
+                        inputStream.close();
+                    }
+                    String theLattestMessage=resultSet.getString("theLatestText");
+                    ContactMessage contactMessage=new ContactMessage(ID,groupName,headIcon,theLattestMessage);
+                    groupContact.add(contactMessage);
+                }
+            }
+            int i=0;
+            for(String ID:IDList){
+                sql="SELECT * FROM group_"+ID+"_chatdata WHERE sendTime>?";
+                preparedStatement=connection.prepareStatement(sql);
+                preparedStatement.setTimestamp(1, Timestamp.valueOf(exitTime));
+                resultSet=preparedStatement.executeQuery();
+                int messageNum=0;
+                while (resultSet.next()){
+                    messageNum++;
+                }
+                groupContact.get(i).setMessageNum(messageNum);
+                contactMessages.add(groupContact.get(i));                                       //将群对象也添加到这个列表中
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            Conn.Close();
+        }
+
+        return contactMessages;
+    }
 }
 
 

@@ -921,61 +921,70 @@
       <Charset>utf8mb4</Charset>
       <DefaultForCharset>0</DefaultForCharset>
     </collation>
-    <table id="233" parent="2" name="group_chatdata_model">
+    <table id="233" parent="2" name="group_950876_chatdata">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="234" parent="2" name="group_member_model">
+    <table id="234" parent="2" name="group_950876_member">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="235" parent="2" name="group_notice_model">
+    <table id="235" parent="2" name="group_950876_notice">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="236" parent="2" name="groups">
+    <table id="236" parent="2" name="group_chatdata_model">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="237" parent="2" name="user_2461247724_chatdata">
+    <table id="237" parent="2" name="group_member_model">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="238" parent="2" name="user_2461247724_contactlist">
+    <table id="238" parent="2" name="group_notice_model">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="239" parent="2" name="user_2461247724_noticelist">
+    <table id="239" parent="2" name="groups">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="240" parent="2" name="user_8133523681_chatdata">
+    <table id="240" parent="2" name="user_2461247724_chatdata">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="241" parent="2" name="user_8133523681_contactlist">
+    <table id="241" parent="2" name="user_2461247724_contactlist">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="242" parent="2" name="user_8133523681_noticelist">
+    <table id="242" parent="2" name="user_2461247724_noticelist">
       <Engine>InnoDB</Engine>
     </table>
-    <table id="243" parent="2" name="userinfo">
+    <table id="243" parent="2" name="user_8133523681_chatdata">
       <Engine>InnoDB</Engine>
     </table>
-    <column id="244" parent="233" name="senderID">
+    <table id="244" parent="2" name="user_8133523681_contactlist">
+      <Engine>InnoDB</Engine>
+    </table>
+    <table id="245" parent="2" name="user_8133523681_noticelist">
+      <Engine>InnoDB</Engine>
+    </table>
+    <table id="246" parent="2" name="userinfo">
+      <Engine>InnoDB</Engine>
+    </table>
+    <column id="247" parent="233" name="senderID">
       <Position>1</Position>
       <Comment>发送者ID</Comment>
       <DataType>char(10)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="245" parent="233" name="senderName">
+    <column id="248" parent="233" name="senderName">
       <Position>2</Position>
       <Comment>发送者昵称</Comment>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="246" parent="233" name="sendTime">
+    <column id="249" parent="233" name="sendTime">
       <Position>3</Position>
       <Comment>发送时间</Comment>
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="247" parent="233" name="Status">
+    <column id="250" parent="233" name="Status">
       <Position>4</Position>
       <Comment>发送属性(聊天、文件等)</Comment>
       <DataType>tinyint(4)|0s</DataType>
@@ -983,43 +992,44 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="248" parent="233" name="Content">
+    <column id="251" parent="233" name="Content">
       <Position>5</Position>
       <Comment>消息内容(聊天、文件等)</Comment>
       <DataType>text|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="249" parent="233" name="Img">
+    <column id="252" parent="233" name="Img">
       <Position>6</Position>
+      <Comment>群聊图片</Comment>
       <DataType>mediumblob|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="250" parent="233" name="ifSuccess">
+    <column id="253" parent="233" name="ifSuccess">
       <Position>7</Position>
-      <Comment>用来应对某种可能出现的的特殊情况</Comment>
-      <DataType>tinyint(3) unsigned|0s</DataType>
+      <Comment>用来应对某种肯呢个出现的的特殊情况</Comment>
+      <DataType>tinyint(3)|0s</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="251" parent="234" name="userID">
+    <column id="254" parent="234" name="userID">
       <Position>1</Position>
       <DataType>char(10)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="252" parent="234" name="userName">
+    <column id="255" parent="234" name="userName">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="253" parent="234" name="userHeadIcon">
+    <column id="256" parent="234" name="userHeadIcon">
       <Position>3</Position>
       <DataType>mediumblob|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="254" parent="234" name="userStatus">
+    <column id="257" parent="234" name="userStatus">
       <Position>4</Position>
       <Comment>0为普通成员，1为管理员，2为群主</Comment>
       <DataType>tinyint(2)|0s</DataType>
@@ -1027,68 +1037,185 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="255" parent="234" name="PRIMARY">
+    <column id="258" parent="234" name="userOnline">
+      <Position>5</Position>
+      <Comment>用户上下线,0下线,1上线</Comment>
+      <DataType>tinyint(1)|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="259" parent="234" name="isUpdate">
+      <Position>6</Position>
+      <Comment>群成员信息是否有变化</Comment>
+      <DataType>tinyint(1)|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <key id="260" parent="234" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>userID</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="256" parent="235" name="creatorID">
+    <column id="261" parent="235" name="creatorID">
+      <Position>1</Position>
+      <DataType>varchar(10)|0s</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="262" parent="235" name="mentionedID">
+      <Position>2</Position>
+      <DataType>varchar(10)|0s</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="263" parent="235" name="status">
+      <Position>3</Position>
+      <DataType>tinyint(2) unsigned|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="264" parent="235" name="time">
+      <Position>4</Position>
+      <DataType>datetime|0s</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="265" parent="236" name="senderID">
+      <Position>1</Position>
+      <Comment>发送者ID</Comment>
+      <DataType>char(10)|0s</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="266" parent="236" name="senderName">
+      <Position>2</Position>
+      <Comment>发送者昵称</Comment>
+      <DataType>varchar(255)|0s</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="267" parent="236" name="sendTime">
+      <Position>3</Position>
+      <Comment>发送时间</Comment>
+      <DataType>datetime|0s</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="268" parent="236" name="Status">
+      <Position>4</Position>
+      <Comment>发送属性(聊天、文件等)</Comment>
+      <DataType>tinyint(4)|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="269" parent="236" name="Content">
+      <Position>5</Position>
+      <Comment>消息内容(聊天、文件等)</Comment>
+      <DataType>text|0s</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="270" parent="236" name="Img">
+      <Position>6</Position>
+      <DataType>mediumblob|0s</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="271" parent="236" name="ifSuccess">
+      <Position>7</Position>
+      <Comment>用来应对某种可能出现的的特殊情况</Comment>
+      <DataType>tinyint(3) unsigned|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="272" parent="237" name="userID">
+      <Position>1</Position>
+      <DataType>char(10)|0s</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="273" parent="237" name="userName">
+      <Position>2</Position>
+      <DataType>varchar(255)|0s</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="274" parent="237" name="userHeadIcon">
+      <Position>3</Position>
+      <DataType>mediumblob|0s</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="275" parent="237" name="userStatus">
+      <Position>4</Position>
+      <Comment>0为普通成员，1为管理员，2为群主</Comment>
+      <DataType>tinyint(2)|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <key id="276" parent="237" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>userID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="277" parent="238" name="creatorID">
       <Position>1</Position>
       <DataType>varchar(255)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="257" parent="235" name="mentionedID">
+    <column id="278" parent="238" name="mentionedID">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="258" parent="235" name="status">
+    <column id="279" parent="238" name="status">
       <Position>3</Position>
       <DataType>tinyint(3) unsigned|0s</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="259" parent="235" name="time">
+    <column id="280" parent="238" name="time">
       <Position>4</Position>
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="260" parent="236" name="groupID">
+    <column id="281" parent="239" name="groupID">
       <Position>1</Position>
       <Comment>群ID(6位)</Comment>
       <DataType>char(6)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="261" parent="236" name="groupName">
+    <column id="282" parent="239" name="groupName">
       <Position>2</Position>
       <Comment>群名称</Comment>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="262" parent="236" name="groupIntro">
+    <column id="283" parent="239" name="groupIntro">
       <Position>3</Position>
       <Comment>群介绍</Comment>
       <DataType>text|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="263" parent="236" name="groupIcon">
+    <column id="284" parent="239" name="groupIcon">
       <Position>4</Position>
       <Comment>群图标</Comment>
       <DataType>mediumblob|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="264" parent="236" name="creatorID">
+    <column id="285" parent="239" name="creatorID">
       <Position>5</Position>
       <Comment>创建者ID</Comment>
       <DataType>char(10)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="265" parent="236" name="managerNumber">
+    <column id="286" parent="239" name="managerNumber">
       <Position>6</Position>
       <Comment>管理员数量</Comment>
       <DataType>tinyint(4)|0s</DataType>
@@ -1096,7 +1223,7 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="266" parent="236" name="groupNumber">
+    <column id="287" parent="239" name="groupNumber">
       <Position>7</Position>
       <Comment>成员数量</Comment>
       <DataType>int(11)|0s</DataType>
@@ -1104,38 +1231,38 @@
       <DefaultExpression>&apos;1&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="267" parent="236" name="theLatestText">
+    <column id="288" parent="239" name="theLatestText">
       <Position>8</Position>
       <Comment>最新一条消息</Comment>
       <DataType>text|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="268" parent="236" name="theLatestTextTime">
+    <column id="289" parent="239" name="theLatestTextTime">
       <Position>9</Position>
       <Comment>最新一条消息的发送时间</Comment>
       <DataType>datetime|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="269" parent="236" name="createTime">
+    <column id="290" parent="239" name="createTime">
       <Position>10</Position>
       <Comment>群创建日期</Comment>
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="270" parent="236" name="PRIMARY">
+    <key id="291" parent="239" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>groupID</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="271" parent="237" name="anotherID">
+    <column id="292" parent="240" name="anotherID">
       <Position>1</Position>
       <Comment>另一用户的userID</Comment>
       <DataType>varchar(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="272" parent="237" name="nature">
+    <column id="293" parent="240" name="nature">
       <Position>2</Position>
       <Comment>聊天性质(谁向谁发送信息;0代表我向他,1代表他向我,2代表我向他发文件,3代表他向我发文件,5代表我向他发图片,6代表他向我发图片)</Comment>
       <DataType>tinyint(1)|0s</DataType>
@@ -1143,53 +1270,53 @@
       <DefaultExpression>&apos;1&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="273" parent="237" name="message">
+    <column id="294" parent="240" name="message">
       <Position>3</Position>
       <Comment>聊天内容</Comment>
       <DataType>text|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="274" parent="237" name="img">
+    <column id="295" parent="240" name="img">
       <Position>4</Position>
       <Comment>聊天图片(表情包)</Comment>
       <DataType>mediumblob|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="275" parent="237" name="sendTime">
+    <column id="296" parent="240" name="sendTime">
       <Position>5</Position>
       <Comment>消息发送时间</Comment>
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="276" parent="237" name="isAccepted">
+    <column id="297" parent="240" name="isAccepted">
       <Position>6</Position>
       <Comment>(特指文件是否被同意接收)</Comment>
       <DataType>char(1)|0s</DataType>
       <DefaultExpression>&apos;N&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="277" parent="238" name="ID">
+    <column id="298" parent="241" name="ID">
       <Position>1</Position>
       <Comment>本user用户名</Comment>
       <DataType>varchar(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="278" parent="238" name="nickName">
+    <column id="299" parent="241" name="nickName">
       <Position>2</Position>
       <Comment>用户名/群名</Comment>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="279" parent="238" name="headIcon">
+    <column id="300" parent="241" name="headIcon">
       <Position>3</Position>
       <Comment>用户头像/群头像</Comment>
       <DataType>mediumblob|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="280" parent="238" name="types">
+    <column id="301" parent="241" name="types">
       <Position>4</Position>
       <Comment>联系人类型(好友/群)</Comment>
       <DataType>tinyint(1) unsigned|0s</DataType>
@@ -1197,7 +1324,7 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="281" parent="238" name="status">
+    <column id="302" parent="241" name="status">
       <Position>5</Position>
       <Comment>联系人状态(上下线)</Comment>
       <DataType>tinyint(1) unsigned|0s</DataType>
@@ -1205,7 +1332,7 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="282" parent="238" name="isupdate">
+    <column id="303" parent="241" name="isupdate">
       <Position>6</Position>
       <Comment>状态是否有更新</Comment>
       <DataType>tinyint(1) unsigned|0s</DataType>
@@ -1213,26 +1340,26 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="283" parent="238" name="PRIMARY">
+    <key id="304" parent="241" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>ID</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="284" parent="239" name="anotherID">
+    <column id="305" parent="242" name="anotherID">
       <Position>1</Position>
       <Comment>发送邀请的用户的userID或群ID</Comment>
       <DataType>varchar(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="285" parent="239" name="nickName">
+    <column id="306" parent="242" name="nickName">
       <Position>2</Position>
       <Comment>群名或好友名</Comment>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="286" parent="239" name="property">
+    <column id="307" parent="242" name="property">
       <Position>3</Position>
       <Comment>性质(群邀请或好友邀请等，默认0好友邀请)</Comment>
       <DataType>tinyint(10)|0s</DataType>
@@ -1240,14 +1367,14 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="287" parent="240" name="anotherID">
+    <column id="308" parent="243" name="anotherID">
       <Position>1</Position>
       <Comment>另一用户的userID</Comment>
       <DataType>varchar(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="288" parent="240" name="nature">
+    <column id="309" parent="243" name="nature">
       <Position>2</Position>
       <Comment>聊天性质(谁向谁发送信息;0代表我向他,1代表他向我,2代表我向他发文件,3代表他向我发文件,5代表我向他发图片,6代表他向我发图片)</Comment>
       <DataType>tinyint(1)|0s</DataType>
@@ -1255,53 +1382,53 @@
       <DefaultExpression>&apos;1&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="289" parent="240" name="message">
+    <column id="310" parent="243" name="message">
       <Position>3</Position>
       <Comment>聊天内容</Comment>
       <DataType>text|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="290" parent="240" name="img">
+    <column id="311" parent="243" name="img">
       <Position>4</Position>
       <Comment>聊天图片(表情包)</Comment>
       <DataType>mediumblob|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="291" parent="240" name="sendTime">
+    <column id="312" parent="243" name="sendTime">
       <Position>5</Position>
       <Comment>消息发送时间</Comment>
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="292" parent="240" name="isAccepted">
+    <column id="313" parent="243" name="isAccepted">
       <Position>6</Position>
       <Comment>(特指文件是否被同意接收)</Comment>
       <DataType>char(1)|0s</DataType>
       <DefaultExpression>&apos;N&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="293" parent="241" name="ID">
+    <column id="314" parent="244" name="ID">
       <Position>1</Position>
       <Comment>本user用户名</Comment>
       <DataType>varchar(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="294" parent="241" name="nickName">
+    <column id="315" parent="244" name="nickName">
       <Position>2</Position>
       <Comment>用户名/群名</Comment>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="295" parent="241" name="headIcon">
+    <column id="316" parent="244" name="headIcon">
       <Position>3</Position>
       <Comment>用户头像/群头像</Comment>
       <DataType>mediumblob|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="296" parent="241" name="types">
+    <column id="317" parent="244" name="types">
       <Position>4</Position>
       <Comment>联系人类型(好友/群)</Comment>
       <DataType>tinyint(1) unsigned|0s</DataType>
@@ -1309,7 +1436,7 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="297" parent="241" name="status">
+    <column id="318" parent="244" name="status">
       <Position>5</Position>
       <Comment>联系人状态(上下线)</Comment>
       <DataType>tinyint(1) unsigned|0s</DataType>
@@ -1317,7 +1444,7 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="298" parent="241" name="isupdate">
+    <column id="319" parent="244" name="isupdate">
       <Position>6</Position>
       <Comment>状态是否有更新</Comment>
       <DataType>tinyint(1) unsigned|0s</DataType>
@@ -1325,26 +1452,26 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="299" parent="241" name="PRIMARY">
+    <key id="320" parent="244" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>ID</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="300" parent="242" name="anotherID">
+    <column id="321" parent="245" name="anotherID">
       <Position>1</Position>
       <Comment>发送邀请的用户的userID或群ID</Comment>
       <DataType>varchar(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="301" parent="242" name="nickName">
+    <column id="322" parent="245" name="nickName">
       <Position>2</Position>
       <Comment>群名或好友名</Comment>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="302" parent="242" name="property">
+    <column id="323" parent="245" name="property">
       <Position>3</Position>
       <Comment>性质(群邀请或好友邀请等，默认0好友邀请)</Comment>
       <DataType>tinyint(10)|0s</DataType>
@@ -1352,85 +1479,85 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="303" parent="243" name="userID">
+    <column id="324" parent="246" name="userID">
       <Position>1</Position>
       <Comment>本user用户名</Comment>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="304" parent="243" name="nickName">
+    <column id="325" parent="246" name="nickName">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="305" parent="243" name="passWord">
+    <column id="326" parent="246" name="passWord">
       <Position>3</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="306" parent="243" name="headIcon">
+    <column id="327" parent="246" name="headIcon">
       <Position>4</Position>
       <DataType>mediumblob|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="307" parent="243" name="isMale">
+    <column id="328" parent="246" name="isMale">
       <Position>5</Position>
       <DataType>tinyint(1) unsigned|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="308" parent="243" name="birthday">
+    <column id="329" parent="246" name="birthday">
       <Position>6</Position>
       <DataType>datetime|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="309" parent="243" name="email">
+    <column id="330" parent="246" name="email">
       <Position>7</Position>
       <DataType>varchar(255)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="310" parent="243" name="phoneNum">
+    <column id="331" parent="246" name="phoneNum">
       <Position>8</Position>
       <DataType>varchar(255)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="311" parent="243" name="intro">
+    <column id="332" parent="246" name="intro">
       <Position>9</Position>
       <Comment>自我介绍/个性签名</Comment>
       <DataType>text|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="312" parent="243" name="localAddress">
+    <column id="333" parent="246" name="localAddress">
       <Position>10</Position>
       <DataType>text|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="313" parent="243" name="remoteAddress">
+    <column id="334" parent="246" name="remoteAddress">
       <Position>11</Position>
       <DataType>varchar(255)|0s</DataType>
       <DefaultExpression>&apos;&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="314" parent="243" name="localFileAddress">
+    <column id="335" parent="246" name="localFileAddress">
       <Position>12</Position>
       <DataType>text|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="315" parent="243" name="remoteFileAddress">
+    <column id="336" parent="246" name="remoteFileAddress">
       <Position>13</Position>
       <DataType>varchar(255)|0s</DataType>
       <DefaultExpression>&apos;&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="316" parent="243" name="exitTime">
+    <column id="337" parent="246" name="exitTime">
       <Position>14</Position>
       <Comment>用户最后一次下线时间，默认为注册时间</Comment>
       <DataType>datetime|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="317" parent="243" name="isOnline">
+    <column id="338" parent="246" name="isOnline">
       <Position>15</Position>
       <Comment>是否在线(默认0下线)</Comment>
       <DataType>tinyint(1) unsigned|0s</DataType>
@@ -1438,7 +1565,7 @@
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="318" parent="243" name="PRIMARY">
+    <key id="339" parent="246" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>userID</ColNames>
       <Primary>1</Primary>

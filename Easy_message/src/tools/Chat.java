@@ -51,8 +51,31 @@ public class Chat {
                 chatMessages.add(chatMessage);
             }
         }
+        if(chatMessages.size()==0){
+            return null;
+        }
         return chatMessages;
     }
+
+    public final static void insertChatMessageForServer(String userID, String anotherID, String message, Timestamp sendTime) throws SQLException {
+        try {
+            Connection connection = Conn.getConnection();
+            connection.setAutoCommit(false);
+            message=encodeChinese(message);
+            Statement statement = connection.createStatement();
+            String sql = "INSERT INTO user_" + userID + "_chatdata ( anotherID , nature , message , sendTime , isAccepted ) VALUES (" + anotherID + "," + 0 + ",\'" + message + "\',\'" + sendTime + "\',\'T\')";
+            statement.addBatch(sql);
+            sql = "INSERT INTO user_" + anotherID + "_chatdata ( anotherID , nature , message , sendTime , isAccepted ) VALUES (" + userID + "," + 1 + ",\'" + message + "\',\'" + sendTime + "\',\'T\')";
+            statement.addBatch(sql);
+            statement.executeBatch();
+            connection.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            Conn.Close();
+        }
+    }
+
 
     public final static void insertChatMessage(String userID, String anotherID, String message, Timestamp sendTime) throws SQLException {
         try {
@@ -121,6 +144,8 @@ public class Chat {
         }
     }
 
+
+    //这里的更新毫无意义，因为仅仅是更新了最新的一条消息，但是这个消息并不会显示出来
     public static void updateContactStatus(String senderID, String anotherID) {
         try {
             Connection connection = Conn.getConnection();
@@ -181,4 +206,54 @@ public class Chat {
     }
 
 
+    public static ArrayList<ChatMessage> getChatAfterTime(String userID, String updateTime) {
+        ArrayList<ChatMessage> chatMessageArrayList=new ArrayList<ChatMessage>();
+        try {
+            Connection connection=Conn.getConnection();
+            String sql="SELECT * FROM user_"+userID+"_chatdata WHERE sendTime>? AND nature in (1,3,6) AND isAccepted!='O' ORDER BY sendTime ASC ";
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);
+            preparedStatement.setTimestamp(1, Timestamp.valueOf(updateTime));
+            ResultSet resultSet=preparedStatement.executeQuery();
+//            String senderID;
+            String anotherID;               /*/**anotherID即是senderID*(误)*/
+            byte nature;
+            String sendTime;
+            String message=null;
+            byte[] imgBytes=null;                     /**聊天图片**/
+            String isAccept = "";
+            InputStream inputStream=null;
+            ChatMessage chatMessage=null;
+            while (resultSet.next()){
+                anotherID=resultSet.getString("anotherID");
+                nature= (byte) resultSet.getInt("nature");
+                message=resultSet.getString("message");
+                inputStream=null;
+                inputStream=resultSet.getBinaryStream("img");
+                imgBytes=null;
+                if (inputStream!=null){
+                    imgBytes=new byte[inputStream.available()];
+                    inputStream.read(imgBytes,0,inputStream.available());
+                }
+                sendTime= String.valueOf(resultSet.getTimestamp("sendTime"));
+                if (message != null) {
+                    chatMessage = new ChatMessage(anotherID, nature, sendTime, message);
+                    chatMessageArrayList.add(chatMessage);
+                } else if (inputStream != null) {
+                    chatMessage = new ChatMessage(anotherID, nature, sendTime, imgBytes);
+                    chatMessageArrayList.add(chatMessage);
+                }
+            }
+            if (inputStream!=null)
+                inputStream.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in Chat.getChatAfterTime() when connection.prepareStatement(sql) !");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("error in Chat.getChatAfterTime() when inputStream.available() !");
+        } finally {
+            Conn.Close();
+        }
+        return chatMessageArrayList;
+    }
 }

@@ -15,6 +15,7 @@ public class Address {
     public static final String getFileAddress(String userID) throws SQLException {
         String messageAddress = "";
         do {
+            connection.setAutoCommit(true);
             sql = "SELECT remoteFileAddress FROM userinfo WHERE userID=?";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userID);

@@ -15,6 +15,7 @@ public class Address {
     public static final String getMessageAddress(String userID) throws SQLException {
         String messageAddress = "";
         do {
+            connection.setAutoCommit(true);
             sql = "SELECT remoteAddress FROM userinfo WHERE userID=?";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userID);

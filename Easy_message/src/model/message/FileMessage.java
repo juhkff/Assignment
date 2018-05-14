@@ -10,46 +10,26 @@ public class FileMessage {
     private String senderNickName=null;
     private String receiverID;
     private String receiverNickName=null;
-    private String senderAddress;
-    private String receiverAddress;
-    private String senderFileAddress;
-    private String receiverFileAddress;
     private String fileName;
     private String fileSize;
 
 
-    public FileMessage(String senderID, String receiverID, String senderAddress, String receiverAddress, String fileName, String fileSize) {
+    public FileMessage(String senderID, String receiverID, String fileName, String fileSize) {
         this.senderID = senderID;
         this.receiverID = receiverID;
-        this.senderAddress = senderAddress;
-        this.receiverAddress = receiverAddress;
         this.fileName = fileName;
         this.fileSize = fileSize;
     }
 
-    public FileMessage(String senderID, String senderNickName, String receiverID, String receiverNickName, String senderAddress, String receiverAddress, String fileName, String fileSize) {
+    public FileMessage(String senderID, String senderNickName, String receiverID, String receiverNickName, String fileName, String fileSize) {
         this.senderID = senderID;
         this.senderNickName = senderNickName;
         this.receiverID = receiverID;
         this.receiverNickName = receiverNickName;
-        this.senderAddress = senderAddress;
-        this.receiverAddress = receiverAddress;
         this.fileName = fileName;
         this.fileSize = fileSize;
     }
 
-    public FileMessage(String senderID, String senderNickName, String receiverID, String receiverNickName, String senderAddress, String receiverAddress, String senderFileAddress, String receiverFileAddress, String fileName, String fileSize) {
-        this.senderID = senderID;
-        this.senderNickName = senderNickName;
-        this.receiverID = receiverID;
-        this.receiverNickName = receiverNickName;
-        this.senderAddress = senderAddress;
-        this.receiverAddress = receiverAddress;
-        this.senderFileAddress = senderFileAddress;
-        this.receiverFileAddress = receiverFileAddress;
-        this.fileName = fileName;
-        this.fileSize = fileSize;
-    }
 
     public String getSenderID() {
         return senderID;
@@ -81,38 +61,6 @@ public class FileMessage {
 
     public void setReceiverNickName(String receiverNickName) {
         this.receiverNickName = receiverNickName;
-    }
-
-    public String getSenderAddress() {
-        return senderAddress;
-    }
-
-    public void setSenderAddress(String senderAddress) {
-        this.senderAddress = senderAddress;
-    }
-
-    public String getReceiverAddress() {
-        return receiverAddress;
-    }
-
-    public void setReceiverAddress(String receiverAddress) {
-        this.receiverAddress = receiverAddress;
-    }
-
-    public String getSenderFileAddress() {
-        return senderFileAddress;
-    }
-
-    public void setSenderFileAddress(String senderFileAddress) {
-        this.senderFileAddress = senderFileAddress;
-    }
-
-    public String getReceiverFileAddress() {
-        return receiverFileAddress;
-    }
-
-    public void setReceiverFileAddress(String receiverFileAddress) {
-        this.receiverFileAddress = receiverFileAddress;
     }
 
     public String getFileName() {

@@ -15,9 +15,16 @@ import java.io.PrintWriter;
 @WebServlet(name = "GetUserInfoServlet", urlPatterns = "/GetUserInfo")
 public class GetUserInfoServlet extends HttpServlet {
     public static void main(String[] args) throws Exception {
-        String userID="1578184936";
+        String userID="8133523681";
         User user=null;
         user = Login.getUserInfo(userID);
+        Gson gson = new Gson();
+        //PrintWriter pw = response.getWriter();
+        if (user != null) {
+            System.out.println(gson.toJson(user));
+        } else {
+            System.out.println("none");
+        }
         System.out.println(user.getExitTime());
     }
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

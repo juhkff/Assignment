@@ -47,9 +47,13 @@ public class ChatHistoryServlet extends HttpServlet {
             e.printStackTrace();
         }
         PrintWriter printWriter = response.getWriter();
-        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-        String chatMessageList = gson.toJson(chatMessages);
-        printWriter.print(chatMessageList);                                                             //chatMessageList: null / ChatMessage列表
+        if (chatMessages == null) {
+            printWriter.print("null");
+        } else {
+            Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+            String chatMessageList = gson.toJson(chatMessages);
+            printWriter.print(chatMessageList);                                                             //chatMessageList: null / ChatMessage列表
+        }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

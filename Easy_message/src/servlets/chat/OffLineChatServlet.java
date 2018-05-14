@@ -21,7 +21,7 @@ public class OffLineChatServlet extends HttpServlet {
         String sendTime = "2018-04-20 13:15:22";
         Timestamp timestamp = Timestamp.valueOf(sendTime);
         Chat.insertChatMessage(userID, anotherID, message, timestamp);
-        Chat.updateContactStatus(userID, anotherID);
+//        Chat.updateContactStatus(userID, anotherID);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -37,7 +37,7 @@ public class OffLineChatServlet extends HttpServlet {
         PrintWriter pw = response.getWriter();
         try {
             Chat.insertChatMessage(userID, anotherID, message, timestamp);
-            Chat.updateContactStatus(userID, anotherID);
+//            Chat.updateContactStatus(userID, anotherID);
             pw.print("success");
         } catch (SQLException e) {
             e.printStackTrace();

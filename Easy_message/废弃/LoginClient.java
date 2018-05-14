@@ -166,7 +166,7 @@ private static class ChatLocalSendTask implements Callable<Boolean> {
                 by = new byte[1024 * 8];
                 dp = new DatagramPacket(by, 0, by.length);
                 try {
-                    ds.receive(dp);
+                    ds.get(dp);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -228,7 +228,7 @@ private static class ChatLocalSendTask implements Callable<Boolean> {
  * 暂停主接收?
  **//*
 
-                    fileReceiver.receive();
+                    fileReceiver.get();
                 }
             }
         }

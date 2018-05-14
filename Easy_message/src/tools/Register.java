@@ -126,11 +126,11 @@ public class Register {
         try {
             String sql = "CREATE TABLE user_" + userID + "_Contactlist(ID varchar(11) not null comment '本user用户名' primary key ," +
                     " nickName varchar(255) not null comment '用户名/群名' , headIcon mediumblob null comment '用户头像/群头像' , types tinyint(1) unsigned not null comment '联系人类型(好友/群)' default 0 , " +
-                    " status tinyint(1) unsigned not null comment '联系人状态(上下线)' default 0 , isupdate tinyint(1) unsigned not null comment '状态是否有更新' default 0)";
+                    " status tinyint(1) unsigned not null comment '联系人状态(上下线)' default 0 , sort varchar(255) null comment '所属分组' , username not null comment '联系人备注' , isupdate tinyint(1) unsigned not null comment '状态是否有更新' default 0)";
             //PreparedStatement preparedStatement = (PreparedStatement) connection.createStatement();
             Statement statement = connection.createStatement();
             statement.addBatch(sql);
-            sql = "CREATE TABLE user_" + userID + "_ChatData(anotherID varchar(11) not null comment '另一用户的userID' , nature tinyint(1) not null comment '聊天性质(谁向谁发送信息;0代表我向他,1代表他向我,2代表我向他发文件,3代表他向我发文件,5代表我向他发图片,6代表他向我发图片)' " +
+            sql = "CREATE TABLE user_" + userID + "_ChatData(anotherID varchar(11) not null comment '另一用户的userID' , nature tinyint(1) not null comment '聊天性质(谁向谁发送信息;0代表我向他,1代表他向我,2代表我向他发在线文件,3代表他向我发在线文件,5代表我向他发图片,6代表他向我发图片,7代表我向他发离线文件,8代表他向我发离线文件)' " +
                     "default 1 , message text comment '聊天内容' , img mediumblob comment '聊天图片(表情包)' , sendTime datetime not null comment '消息发送时间' , isAccepted char(1) default 'N' comment '(特指文件是否被同意接收)' )";
             statement.addBatch(sql);
             sql = "CREATE TABLE user_" + userID + "_NoticeList(anotherID varchar(11) not null comment '发送邀请的用户的userID或群ID' , nickName varchar(255) not null comment '群名或好友名' , property tinyint(10) not null comment '性质(群邀请或好友邀请等，默认0好友邀请)' default 0 )";

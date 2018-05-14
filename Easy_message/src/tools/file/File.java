@@ -13,16 +13,18 @@ import java.util.ArrayList;
 
 public class File {
 
-    public final static void upLoadNewFile(String userID, String anotherID, String fileName) {
+    /*发送离线文件的消息存到数据库中*/
+    public final static void upLoadNewFile(String userID, String anotherID, String fileName,String sendTime,String nothingz) {
         /**fileName是文件全路径**/
         try {
-            Timestamp sendTime = new DateTime().getCurrentDateTime();
+            fileName=fileName.split("\\\\")[fileName.split("\\\\").length-1];   /**转化为文件名字**/
+            Timestamp timestamp = Timestamp.valueOf(sendTime);
             Connection connection = Conn.getConnection();
             connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
-            String sql = "INSERT INTO user_" + userID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (" + anotherID + "," + 2 + ",\'" + fileName + "\',\'" + sendTime + "\')";
+            String sql = "INSERT INTO user_" + userID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (" + anotherID + "," + 7 + ",\'" + fileName + "\',\'" + timestamp + "\')";
             statement.addBatch(sql);
-            sql = "INSERT INTO user_" + anotherID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (" + userID + "," + 3 + ",\'" + fileName + "\',\'" + sendTime + "\')";
+            sql = "INSERT INTO user_" + anotherID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (" + userID + "," + 8 + ",\'" + fileName + "\',\'" + timestamp + "\')";
             statement.addBatch(sql);
             statement.executeBatch();
             connection.commit();
@@ -34,7 +36,7 @@ public class File {
     }
 
     //上传群文件后修改数据库的操作
-    public static void upLoadNewFile(String userID, String senderID,String senderName,String fileName) {
+    public static void upLoadNewFile(String groupID, String senderID,String senderName,String fileName) {
         /**fileName是文件全路径**/
         /**userID其实是groupID**/
         try {
@@ -42,15 +44,15 @@ public class File {
             Connection connection = Conn.getConnection();
             connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
-            String sql = "INSERT INTO group_" + userID + "chatdata( senderID , senderName , sendTime , Status , Content ) VALUES (" + senderID + "," + senderName + ",\'" + sendTime + "\', 1 ,\'" + fileName + "\')";
+            String sql = "INSERT INTO group_" + groupID + "chatdata( senderID , senderName , sendTime , Status , Content ) VALUES (" + senderID + "," + senderName + ",\'" + sendTime + "\', 1 ,\'" + fileName + "\')";
             statement.addBatch(sql);
 
             /**可有可无**/
-            ResultSet resultSet=Group.getMemberIDList(userID);
+            ResultSet resultSet=Group.getMemberIDList(groupID);
             while (resultSet.next()){
                 String memberID=resultSet.getString("userID");
                 /**更改群中每个用户的表中该群的isupdate值(为了能在控制台上显示有所变化)**/
-                tools.Group.updateGroupInfo(memberID,userID);
+                Group.updateGroupInfo(memberID,groupID);
             }
 
             statement.addBatch(sql);
@@ -102,9 +104,9 @@ public class File {
             Connection connection = Conn.getConnection();
             connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
-            String sql = "INSERT INTO user_" + userID + "_chatdata ( anotherID , nature , message , sendTime , isAccepted ) VALUES (" + anotherID + "," + 0 + ",\'" + message + "\',\'" + sendTime + "\',\'N\')";
+            String sql = "INSERT INTO user_" + userID + "_chatdata ( anotherID , nature , message , sendTime , isAccepted ) VALUES (" + anotherID + "," + 2 + ",\'" + message + "\',\'" + sendTime + "\',\'N\')";
             statement.addBatch(sql);
-            sql = "INSERT INTO user_" + anotherID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (" + userID + "," + 1 + ",\'" + message + "\',\'" + sendTime + "\')";
+            sql = "INSERT INTO user_" + anotherID + "_chatdata ( anotherID , nature , message , sendTime ) VALUES (" + userID + "," + 3 + ",\'" + message + "\',\'" + sendTime + "\')";
             statement.addBatch(sql);
             statement.executeBatch();
             connection.commit();

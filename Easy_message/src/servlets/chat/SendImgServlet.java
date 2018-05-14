@@ -33,7 +33,7 @@ public class SendImgServlet extends HttpServlet {
         PrintWriter printWriter=response.getWriter();
         try {
             Chat.insertChatMessage(userID,anotherID,bytes,Timestamp.valueOf(sendTime));
-            Chat.updateContactStatus(userID,anotherID);
+//            Chat.updateContactStatus(userID,anotherID);
             printWriter.print("success");
         } catch (SQLException e) {
             e.printStackTrace();

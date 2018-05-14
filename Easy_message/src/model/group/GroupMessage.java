@@ -1,6 +1,8 @@
 package model.group;
 
 public class GroupMessage {
+    private String groupID=null;
+//    private String groupName;
     private String senderID;
     private String senderName;
     private String sendTime;
@@ -9,7 +11,8 @@ public class GroupMessage {
     private byte[] Img=null;
     private byte ifSuccess=0;
 
-    public GroupMessage(String senderID, String senderName, String sendTime, byte status, String content, byte ifSuccess) {
+    public GroupMessage(String groupID,String senderID, String senderName, String sendTime, byte status, String content, byte ifSuccess) {
+        this.groupID=groupID;
         this.senderID = senderID;
         this.senderName = senderName;
         this.sendTime = sendTime;
@@ -18,13 +21,22 @@ public class GroupMessage {
         this.ifSuccess = ifSuccess;
     }
 
-    public GroupMessage(String senderID, String senderName, String sendTime, byte status, byte[] img, byte ifSuccess) {
+    public GroupMessage(String groupID,String senderID, String senderName, String sendTime, byte status, byte[] img, byte ifSuccess) {
+        this.groupID=groupID;
         this.senderID = senderID;
         this.senderName = senderName;
         this.sendTime = sendTime;
         Status = status;
         Img = img;
         this.ifSuccess = ifSuccess;
+    }
+
+    public String getGroupID() {
+        return groupID;
+    }
+
+    public void setGroupID(String groupID) {
+        this.groupID = groupID;
     }
 
     public String getSenderID() {

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 @WebServlet(name = "UnreadNoticeServlet", urlPatterns = "/GetNotice")
 public class UnreadNoticeServlet extends HttpServlet {
     public static void main(String[] args) throws SQLException {
-        String userID = "8076357234";
+        String userID = "2464802094";
         Timestamp timestamp = null;
         timestamp = Login.getExitTime(userID);
         ArrayList<NoticeMessage> noticeMessages = null;

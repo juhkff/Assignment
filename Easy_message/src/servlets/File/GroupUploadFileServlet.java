@@ -120,7 +120,7 @@ public class GroupUploadFileServlet extends HttpServlet {
             }
 
             tools.file.File.upLoadNewFile(userID, senderID,senderName,fileName);
-            Chat.updateContactStatus(userID, anotherID);
+//            Chat.updateContactStatus(userID, anotherID);
 
             PrintWriter pw = response.getWriter();
             pw.print("success");

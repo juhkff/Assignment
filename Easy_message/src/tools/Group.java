@@ -79,6 +79,41 @@ public class Group {
         return groupArrayList;
     }
 
+    public static ArrayList<SimpleGroup> searchGroupList(String userID,String searchID) {
+        ArrayList<SimpleGroup> groupArrayList = new ArrayList<SimpleGroup>();
+        try {
+            Connection connection = Conn.getConnection();
+            String sql = "SELECT * FROM groups WHERE groupID NOT IN ( SELECT ID FROM user_" + userID + "_contactlist WHERE types=1 ) AND groupID LIKE \'%"+searchID+"%\'";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String groupID;
+            String groupName;
+            //String groupIntro;
+            byte[] groupIcon;
+            while (resultSet.next()) {
+                groupID = resultSet.getString("groupID");
+                groupName = resultSet.getString("groupName");
+                groupIcon = null;
+                InputStream inputStream = resultSet.getBinaryStream("groupIcon");
+                if (inputStream != null) {
+                    groupIcon = new byte[inputStream.available()];
+                    inputStream.read(groupIcon, 0, inputStream.available());
+                }
+                SimpleGroup group = new SimpleGroup(groupID, groupName, groupIcon);
+                groupArrayList.add(group);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in tools\\Group.java");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("error in tools\\Group.java when new byte[inputStream.available]");
+        } finally {
+            Conn.Close();
+        }
+        return groupArrayList;
+    }
+
     //生成新的不重复的群号码
     public static final String createNewGroupID() throws SQLException {
         String groupID = null;
@@ -158,8 +193,9 @@ public class Group {
                     "  primary key," +
                     "  userName varchar(255) not null," +
                     "  userHeadIcon mediumblob null," +
-                    "  userStatus tinyint(2) default '0' not null comment '用户上下线,0下线,1上线' " +
-                    "  comment '0为普通成员，1为管理员，2为群主'" +
+                    "  userStatus tinyint(2) default '0' not null comment '0为普通成员，1为管理员，2为群主'" +
+                    "  userOnline tinyint(1) default '0' not null comment '用户上下线,0下线,1上线' " +
+                    "  isUpdate tinyint(1) default '0' not null comment '群成员信息是否有变化' " +
                     ")";
             statement.addBatch(sql);
             InputStream inputStream = null;
@@ -205,13 +241,38 @@ public class Group {
             preparedStatement.setInt(4, 0);
             int result = preparedStatement.executeUpdate();
 
-            /**将群添加到用户的联系人(群)列表中**/
-            sql="INSERT INTO user_"+userID+"_contactlist(ID,nickName,headIcon,types) VALUES (?,?,?,?)";
-            preparedStatement=connection.prepareStatement(sql);
-            preparedStatement.setString(1,groupID);
+//            /**将群添加到用户的联系人(群)列表中**/
+//            sql="INSERT INTO user_"+userID+"_contactlist(ID,nickName,headIcon,types,isupdate) VALUES (?,?,?,?,1)";
+//            preparedStatement=connection.prepareStatement(sql);
+//            preparedStatement.setString(1,groupID);
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("error in Group.joinGroup!");
+        } finally {
+            Conn.Close();
+        }
+    }
+
+    public static void addGroup(String userID, model.group.Group group) {
+        try {
+            Connection connection=Conn.getConnection();
+            String sql="INSERT INTO user_"+userID+"_contactlist(ID,nickName,headIcon,types,username,isupdate) VALUES (?,?,?,?,?,1)";
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);
+            preparedStatement.setString(1,group.getGroupID());
+            preparedStatement.setString(2,group.getGroupName());
+            InputStream inputStream=null;
+            byte[] bytes=group.getGroupIcon();
+            if (bytes!=null)
+                inputStream=new ByteArrayInputStream(bytes);
+            preparedStatement.setBinaryStream(3,inputStream);
+            preparedStatement.setInt(4,1);
+            preparedStatement.setString(5,group.getGroupName());
+
+            int result=preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in Group.addGroup() !");
         } finally {
             Conn.Close();
         }
@@ -416,6 +477,7 @@ public class Group {
             ResultSet resultSet = preparedStatement.executeQuery();
             String userID;
             String userName;
+            boolean isOnline;
             byte[] userHeadIcon;
             byte userStatus;
             InputStream inputStream;
@@ -431,8 +493,8 @@ public class Group {
                     inputStream.close();
                 }
                 userStatus = (byte) resultSet.getInt("userStatus");
-
-                GroupMember groupMember = new GroupMember(userID, userName, userHeadIcon, userStatus);
+                isOnline=resultSet.getBoolean("Online");
+                GroupMember groupMember = new GroupMember(userID, userName, userHeadIcon, userStatus,isOnline);
                 groupMemberList.put(userID, groupMember);
             }
         } catch (SQLException e) {
@@ -502,10 +564,10 @@ public class Group {
                 }
                 byte ifSuccess= (byte) resultSet.getInt("ifSuccess");
                 if(Content!=null) {
-                    GroupMessage groupMessage = new GroupMessage(senderID, senderName, sendTime, Status, Content, ifSuccess);
+                    GroupMessage groupMessage = new GroupMessage(groupID,senderID, senderName, sendTime, Status, Content, ifSuccess);
                     groupMessages.add(groupMessage);
                 }else if(inputStream!=null){
-                    GroupMessage groupMessage = new GroupMessage(senderID, senderName, sendTime, Status, Img, ifSuccess);
+                    GroupMessage groupMessage = new GroupMessage(groupID,senderID, senderName, sendTime, Status, Img, ifSuccess);
                     groupMessages.add(groupMessage);
                 }
             }
@@ -546,10 +608,10 @@ public class Group {
                 }
                 byte ifSuccess= (byte) resultSet.getInt("ifSuccess");
                 if(Content!=null) {
-                    GroupMessage groupMessage = new GroupMessage(senderID, senderName, sendTime, Status, Content, ifSuccess);
+                    GroupMessage groupMessage = new GroupMessage(groupID,senderID, senderName, sendTime, Status, Content, ifSuccess);
                     groupMessages.add(groupMessage);
                 }else if(inputStream!=null){
-                    GroupMessage groupMessage = new GroupMessage(senderID, senderName, sendTime, Status, Img, ifSuccess);
+                    GroupMessage groupMessage = new GroupMessage(groupID,senderID, senderName, sendTime, Status, Img, ifSuccess);
                     groupMessages.add(groupMessage);
                 }
             }
@@ -691,30 +753,6 @@ public class Group {
         }
     }
 
-    public static void addGroup(String userID, model.group.Group group) {
-        try {
-            Connection connection=Conn.getConnection();
-            String sql="INSERT INTO user_"+userID+"_contactlist(ID,nickName,headIcon,types) VALUES (?,?,?,?)";
-            PreparedStatement preparedStatement=connection.prepareStatement(sql);
-            preparedStatement.setString(1,group.getGroupID());
-            preparedStatement.setString(2,group.getGroupName());
-            InputStream inputStream=null;
-            byte[] bytes=group.getGroupIcon();
-            if (bytes!=null)
-                inputStream=new ByteArrayInputStream(bytes);
-            preparedStatement.setBinaryStream(3,inputStream);
-            preparedStatement.setInt(4,1);
-
-            int result=preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("error in Group.addGroup() !");
-        } finally {
-            Conn.Close();
-        }
-    }
-
     public static void quitGroup(String userID, String groupID) {
         try {
             Connection connection=Conn.getConnection();
@@ -775,4 +813,60 @@ public class Group {
             Conn.Close();
         }
     }
+
+    public static ArrayList<GroupMember> checkUpdatedMember(String groupID) {
+        ArrayList<GroupMember> groupMemberArrayList=new ArrayList<GroupMember>();
+        try {
+            Connection connection=Conn.getConnection();
+            String sql="SELECT * FROM group_?_member WHERE isUpdate=1";
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);
+            preparedStatement.setString(1,groupID);
+            ResultSet resultSet=preparedStatement.executeQuery();
+            String userID,userName;
+            byte[] userHeadIcon=null;
+            byte userStatus;
+            boolean userOnline;
+            InputStream inputStream=null;
+            while (resultSet.next()){
+                userID=resultSet.getString("userID");
+                userName=resultSet.getString("userName");
+                userHeadIcon=null;
+                inputStream=null;
+                inputStream=resultSet.getBinaryStream("userHeadIcon");
+                if(inputStream!=null){
+                    userHeadIcon=new byte[inputStream.available()];
+                    inputStream.read(userHeadIcon,0,inputStream.available());
+                }
+                userStatus= (byte) resultSet.getInt("userStatus");
+                userOnline=resultSet.getBoolean("userOnline");
+                GroupMember groupMember=new GroupMember(userID,userName,userHeadIcon,userStatus,userOnline);
+                groupMemberArrayList.add(groupMember);
+            }
+            if(inputStream!=null) {
+                inputStream.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in Group.checkUpdatedMember() when connection.prepareStatement() !");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("error in Group.checkUpdatedMember() when inputStream.available() !");
+        } finally {
+            Conn.Close();
+        }
+        return groupMemberArrayList;
+    }
+
+    public static void updateGroupMemberInfo(String groupID) {
+        try {
+            Connection connection=Conn.getConnection();
+            String sql="UPDATE group_"+groupID+"_member SET isUpdate=0 WHERE isUpdate=1";
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);
+            int result=preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in Group.updateGroupMemberInfo when connection.prepareStatement(sql) !");
+        }
+    }
+
 }

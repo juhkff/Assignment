@@ -1,7 +1,74 @@
 //用户登录时取得自己的局域网地址(包括IP和端口)
 //这个方法是从网络上搬运的
 
+
+
 public class DropCodes {
+
+
+
+    //发送消息的线程
+    private static class SendThread implements Runnable {
+        private int index;
+        private DatagramSocket ds;
+        private SocketAddress socketAddress;
+        private String senderID;
+        private String anotherID;
+        private byte nature;
+        private String sendTime;
+        private String message;
+        private DatagramPacket dp = null;
+        private DatagramPacket recevdp = null;
+        private byte[] receibytes = new byte[1024 * 6];
+        private byte[] bytes = null;
+        private ChatMessage chatMessage;
+        private Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+
+        public SendThread(int index, DatagramSocket messageds, SocketAddress messageSocketAddress, String senderID, String anotherID, byte nature, String sendTime, String message) {
+            this.index = index;
+            this.ds = messageds;
+            this.socketAddress = messageSocketAddress;
+            this.senderID = senderID;
+            this.anotherID = anotherID;
+            this.nature = nature;
+            this.sendTime = sendTime;
+            this.message = message;
+            this.chatMessage = new ChatMessage(senderID, anotherID, nature, sendTime, message);
+        }
+
+        @Override
+        public void run() {
+            String content = gson.toJson(chatMessage);
+            bytes = ("Chat/" + this.index + "/" + content).getBytes();
+            dp = new DatagramPacket(bytes, 0, bytes.length, socketAddress);
+            try {
+                ds.send(dp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (!ifis.get(this.index)) {          /** ==false **/
+                System.out.println("外网发送无效，尝试数据库离线式发送...");                 /**其实是更新数据库的状态栏**/
+                Map<String, String> parameters3 = new HashMap<String, String>();
+                parameters3.put("userID", senderID);
+                parameters3.put("anotherID", anotherID);
+                parameters3.put("message", message);
+                parameters3.put("sendTime", sendTime);
+                Request request3 = new Request(URL_ADDRESS + "/updateContactStatus", parameters3, RequestProperty.APPLICATION);
+                String result3 = request3.doPost();               //result2 : success / false;
+                System.out.println(result3);
+            } else {
+                System.out.println("外网发送成功!");
+            }
+            ifis.remove(this.index);
+        }
+
+    }
+
     public static InetAddress getLocalHostAddress() throws UnknownHostException {
         Enumeration allNetInterfaces;
         try {
@@ -407,16 +474,48 @@ public class DropCodes {
         Conn.Close();
         return userList;
     }
+
+
+    //处理局域网通信的识别问题
+    //如果接收方的IP和本机IP前三位相同，则认为在同一个局域网内   可行度低，因为并不能确保这样就一定在一个局域网内
+    /*设置一个全局环境变量Set<String userID>.当点开一个聊天窗口就开启一个线程，由本用户发送"LocalConnect:userID"到消息服务器，服务器解析后取得对应userID的公网地址，向其
+    发送数据包令其向本用户发送"TryLocalConnect:userID"的数据包.本用户若接收到此数据包，则将userID添加到Set中(若key已存在，则更新value).表示可以与其进行局域网消息发送，并
+    向服务器发送"ConnectSuccess:userID(me)userID(him/her)/"的数据包，服务器收到此数据包后开启一个监听局域网连接的线程(此线程可结束)，在此线程中取出并局部存储本机userID+
+    局域网地址及连接到的用户的userID+其局域网地址，然后每隔一定时间再取出用户的局域网地址进行比较，若相同则跳过，若不同则查出并用while循环向向本机公网地址发送
+    "ChangeLocalConnect:userID"，本机接收后向服务器发送"I_KNOW_LOCAL_CHANGE"，获取userID，移除Set中的相应userID，并再次开启发送"LocalConnect:userID"的线程.服务器获取
+    "I_KNOW_LOCAL_CHANGE"则将用户表中isKnown改为true
+    在打开至少一个聊天界面时，另一个监听线程应持续运行，此线程作用为每隔一段时间
+    */
+
+
+    UploadFileRequest uploadFileRequest = new UploadFileRequest(fileName);                  //指定文件
+    String response = uploadFileRequest.upLoadFile(userID, anotherID);                                 //指定用户userID
+    System.out.println(response);
+
+
+
+
+    while(true)
+
+    {
+        System.out.println("client send exit message ....");
+        dpk.setData(UDPUtils.exitData, 0, UDPUtils.exitData.length);
+        fileds.send(dpk);
+
+        dpk.setData(receiveBuf, 0, receiveBuf.length);
+        fileds.receive(dpk);
+        // byte[] receiveData = dpk.getData();
+        if (!UDPUtils.isEqualsByteArray(UDPUtils.exitData, receiveBuf, dpk.getLength())) {
+            System.out.println("client Resend exit message ....");
+            fileds.send(dpk);
+        } else
+            break;
+    }
+
+
+
+    //建立监听本机局域网地址的线程
+    LocalAddressThread localAddressThread = new LocalAddressThread(userID, "/findMyLocalIP");
+    Thread thread2 = new Thread(localAddressThread);
+    thread2.start();
 }
-
-
-//处理局域网通信的识别问题
-//如果接收方的IP和本机IP前三位相同，则认为在同一个局域网内   可行度低，因为并不能确保这样就一定在一个局域网内
-            /*设置一个全局环境变量Set<String userID>.当点开一个聊天窗口就开启一个线程，由本用户发送"LocalConnect:userID"到消息服务器，服务器解析后取得对应userID的公网地址，向其
-            发送数据包令其向本用户发送"TryLocalConnect:userID"的数据包.本用户若接收到此数据包，则将userID添加到Set中(若key已存在，则更新value).表示可以与其进行局域网消息发送，并
-            向服务器发送"ConnectSuccess:userID(me)userID(him/her)/"的数据包，服务器收到此数据包后开启一个监听局域网连接的线程(此线程可结束)，在此线程中取出并局部存储本机userID+
-            局域网地址及连接到的用户的userID+其局域网地址，然后每隔一定时间再取出用户的局域网地址进行比较，若相同则跳过，若不同则查出并用while循环向向本机公网地址发送
-            "ChangeLocalConnect:userID"，本机接收后向服务器发送"I_KNOW_LOCAL_CHANGE"，获取userID，移除Set中的相应userID，并再次开启发送"LocalConnect:userID"的线程.服务器获取
-            "I_KNOW_LOCAL_CHANGE"则将用户表中isKnown改为true
-            在打开至少一个聊天界面时，另一个监听线程应持续运行，此线程作用为每隔一段时间
-            */

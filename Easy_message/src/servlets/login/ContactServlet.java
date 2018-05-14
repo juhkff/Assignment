@@ -25,11 +25,11 @@ import java.util.Map;
 
 @WebServlet(name = "ContactServlet", urlPatterns = "/ContactList")
 public class ContactServlet extends HttpServlet {
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
         ArrayList<Contact> contactList = null;
         Map<String, Contact> contacts = new HashMap<String, Contact>();
-        String userID="2461247724";
+        String userID = "2461247724";
         try {
             contactList = Login.getContactList(userID);
         } catch (SQLException e) {
@@ -37,6 +37,8 @@ public class ContactServlet extends HttpServlet {
             e.printStackTrace();
         }
         if (contactList != null) {
+            for (Contact contact : contactList)
+                System.out.println("每个列元：" + contact.getID() + "\t" + contact.getNickName() + "\t" + contact.getTypes() + "\t" + contact.isStatus());
             Connection connection = Conn.getConnection();
             String sql = "SELECT * FROM user_" + userID + "_chatdata WHERE sendTime IN ( SELECT MAX(sendTime) FROM user_" + userID + "_chatdata GROUP BY anotherID ) GROUP BY anotherID ";
             PreparedStatement preparedStatement = null;
@@ -61,6 +63,7 @@ public class ContactServlet extends HttpServlet {
                 }
                 for (Contact contact : contactList) {
                     contacts.put(contact.getID(), contact);
+                    System.out.println("每个列元2：" + contact.getID() + "\t" + contact.getNickName() + "\t" + contact.getTypes() + "\t" + contact.isStatus());
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -71,6 +74,7 @@ public class ContactServlet extends HttpServlet {
 
             Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();                    //创建Gson对象
 //            PrintWriter pw = response.getWriter();
+            System.out.println("发送前");
             System.out.println(gson.toJson(contacts));                                                         //向前端发送Gson对象
         } else {
 //            PrintWriter printWriter = response.getWriter();
@@ -78,7 +82,7 @@ public class ContactServlet extends HttpServlet {
         }
     }
 
-    ArrayList<Contact> contactList=null;
+    ArrayList<Contact> contactList = null;
     Map<String, Contact> contacts = new HashMap<String, Contact>();
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -87,14 +91,15 @@ public class ContactServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         String userID = request.getParameter("userID");
         try {
+            System.out.println("开始获取列表");
             contactList = Login.getContactList(userID);
         } catch (SQLException e) {
             System.out.println("获取联系人列表失败!servlets.login.ContactServlet");
             e.printStackTrace();
         }
         if (contactList != null) {
-            for (Contact contact:contactList)
-                System.out.println("每个列元："+contact.getID()+"\t"+contact.getNickName()+"\t"+contact.getTypes()+"\t"+contact.isStatus());
+            for (Contact contact : contactList)
+                System.out.println("每个列元：" + contact.getID() + "\t" + contact.getNickName() + "\t" + contact.getTypes() + "\t" + contact.isStatus());
             Connection connection = Conn.getConnection();
             String sql = "SELECT * FROM user_" + userID + "_chatdata WHERE sendTime IN ( SELECT MAX(sendTime) FROM user_" + userID + "_chatdata GROUP BY anotherID ) GROUP BY anotherID ";
             PreparedStatement preparedStatement = null;
@@ -115,11 +120,10 @@ public class ContactServlet extends HttpServlet {
                             break;
                         }
                     }
-
                 }
                 for (Contact contact : contactList) {
                     contacts.put(contact.getID(), contact);
-                    System.out.println("每个列元2："+contact.getID()+"\t"+contact.getNickName()+"\t"+contact.getTypes()+"\t"+contact.isStatus());
+                    System.out.println("每个列元2：" + contact.getID() + "\t" + contact.getNickName() + "\t" + contact.getTypes() + "\t" + contact.isStatus());
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

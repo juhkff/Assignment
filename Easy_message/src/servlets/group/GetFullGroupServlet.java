@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import model.group.Group;
 import test.Client.LoginClient;
+import wrapper.StaticVariable;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import static wrapper.StaticVariable.*;
 
 @WebServlet(name = "GetFullGroupServlet",urlPatterns = "/GetFullGroup")
 public class GetFullGroupServlet extends HttpServlet {
@@ -79,7 +81,7 @@ public class GetFullGroupServlet extends HttpServlet {
         *//**最佳结果: 获得与trans_bytes即2中相同的结果...**//*
         System.out.println("最佳结果: 获得的5与trans_bytes即2中相同的结果...");*/
 
-        String URL_ADDRESS=LoginClient.URL_ADDRESS;
+        String URL_ADDRESS=StaticVariable.URL_ADDRESS;
         String groupID="950876";
         String groupName="Test";
         byte[] groupIcon=null;

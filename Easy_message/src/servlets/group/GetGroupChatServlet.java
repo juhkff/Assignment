@@ -1,7 +1,6 @@
 package servlets.group;
 
 import com.google.gson.Gson;
-import model.group.GroupMember;
 import model.group.GroupMessage;
 import tools.Group;
 
